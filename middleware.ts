@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { ACCESS_TOKEN_ENV, bearerFrom, decideAccess, isPublicPath, SESSION_COOKIE } from '@/lib/auth';
+import { ACCESS_TOKEN_ENV, bearerFrom, decideAccess, isPublicPath, SESSION_COOKIE } from './lib/auth';
 
 /**
  * One gate in front of every page and API route. See lib/auth.ts for why this
