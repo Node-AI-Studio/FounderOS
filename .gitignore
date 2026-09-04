@@ -21,3 +21,4 @@ dir-sidebar.jpeg
 
 # Local dev server log
 .devserver.log
+.vercel
