@@ -301,7 +301,9 @@ ssh paperclip 'export PATH=$HOME/.local/bin:$PATH; paperclipai auth whoami'
 ```
 Expected: your admin identity.
 
-- [ ] **Step 5: Create a long-lived board API key for scripts and store it**
+- [ ] **Step 5 (optional): Create a long-lived board API key for scripts and store it**
+
+The browser approval in step 4 already creates and stores a board key named `paperclipai cli (instance admin)` that every later CLI command uses. This step is only needed if you want a second key for external scripts. If you skip it, make sure `PAPERCLIP_API_KEY` is **not** set in `~/.profile`: an empty or wrong value there overrides the stored login and produces `Agent token did not verify`. The JSON field returned by `token board create --json` is `key`.
 
 ```bash
 ssh paperclip 'export PATH=$HOME/.local/bin:$PATH; paperclipai token board create --name pilot-admin --json | jq -r .token | { read -r T; echo "export PAPERCLIP_API_KEY=$T" >> ~/.profile; }; chmod 600 ~/.profile; paperclipai context set --api-key-env-var-name PAPERCLIP_API_KEY && paperclipai context show'
@@ -322,12 +324,18 @@ Expected: `[]` or a list, not an auth error.
 **Interfaces:**
 - Produces: `COMPANY_ID`, `GOAL_ID`, `PROJECT_ID` (GUIDs). Later tasks read them from `~/pilot.env` on the box.
 
-- [ ] **Step 1: Create the company and capture its id**
+- [ ] **Step 1: Find or create the company and capture its id**
+
+If the admin went through Paperclip's first-run wizard even one step, a company already exists. Check first and reuse it rather than creating a duplicate:
 
 ```bash
-ssh paperclip 'source ~/.profile && paperclipai company create --payload-json "{\"name\":\"Node AI\"}" --json | jq -r .id | tee -a /dev/stderr | sed "s/^/export COMPANY_ID=/" >> ~/pilot.env'
+ssh paperclip 'source ~/.profile && paperclipai company list --json | jq -c ".[] | {id, name}"'
 ```
-Expected: a GUID printed.
+If a company is listed, record its id: `echo "export COMPANY_ID=<id>" > ~/pilot.env`. Only if the list is empty:
+```bash
+ssh paperclip 'source ~/.profile && paperclipai company create --payload-json "{\"name\":\"Node AI\"}" --json | jq -r .id | sed "s/^/export COMPANY_ID=/" > ~/pilot.env'
+```
+Expected either way: `~/pilot.env` holds one `COMPANY_ID` line. `chmod 600 ~/pilot.env`.
 
 - [ ] **Step 2: Make it the default company in the context**
 
@@ -398,6 +406,8 @@ ssh paperclip 'gh auth login --with-token && gh auth setup-git && gh auth status
 Expected: `Logged in to github.com`.
 
 - [ ] **Step 5: Clone the repo**
+
+`Node-AI-Studio/FounderOS` is public, so the clone needs no token and can run before steps 1 to 4. The token is only needed to push branches and open PRs (agents do that; step 4's `gh auth setup-git` provides it).
 
 ```bash
 ssh paperclip 'mkdir -p ~/repos && git clone https://github.com/Node-AI-Studio/FounderOS.git ~/repos/founderos && cd ~/repos/founderos && git switch main && git log --oneline -1'
