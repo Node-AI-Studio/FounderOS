@@ -382,7 +382,13 @@ Expected: name `founderos`, the goal id present.
 
 - [ ] **Step 1: Create a fine-grained GitHub token (you, in the browser)**
 
-GitHub → Settings → Developer settings → Fine-grained tokens → Generate. Repository access: only `Node-AI-Studio/FounderOS`. Permissions: Contents read and write, Pull requests read and write, Metadata read. Expiry: 30 days. Copy it once.
+GitHub → Settings → Developer settings → Fine-grained tokens → Generate. Repository access: only `Node-AI-Studio/FounderOS`. Permissions: **Contents: Read and write**, **Pull requests: Read and write**, Metadata read (added automatically). Expiry: 30 days. Copy it once.
+
+The trap, hit on 2026-09-09: a fine-grained token defaults every permission to "No access". If Contents is left at read, or not set, the token can read the repo but every `git push` fails with `Permission to ... denied` even for a plain branch, and it looks like an account problem when it is a token-scope problem. Verify the scope directly rather than trusting the UI:
+```bash
+ssh paperclip 'curl -s -I -H "Authorization: token $(gh auth token)" https://api.github.com/repos/Node-AI-Studio/FounderOS | grep -i x-accepted-github-permissions'
+```
+Expected to include `contents=write` and `pull_requests=write`. If it shows only `metadata=read`, edit the token's permissions on GitHub; the token value does not change, so nothing needs re-pushing.
 
 - [ ] **Step 2: Store it as a Paperclip secret without it touching shell history**
 
@@ -917,19 +923,31 @@ git add ops/paperclip/pilot-backlog.md
 git commit -m "chore(paperclip): first ten pilot tickets"
 ```
 
-- [ ] **Step 3: Enter the issues by CLI**
+- [ ] **Step 3: Enter the issues by CLI, in `backlog`, unassigned**
 
-For each of the ten, run (title and description from the file):
-```bash
-ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai issue create --company-id "$COMPANY_ID" --title "<title>" --description "<full text of the item>" --status todo --priority medium --json | jq -r .id'
-```
-Then assign each issue to console-engineer and the founderos project. The documented `issue create` and `issue update` flags do not include an assignee, so do this **in the UI**: open each issue, set Assignee to `console-engineer` and Project to `founderos`. Ten issues, about two minutes.
+`issue create --help` on this build shows the flags the reference doc omits: `--assignee-agent-id`, `--project-id`, `--goal-id`, `--parent-id`. Create the issues in `backlog` with **no assignee**: `backlog` carries no pickup expectation, so the console-engineer's heartbeat cannot grab work before the supervised first run in Task 15. Task 15 moves one issue to `todo` and assigns it deliberately.
 
-Optionally try the undocumented payload form once on the first issue; if it is accepted, use it for the other nine:
+Parse the backlog file into JSON on the Mac, copy it over, and loop on the box. Two traps from execution: print nothing to stdout while writing the JSON file, and never run `ssh` inside a `while read` loop that reads from the same stdin (it consumes the loop's input). Use `ssh -n` and feed `paperclipai` with `</dev/null`.
+
 ```bash
-ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai issue update <first-issue-id> --payload-json "{\"assigneeAgentId\":\"$CONSOLE_ID\",\"projectId\":\"$PROJECT_ID\"}" && paperclipai issue get <first-issue-id> --json | jq "{assigneeAgentId, projectId}"'
+python3 - <<'PY'
+import re, json, sys
+txt = open("ops/paperclip/pilot-backlog.md", encoding="utf-8").read()
+body = txt.split("\n\n", 2)[-1]
+items = re.split(r"\n(?=\d+\. )", body.strip())
+out = []
+for it in items:
+    m = re.match(r"(\d+)\. (.*)", it, re.S)
+    n, text = int(m.group(1)), re.sub(r"\s+", " ", m.group(2)).strip()
+    title = re.split(r"\. ", text, maxsplit=1)[0][:90]
+    out.append({"title": f"Pilot {n}: {title}", "description": text})
+json.dump(out, open("/tmp/pilot-items.json", "w"))
+print(len(out), "items", file=sys.stderr)
+PY
+scp -q /tmp/pilot-items.json paperclip:~/pilot-items.json
+ssh -n paperclip 'source ~/.profile && source ~/pilot.env && jq -c ".[]" ~/pilot-items.json | while read -r row; do T=$(printf "%s" "$row" | jq -r .title); D=$(printf "%s" "$row" | jq -r .description); paperclipai issue create --company-id "$COMPANY_ID" --project-id "$PROJECT_ID" --goal-id "$GOAL_ID" --title "$T" --description "$D" --status backlog --priority medium --json </dev/null | jq -r .identifier; done; rm -f ~/pilot-items.json'
 ```
-Expected if it works: both ids echoed back. If it errors, ignore and use the UI.
+Expected: ten identifiers such as `NOD-3` to `NOD-12`.
 
 - [ ] **Step 4: Verify**
 
