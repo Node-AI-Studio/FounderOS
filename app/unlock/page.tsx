@@ -19,7 +19,7 @@ export default function UnlockPage({ searchParams }: { searchParams?: { next?: s
         <input type="hidden" name="next" value={safeNext} />
 
         <p className="font-mono text-[10.5px] uppercase tracking-[0.16em] text-[var(--text-3)]">// locked</p>
-        <h1 className="mt-1 font-mono text-2xl tracking-[0.08em] text-[var(--text-1)]">FOUNDER OS</h1>
+        <h1 className="mt-1 font-mono text-2xl tracking-[0.08em] text-[var(--text-1)]">NODE AI OS</h1>
         <p className="mt-3 font-mono text-xs leading-relaxed text-[var(--text-3)]">
           This instance holds live credentials. Enter its access token to continue.
         </p>
