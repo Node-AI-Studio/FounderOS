@@ -32,7 +32,7 @@ whether to.
 | Host | Hetzner CPX42: 8 vCPU, 16 GB, 320 GB. Ubuntu 26.04. |
 | Network | Tailscale. No public inbound. Hetzner firewall denies all except the tailnet. |
 | Runtime | Node 24.11+ and pnpm 9.15+ for Paperclip only. founderos stays on Node 20 and npm. |
-| Install | From a commit-pinned GitHub ref, not `curl \| bash`. Pin recorded in this file when chosen. |
+| Install | From a commit-pinned GitHub ref, not `curl \| bash`. Pinned to `fac07b42ad41` (2026-09-09T16:02:59Z). |
 | Onboard | `paperclipai onboard --yes --bind tailnet` |
 | Database | Paperclip's embedded Postgres. Adequate for the pilot; revisit before any client. |
 | Cost | About EUR 37 for two weeks. Delete the box after, or keep it if the pilot passes. |
