@@ -225,13 +225,16 @@ git add docs/superpowers/specs/2026-09-09-paperclip-pilot-design.md
 git commit -m "docs(spec): pin the Paperclip commit for the pilot"
 ```
 
-- [ ] **Step 3: Install Paperclip at that commit**
+- [ ] **Step 3: Install Paperclip at a pinned published version**
+
+A source build (`--ref <sha>`) fails on this box with `cargo: not found`: `packages/paperclip-runner` builds a Rust daemon the pilot does not use. Install the published payload instead; it is equally immutable and ships that binary prebuilt.
 
 ```bash
+VER=$(npm view paperclipai version) && sed -i '' "s|^PAPERCLIP_VERSION=.*|PAPERCLIP_VERSION=$VER|" ops/paperclip/pilot.env
 source ops/paperclip/pilot.env
-ssh paperclip "npx --registry https://registry.npmjs.org paperclipai install --ref $PAPERCLIP_COMMIT && ~/.local/bin/paperclipai --version"
+ssh paperclip "npx --registry https://registry.npmjs.org paperclipai install --version $PAPERCLIP_VERSION --yes && ~/.local/bin/paperclipai --version"
 ```
-Expected: a build, then a version string. If `~/.local/bin` is not on PATH, run `echo "export PATH=\$HOME/.local/bin:\$PATH" >> ~/.profile` and reconnect.
+Expected: an install (no compile), then the version string. `--yes` is required in non-interactive shells; without it the installer stops at a consent prompt and exits 0, which looks like success if you only read the tail. If `~/.local/bin` is not on PATH, run `echo "export PATH=\$HOME/.local/bin:\$PATH" >> ~/.profile` and reconnect.
 
 - [ ] **Step 4: Onboard in tailnet mode with the service**
 
