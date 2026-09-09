@@ -25,6 +25,11 @@ export function PageHeader({
         <h1 className={`text-[25px] font-bold uppercase leading-[1.1] tracking-[0.06em]${caret ? ' caret-blink' : ''}`}>
           {title}
         </h1>
+        {process.env.FOUNDER_OS_DEMO_SEED === '1' && (
+          <span className="mt-2 inline-block border border-os-warn px-2 py-1 font-mono text-[10px] font-bold tracking-widest text-os-warn">
+            DEMO DATA
+          </span>
+        )}
       </div>
       {right && (
         <div className={rightWide ? 'flex min-w-0 flex-1 items-start' : 'flex shrink-0 items-center gap-2'}>
