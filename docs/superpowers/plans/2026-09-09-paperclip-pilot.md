@@ -1014,6 +1014,15 @@ and open the PR, set it to `todo` and wake it. Every worker instruction file
 is now subordinate to the repo's own `AGENTS.md`; check it before the first
 run on any new repo.
 
+**Also observed:** the required `verify` check never ran on PR #1 because
+GitHub keeps workflows off on a forked repo until someone opens the Actions
+tab and clicks enable, even though the API reports Actions as enabled. A
+manual `gh workflow run` works in that state but does not satisfy the PR
+check. After the click, close and reopen the PR to fire `pull_request`.
+Main also requires one approving review, so a PR authored by Cristoforo
+needs Niek or the org account to approve; agent PRs are authored by the org
+token, so Cristoforo approves those.
+
 - [ ] **Step 4: Review it yourself, merge or request changes**
 
 Merge with `gh pr merge <number> --squash --delete-branch` if it is right. If not, comment and set the ticket back to `todo`; the agent will pick it up on its next heartbeat. This is the human gate the spec requires.
