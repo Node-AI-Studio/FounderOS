@@ -1001,6 +1001,19 @@ ssh paperclip 'source ~/.profile && paperclipai issue get "$(cat ~/first-issue)"
 ```
 Expected: one PR whose title starts with the issue identifier; ticket status `in_review`.
 
+**Observed on the first run (NOD-3):** the agent committed `cf11412` with 940
+tests green, then stopped at `in_review` with no push and no PR, "waiting for
+Alex's push approval". Cause: the repo root `AGENTS.md`, inherited from the
+FounderOS upstream, said "Never push to any remote or touch `main` without
+Alex's explicit yes", and Codex reads that file over the Paperclip
+instructions. Fix: rewrite `AGENTS.md` for Node AI (push only `agent/<id>`
+branches, PR against `main`, no further approval) and land it on `main`
+(PR #1). Then `git pull --ff-only` in `/home/paperclip/repos/founderos`,
+comment on the ticket telling the agent to rebase onto `origin/main`, push
+and open the PR, set it to `todo` and wake it. Every worker instruction file
+is now subordinate to the repo's own `AGENTS.md`; check it before the first
+run on any new repo.
+
 - [ ] **Step 4: Review it yourself, merge or request changes**
 
 Merge with `gh pr merge <number> --squash --delete-branch` if it is right. If not, comment and set the ticket back to `todo`; the agent will pick it up on its next heartbeat. This is the human gate the spec requires.
