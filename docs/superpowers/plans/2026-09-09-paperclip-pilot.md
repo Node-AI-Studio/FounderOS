@@ -384,11 +384,13 @@ Expected: name `founderos`, the goal id present.
 
 GitHub → Settings → Developer settings → Fine-grained tokens → Generate. Repository access: only `Node-AI-Studio/FounderOS`. Permissions: **Contents: Read and write**, **Pull requests: Read and write**, Metadata read (added automatically). Expiry: 30 days. Copy it once.
 
-The trap, hit on 2026-09-09: a fine-grained token defaults every permission to "No access". If Contents is left at read, or not set, the token can read the repo but every `git push` fails with `Permission to ... denied` even for a plain branch, and it looks like an account problem when it is a token-scope problem. Verify the scope directly rather than trusting the UI:
+The trap, hit on 2026-09-09: a fine-grained token defaults every permission to "No access". If Contents is left at read, or not set, the token can read the repo but every `git push` fails with `Permission to ... denied` even for a plain branch, and it looks like an account problem when it is a token-scope problem. Editing the token's permissions on GitHub fixes it; the token value does not change, so nothing needs re-pushing.
+
+Verify with a real push, not a header. `x-accepted-github-permissions` on a repo GET only names what that endpoint needed (`metadata=read`), so it reads the same before and after the fix:
 ```bash
-ssh paperclip 'curl -s -I -H "Authorization: token $(gh auth token)" https://api.github.com/repos/Node-AI-Studio/FounderOS | grep -i x-accepted-github-permissions'
+ssh paperclip 'cd ~/repos/founderos && git switch -q -c probe/token-scope && git commit -q --allow-empty -m probe && (git push -q origin probe/token-scope && echo ACCEPTED && git push -q origin --delete probe/token-scope || echo DENIED); git switch -q main && git branch -q -D probe/token-scope'
 ```
-Expected to include `contents=write` and `pull_requests=write`. If it shows only `metadata=read`, edit the token's permissions on GitHub; the token value does not change, so nothing needs re-pushing.
+Expected: `ACCEPTED`. Task 8 step 3 then proves `main` specifically is refused.
 
 - [ ] **Step 2: Store it as a Paperclip secret without it touching shell history**
 
@@ -466,7 +468,7 @@ gh api -X PUT repos/Node-AI-Studio/FounderOS/branches/main/protection \
   --input - <<'EOF'
 {
   "required_status_checks": { "strict": true, "contexts": ["verify"] },
-  "enforce_admins": false,
+  "enforce_admins": true,
   "required_pull_request_reviews": { "required_approving_review_count": 1 },
   "restrictions": null,
   "allow_force_pushes": false,
@@ -475,6 +477,8 @@ gh api -X PUT repos/Node-AI-Studio/FounderOS/branches/main/protection \
 EOF
 ```
 Expected: JSON echo of the protection. `verify` is the job name in `.github/workflows/ci.yml`.
+
+`enforce_admins` **must be true**. The token on the box belongs to `nodeagencyai`, an org admin. With `enforce_admins: false` the first execution of step 3 pushed an empty commit `adae624` ("probe") straight onto `main` on 2026-09-09; protection simply did not apply to an admin token. That commit is harmless (no content) and was left in place, because removing it would need a force-push. With `enforce_admins: true` the same push is refused with "protected branch hook declined".
 
 - [ ] **Step 2: Verify**
 
