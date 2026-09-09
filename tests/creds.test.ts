@@ -13,6 +13,13 @@ import {
 } from '@/lib/creds';
 
 describe('parseEnvFile', () => {
+  test('parses the example file with blank Paperclip configuration keys', () => {
+    const content = fs.readFileSync(path.resolve('.env.example'), 'utf8');
+    const parsed = parseEnvFile(content);
+    expect(parsed).toHaveProperty('PAPERCLIP_URL', '');
+    expect(parsed).toHaveProperty('PAPERCLIP_API_KEY', '');
+  });
+
   test('parses KEY=value lines and ignores comments and blanks', () => {
     const content = [
       '# Zernio',
