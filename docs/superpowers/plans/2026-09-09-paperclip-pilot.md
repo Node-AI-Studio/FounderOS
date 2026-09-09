@@ -1042,7 +1042,11 @@ Merge with `gh pr merge <number> --squash --delete-branch` if it is right. If no
 
 - [ ] **Step 5: Let the remaining nine run unattended**
 
-Nothing to run. Heartbeats pick up `todo` issues. Check daily with:
+Nothing to run. Heartbeats pick up `todo` issues. One trap seen on NOD-11:
+when a worker asks a clarifying question it stays `in_progress` and waits,
+and nothing pings anyone. It sat two hours unanswered. So the daily check
+must also list `in_progress` tickets whose newest comment is older than
+thirty minutes, and read that comment. Check daily with:
 ```bash
 ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai issue list --company-id "$COMPANY_ID" --json | jq "group_by(.status) | map({status: .[0].status, n: length})"'
 ```
