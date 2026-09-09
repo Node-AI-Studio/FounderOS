@@ -172,12 +172,12 @@ Edit `~/.ssh/config`: `User paperclip`. From here every `ssh paperclip` lands as
 ssh -o User=root paperclip 'echo "paperclip ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/paperclip && chmod 440 /etc/sudoers.d/paperclip'
 ```
 
-- [ ] **Step 3: Install Node 24 from NodeSource, pnpm, jq, git**
+- [ ] **Step 3: Install Node 24 from NodeSource, pnpm, jq, git, and the native build toolchain**
 
 ```bash
-ssh paperclip 'curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - && sudo apt-get install -y nodejs jq git && sudo npm install -g pnpm@9 && node -v && pnpm -v && jq --version && git --version'
+ssh paperclip 'curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - && sudo apt-get install -y nodejs jq git build-essential && sudo npm install -g pnpm@9 && node -v && pnpm -v && jq --version && git --version && gcc --version | head -1'
 ```
-Expected: `v24.x.y` (must be 24.11 or newer), `9.x`, jq and git versions.
+Expected: `v24.x.y` (must be 24.11 or newer), `9.x`, jq, git and gcc versions. `build-essential` is required: Paperclip's source build compiles native modules and fails with `Command failed: corepack pnpm ... run build` without `make` and `g++`. Found during execution on 2026-09-09.
 
 - [ ] **Step 4: Install gh**
 
