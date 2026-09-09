@@ -74,15 +74,16 @@ Expected: `Firewall ... created`, rule added.
 - [ ] **Step 4: Create the server**
 
 ```bash
+source ops/paperclip/pilot.env
 hcloud server create \
-  --name paperclip-pilot \
-  --type cpx42 \
+  --name "$HETZNER_SERVER_NAME" \
+  --type "$HETZNER_SERVER_TYPE" \
   --image ubuntu-26.04 \
-  --location hel1 \
-  --ssh-key cristoforo \
+  --location "$HETZNER_LOCATION" \
+  --ssh-key "$HETZNER_SSH_KEY_NAME" \
   --firewall paperclip-pilot
 ```
-Expected: `Server ... created`, an IPv4 printed. Use `ash` instead of `hel1` if you chose Ashburn.
+Expected: `Server ... created`, an IPv4 printed. `HETZNER_SERVER_TYPE` is set in `ops/paperclip/pilot.env` to match the Command Center box (`hcloud server list -o columns=name,type`). Rescale later with `hcloud server change-type` if runs die with exit 137.
 
 - [ ] **Step 5: Add the SSH alias**
 
@@ -117,10 +118,12 @@ ssh paperclip 'curl -fsSL https://tailscale.com/install.sh | sh && tailscale up 
 ```
 Expected: an auth URL printed. Open it, approve the machine on your tailnet.
 
-- [ ] **Step 2: Record the tailnet IP**
+- [ ] **Step 2: Record the tailnet IP into the env file**
 
-Run: `ssh paperclip 'tailscale ip -4'`
-Expected: a `100.x.y.z` address. This is `TSIP`.
+```bash
+TS=$(ssh paperclip 'tailscale ip -4') && sed -i '' "s|^TSIP=.*|TSIP=$TS|" ops/paperclip/pilot.env && grep ^TSIP ops/paperclip/pilot.env
+```
+Expected: `TSIP=100.x.y.z`. Every later task that needs it runs `source ops/paperclip/pilot.env`.
 
 - [ ] **Step 3: Repoint the SSH alias at the tailnet**
 
@@ -211,9 +214,9 @@ Expected: both lines printed.
 
 On your Mac:
 ```bash
-gh api repos/paperclipai/paperclip/commits/master --jq '.sha + "  " + .commit.committer.date'
+SHA=$(gh api repos/paperclipai/paperclip/commits/master --jq .sha) && sed -i '' "s|^PAPERCLIP_COMMIT=.*|PAPERCLIP_COMMIT=$SHA|" ops/paperclip/pilot.env && gh api "repos/paperclipai/paperclip/commits/$SHA" --jq '.sha + "  " + .commit.committer.date'
 ```
-Copy the SHA. Edit the spec's Infrastructure table row `Install` to read: `Pinned to <sha> (<date>)`.
+Expected: the SHA and its date. Edit the spec's Infrastructure table row `Install` to read: `Pinned to <sha> (<date>)`.
 
 - [ ] **Step 2: Commit the spec change**
 
@@ -225,7 +228,8 @@ git commit -m "docs(spec): pin the Paperclip commit for the pilot"
 - [ ] **Step 3: Install Paperclip at that commit**
 
 ```bash
-ssh paperclip 'npx --registry https://registry.npmjs.org paperclipai install --ref <sha> && ~/.local/bin/paperclipai --version'
+source ops/paperclip/pilot.env
+ssh paperclip "npx --registry https://registry.npmjs.org paperclipai install --ref $PAPERCLIP_COMMIT && ~/.local/bin/paperclipai --version"
 ```
 Expected: a build, then a version string. If `~/.local/bin` is not on PATH, run `echo "export PATH=\$HOME/.local/bin:\$PATH" >> ~/.profile` and reconnect.
 
@@ -239,7 +243,7 @@ Expected: onboarding output ending with the service started. Note the port (defa
 - [ ] **Step 5: Verify the service and health endpoint**
 
 ```bash
-TSIP=<the 100.x.y.z address from Task 2 step 2>
+source ops/paperclip/pilot.env
 ssh paperclip 'paperclipai service status && paperclipai doctor'
 curl -s "http://$TSIP:3100/api/health"
 ```
@@ -359,9 +363,9 @@ GitHub → Settings → Developer settings → Fine-grained tokens → Generate.
 - [ ] **Step 2: Store it as a Paperclip secret without it touching shell history**
 
 ```bash
-ssh paperclip 'source ~/.profile && source ~/pilot.env && read -rs GH_PAT && export GH_PAT && paperclipai secrets create --company-id "$COMPANY_ID" --name github-founderos --value-env GH_PAT --json | jq -r .id | sed "s/^/export GH_SECRET_ID=/" >> ~/pilot.env && tail -1 ~/pilot.env'
+ssh paperclip 'source ~/.profile && source ~/pilot.env && read -rs GH_PAT && export GH_PAT && paperclipai secrets create --company-id "$COMPANY_ID" --name github-founderos --value-env GH_PAT --json | jq -r .id | sed "s/^/export GH_SECRET_ID=/" >> ~/pilot.env && tail -1 ~/pilot.env' < <(source ops/paperclip/pilot.env && printf '%s\n' "$GH_PAT")
 ```
-Paste the token when the shell waits. Expected: `export GH_SECRET_ID=<guid>`.
+The value is fed to `read` over the SSH channel's stdin from the local env file; it is never printed and never lands in a file on the box. Expected: `export GH_SECRET_ID=<guid>`.
 
 - [ ] **Step 3: Verify the secret is listed with no value**
 
@@ -373,9 +377,9 @@ Expected: `github-founderos` listed, no value column.
 - [ ] **Step 4: Authenticate gh and git on the box using the same token, then discard it from the shell**
 
 ```bash
-ssh paperclip 'read -rs GH_PAT && echo "$GH_PAT" | gh auth login --with-token && gh auth setup-git && unset GH_PAT && gh auth status'
+ssh paperclip 'gh auth login --with-token && gh auth setup-git && gh auth status' < <(source ops/paperclip/pilot.env && printf '%s\n' "$GH_PAT")
 ```
-Paste the token again. Expected: `Logged in to github.com`.
+Expected: `Logged in to github.com`.
 
 - [ ] **Step 5: Clone the repo**
 
@@ -491,9 +495,9 @@ platform.openai.com → API keys → Create. Name it `paperclip-reviewer-pilot`.
 - [ ] **Step 2: Store it**
 
 ```bash
-ssh paperclip 'source ~/.profile && source ~/pilot.env && read -rs K && export K && paperclipai secrets create --company-id "$COMPANY_ID" --name openai-reviewer --value-env K --json | jq -r .id | sed "s/^/export OPENAI_SECRET_ID=/" >> ~/pilot.env && tail -1 ~/pilot.env'
+ssh paperclip 'source ~/.profile && source ~/pilot.env && read -rs K && export K && paperclipai secrets create --company-id "$COMPANY_ID" --name openai-reviewer --value-env K --json | jq -r .id | sed "s/^/export OPENAI_SECRET_ID=/" >> ~/pilot.env && tail -1 ~/pilot.env' < <(source ops/paperclip/pilot.env && printf '%s\n' "$OPENAI_REVIEWER_KEY")
 ```
-Paste when the shell waits. Expected: `export OPENAI_SECRET_ID=<guid>`.
+Fed from the local env file over stdin, never printed. Expected: `export OPENAI_SECRET_ID=<guid>`.
 
 - [ ] **Step 3: Verify**
 
