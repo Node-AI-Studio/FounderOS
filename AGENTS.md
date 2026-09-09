@@ -1,21 +1,26 @@
-# FOUNDER OS — agent rules
+# FOUNDER OS: agent rules
 
-Full project docs live in **CLAUDE.md** (same directory) — read it first.
+Full project docs live in **CLAUDE.md** (same directory). Read it first.
 This file exists so non-Claude agents (Codex, etc.) get the same house rules.
+Node AI runs this repo. Paperclip dispatches agents onto it, each in its own
+git worktree on a branch named `agent/<issue-identifier>`.
 
 ## Non-negotiables
 
 - **Never commit or copy secrets.** Credentials live in `.env.local`
-  (gitignored) and Alex's canonical files; `lib/creds.ts` resolves them.
-  Never copy keys from `~/knowledge/.env.agents` into the repo.
-- **Never push to any remote or touch `main` without Alex's explicit yes.**
-  Commit locally on `founder-os`, small checkpoints, often.
-- **Don't kill the dev server on 4100 or 4101** — other sessions use them.
-  If your edit crashes the dev server's hot reload, fix it fast: a crash loop
-  corrupts `.next` and breaks every session's page chunks (kill the port,
-  `rm -rf .next`, restart).
-- `/org` markup is frozen — do not restructure it.
-- No em/en dashes in anything written for Alex.
+  (gitignored); `lib/creds.ts` resolves them. Never write a key into the repo.
+- **Never push to `main`. Never merge. Never force-push.** Push only your own
+  `agent/<issue-identifier>` branch, then open a pull request against `main`
+  with `gh pr create`. A human reviews and merges. You do not need further
+  approval to push that branch or to open the PR.
+- If a push or PR is refused, stop and report the exact error on the ticket.
+  Do not retry with different flags or a different remote.
+- Don't kill a dev server on 4100 or 4101; other sessions use them. If your
+  edit crashes hot reload, fix it fast: a crash loop corrupts `.next` and
+  breaks every session's page chunks (kill the port, `rm -rf .next`, restart).
+- `/org` markup is frozen; do not restructure it.
+- No em dashes or en dashes in anything you write: code, comments, commit
+  messages, tickets.
 
 ## How to work
 
@@ -27,14 +32,16 @@ This file exists so non-Claude agents (Codex, etc.) get the same house rules.
 - Theme via CSS vars on `data-theme` (five themes in `app/globals.css`);
   Tailwind `os.*` tokens map to them. Keep `tailwind.config.ts` and
   `globals.css` in sync.
-- Commands: `npm run dev` (port 4100) · `npm test` · `npm run typecheck` ·
-  `npm run seed` · `npm run brain:docs`.
+- Commands: `npm run dev` (port 4100), `npm test`, `npm run typecheck`,
+  `npm run seed`, `npm run brain:docs`.
+- Conventional commits (`feat:`, `fix:`, `refactor:`, `test:`, `chore:`),
+  subject 72 characters or fewer. Stage explicit paths, never `git add -A`.
 
 ## Multi-agent etiquette
 
-Multiple agent sessions (Claude, Codex) work this repo concurrently:
+Multiple agent sessions (Claude, Codex, Paperclip workers) work this repo
+concurrently:
 - `git log --oneline` to see where others are; commit small and often.
 - Coordinate by surface: don't edit a page/component another session has
   uncommitted changes in (`git status` shows them).
-- The Playwright browser is shared across sessions — expect interference.
 - Leave handoff notes in `docs/` if you stop mid-feature.
