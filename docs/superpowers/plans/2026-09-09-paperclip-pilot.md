@@ -279,23 +279,34 @@ Expected: one invite URL on `http://paperclip:3100/...`. It expires in 24 hours 
 
 Open the URL in a browser on the tailnet (MagicDNS resolves `paperclip` once the service was restarted after `allowed-hostname`). Create the admin user as Cristoforo. Then in the UI invite Niek as a board user. Verify with `curl -s http://paperclip:3100/api/health | jq .bootstrapStatus`, which must no longer say `bootstrap_pending`.
 
-- [ ] **Step 3: Create a board API key and store it in the service user's environment**
+- [ ] **Step 3: Point the CLI at the tailnet address**
+
+The server is bound to the tailnet IP only, not loopback, so the CLI's default `localhost:3100` cannot reach it even from the box itself.
 
 ```bash
-ssh paperclip 'paperclipai token board create --name pilot-admin'
+ssh paperclip 'export PATH=$HOME/.local/bin:$PATH; paperclipai context set --api-base http://100.74.98.1:3100 && grep -q PAPERCLIP_API_URL ~/.profile || echo "export PAPERCLIP_API_URL=http://100.74.98.1:3100" >> ~/.profile'
 ```
-Expected: a plaintext token printed once. Then:
-```bash
-ssh paperclip 'read -rs T && echo "export PAPERCLIP_API_KEY=$T" >> ~/.profile && chmod 600 ~/.profile'
-```
-Paste the token when the shell waits. It is never echoed and never enters this plan.
+Expected: `context show` prints the tailnet `apiBase`. A `company list` now fails with a company error, not a connection error.
 
-- [ ] **Step 4: Set the CLI context**
+- [ ] **Step 4: Authenticate the CLI as a board user (browser approval)**
+
+Board access is a challenge flow, not a token you can mint blind. Start it in the background so it keeps polling while you approve:
 
 ```bash
-ssh paperclip 'source ~/.profile && paperclipai context set --api-base http://127.0.0.1:3100 --api-key-env-var-name PAPERCLIP_API_KEY && paperclipai context show'
+ssh paperclip 'export PATH=$HOME/.local/bin:$PATH; nohup paperclipai auth login --no-browser --instance-admin > ~/auth-login.log 2>&1 & sleep 4; cat ~/auth-login.log'
 ```
-Expected: context shows the API base and the env var name, no plaintext.
+Expected: an approval URL on `http://100.74.98.1:3100/...`. Open it in the browser where you are already logged in as admin and approve. The CLI then stores the credential and exits. Verify:
+```bash
+ssh paperclip 'export PATH=$HOME/.local/bin:$PATH; paperclipai auth whoami'
+```
+Expected: your admin identity.
+
+- [ ] **Step 5: Create a long-lived board API key for scripts and store it**
+
+```bash
+ssh paperclip 'export PATH=$HOME/.local/bin:$PATH; paperclipai token board create --name pilot-admin --json | jq -r .token | { read -r T; echo "export PAPERCLIP_API_KEY=$T" >> ~/.profile; }; chmod 600 ~/.profile; paperclipai context set --api-key-env-var-name PAPERCLIP_API_KEY && paperclipai context show'
+```
+The token goes straight from the API into `~/.profile` (mode 600) and is never printed. Expected: context shows the API base and the env var name, no plaintext.
 
 - [ ] **Step 5: Verify authenticated CLI access**
 
