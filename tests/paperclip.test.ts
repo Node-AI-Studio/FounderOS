@@ -10,6 +10,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
   fetchStub.mockReset();
@@ -25,6 +27,33 @@ describe('paperclipStatus', () => {
     vi.stubEnv('PAPERCLIP_URL', 'http://localhost:3100');
     fetchStub.mockRejectedValue(new TypeError('fetch failed'));
     expect(await paperclipStatus()).toMatchObject({ state: 'error' });
+  });
+
+  it('returns error at the deadline when fetch remains pending until aborted', async () => {
+    vi.useFakeTimers();
+    vi.stubEnv('PAPERCLIP_URL', 'http://localhost:3100');
+    // Native AbortSignal.timeout uses internal timers, so bridge it to fake time.
+    const timeout = vi.spyOn(AbortSignal, 'timeout').mockImplementation((delay) => {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(new DOMException('Timed out', 'TimeoutError')), delay);
+      return controller.signal;
+    });
+    fetchStub.mockImplementation((_input, init) => new Promise((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });
+    }));
+
+    const settled = vi.fn();
+    const result = paperclipStatus().then((status) => {
+      settled(status);
+      return status;
+    });
+
+    expect(timeout).toHaveBeenCalledWith(5000);
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(settled).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(settled).toHaveBeenCalledWith(expect.objectContaining({ state: 'error' }));
+    expect(await result).toMatchObject({ state: 'error' });
   });
 
   it.each(['http://localhost:3100', 'http://localhost:3100/'])(
