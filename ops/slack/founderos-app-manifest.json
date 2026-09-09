@@ -1,12 +1,12 @@
 {
   "display_information": {
-    "name": "Node AI FounderOS",
-    "description": "FounderOS operator console bot. Separate from Node Command Center.",
+    "name": "Node AI OS",
+    "description": "Node AI OS operator console bot. Separate from Node Command Center.",
     "background_color": "#0a0a0a"
   },
   "features": {
     "bot_user": {
-      "display_name": "Node AI FounderOS",
+      "display_name": "Node AI OS",
       "always_online": false
     }
   },
