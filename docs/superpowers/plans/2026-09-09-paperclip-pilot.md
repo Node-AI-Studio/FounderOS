@@ -434,12 +434,14 @@ ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai project-wo
 ```
 Expected: the workspace echoed back with the cwd.
 
-- [ ] **Step 8: Set the execution workspace policy to git worktrees**
+- [ ] **Step 8: Set the execution workspace policy to git worktrees, with a provision command**
+
+A fresh worktree has no `node_modules`. Without a provision command the first run fails with `vitest: not found`, the agent installs and retries, and every run pays that again. `provisionCommand` runs on worktree creation.
 
 ```bash
-ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai project update "$PROJECT_ID" --execution-workspace-policy-json "{\"enabled\":true,\"defaultMode\":\"isolated_workspace\",\"allowIssueOverride\":false,\"workspaceStrategy\":{\"type\":\"git_worktree\",\"baseRef\":\"main\",\"branchTemplate\":\"agent/{{issue.identifier}}\",\"worktreeParentDir\":\"/home/paperclip/worktrees\"}}" && paperclipai project get "$PROJECT_ID" --json | jq .executionWorkspacePolicy'
+ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai project update "$PROJECT_ID" --execution-workspace-policy-json "{\"enabled\":true,\"defaultMode\":\"isolated_workspace\",\"allowIssueOverride\":false,\"workspaceStrategy\":{\"type\":\"git_worktree\",\"baseRef\":\"main\",\"branchTemplate\":\"agent/{{issue.identifier}}\",\"worktreeParentDir\":\"/home/paperclip/worktrees\",\"provisionCommand\":\"PATH=\\\"\$(dirname \$(n which 20)):\$PATH\\\" npm ci --no-audit --no-fund\"}}" && paperclipai project get "$PROJECT_ID" --json | jq .executionWorkspacePolicy.workspaceStrategy'
 ```
-Expected: the policy echoed with `type: git_worktree` and the branch template.
+Expected: the strategy echoed with `type: git_worktree`, the branch template, and the provision command. Each worktree is about 600 MB with dependencies and is not removed after the run on this build; ten issues is roughly 6 GB. Acceptable for the pilot, revisit `cleanupPolicy` before scaling.
 
 - [ ] **Step 9: Verify**
 
@@ -866,6 +868,8 @@ sleep 300
 ssh paperclip 'source ~/.profile && source ~/pilot.env && ID=$(paperclipai issue list --company-id "$COMPANY_ID" --assignee-agent-id "$TEST_ID" --json | jq -r ".[0].id") && paperclipai issue get "$ID" --json | jq "{status}" && paperclipai issue comments "$ID" --limit 3'
 ```
 Expected: status `done` and a comment containing `green on` and a SHA. If red, the agent left the output and the issue is `todo`; that is also a valid outcome for this step, it means the routine works.
+
+Observed on 2026-09-09: `NOD-2` went `in_progress` to `done` in 2m35s on the Codex subscription, 932 tests and typecheck green, three comments (workspace ready, a first attempt that hit the missing `node_modules`, then the green verdict). The run record shows `costUsd: null`: subscription runs carry no dollar figure, which is why criterion 3 is measured on the API-key reviewer only.
 
 ---
 
