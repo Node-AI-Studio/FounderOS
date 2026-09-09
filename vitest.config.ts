@@ -20,6 +20,8 @@ export default defineConfig({
     // time (lib/creds.ts), so tests must never see Alex's real file. Tests
     // that exercise the store point this at their own tmp path.
     env: {
+      // Existing integration tests exercise demo fixtures; data tests override this.
+      FOUNDER_OS_DEMO_SEED: '1',
       FOUNDER_OS_ENV_LOCAL: path.resolve(__dirname, 'tests', '.env.local.does-not-exist'),
     },
   },
