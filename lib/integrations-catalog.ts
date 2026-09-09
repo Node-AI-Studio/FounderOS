@@ -86,6 +86,9 @@ export const INTEGRATIONS: Integration[] = [
   { slug: 'make', name: 'Make', tagline: 'Visual workflows', category: 'AI & Automation' },
   { slug: 'n8n', name: 'n8n', tagline: 'Self-hosted automation', category: 'AI & Automation' },
 
+  // Orchestration
+  { slug: 'paperclip', name: 'Paperclip', tagline: 'Agent orchestration', category: 'Orchestration', connectorId: 'paperclip', envKeys: ['PAPERCLIP_URL', 'PAPERCLIP_API_KEY'] },
+
   // Creative
   { slug: 'figma', name: 'Figma', tagline: 'Design & prototypes', category: 'Creative', popular: true },
   { slug: 'canva', name: 'Canva', tagline: 'Templates & graphics', category: 'Creative' },

@@ -49,6 +49,7 @@ const LETTERMARK: Record<string, string> = {
   beehiiv: '#FFC864',
   openai: '#10A37F',
   plaid: '#000000',
+  paperclip: '#8a8f98',
   onedrive: '#0078D4',
   canva: '#00C4CC',
   gohighlevel: '#2A9D8F',

@@ -54,6 +54,7 @@ export const INTEGRATION_CATEGORIES = [
   'Storage',
   'Knowledge',
   'AI & Automation',
+  'Orchestration',
   'Creative',
 ] as const;
 export const IntegrationCategorySchema = z.enum(INTEGRATION_CATEGORIES);
