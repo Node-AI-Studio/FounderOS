@@ -28,12 +28,24 @@ describe('INTEGRATIONS catalog', () => {
     }
   });
 
-  test('categories are all from the allowed set and each has at least 3 tools', () => {
+  test('categories are allowed and established categories have at least 3 tools', () => {
     const byCat = integrationsByCategory();
     for (const [cat, tools] of byCat) {
       expect(INTEGRATION_CATEGORIES).toContain(cat);
-      expect(tools.length).toBeGreaterThanOrEqual(3);
+      expect(tools.length).toBeGreaterThanOrEqual(cat === 'Orchestration' ? 1 : 3);
     }
+  });
+
+  test('Paperclip is listed under Orchestration with its connector and credentials', () => {
+    const paperclip = INTEGRATIONS.find((entry) => entry.slug === 'paperclip');
+    expect(paperclip).toMatchObject({
+      name: 'Paperclip',
+      category: 'Orchestration',
+      connectorId: 'paperclip',
+      envKeys: ['PAPERCLIP_URL', 'PAPERCLIP_API_KEY'],
+    });
+    expect(INTEGRATION_CATEGORIES).toContain('Orchestration');
+    expect(integrationsByCategory().get('Orchestration')).toEqual([paperclip]);
   });
 
   test('at least 6 tools are flagged popular', () => {
