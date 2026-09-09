@@ -266,16 +266,18 @@ Expected: hostname accepted. `http://paperclip:3100` now works from any tailnet 
 **Interfaces:**
 - Produces: Cristoforo as instance admin; a board API key in env var `PAPERCLIP_API_KEY` on the box for the `paperclip` user; a CLI context so later commands need no flags.
 
-- [ ] **Step 1: Find the one-time claim URL**
+- [ ] **Step 1: Create the one-time first-admin invite**
+
+At this version the first admin is bootstrapped with a CLI command, not a claim URL in the logs. Health reports `bootstrapStatus: bootstrap_pending` until it is used.
 
 ```bash
-ssh paperclip 'paperclipai service logs | grep -i -A2 claim | tail -5'
+ssh paperclip 'export PATH=$HOME/.local/bin:$PATH; paperclipai auth bootstrap-ceo --base-url http://paperclip:3100 --expires-hours 24'
 ```
-Expected: a URL containing a high-entropy token. Paperclip prints this when the only admin is `local-board` in authenticated mode.
+Expected: one invite URL on `http://paperclip:3100/...`. It expires in 24 hours and works once. `--force` mints a new one if the first is lost.
 
-- [ ] **Step 2: Claim it**
+- [ ] **Step 2: Accept it**
 
-Open the URL in a browser on the tailnet. Create the admin user as Cristoforo. Then in the UI invite Niek as a board user.
+Open the URL in a browser on the tailnet (MagicDNS resolves `paperclip` once the service was restarted after `allowed-hostname`). Create the admin user as Cristoforo. Then in the UI invite Niek as a board user. Verify with `curl -s http://paperclip:3100/api/health | jq .bootstrapStatus`, which must no longer say `bootstrap_pending`.
 
 - [ ] **Step 3: Create a board API key and store it in the service user's environment**
 
