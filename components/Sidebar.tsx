@@ -1,5 +1,8 @@
 'use client';
 
+import { IDENTITY } from '@/lib/identity';
+
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -59,7 +62,7 @@ export function Sidebar() {
         <div>
           <div className="text-[13px] font-bold tracking-[0.14em]">FOUNDER OS</div>
           <div className="mt-[3px] whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.16em] text-os-dim">
-            v3 · Operator Mode
+            {IDENTITY.workspace} · {IDENTITY.firstName}
           </div>
         </div>
       </div>

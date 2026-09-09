@@ -1,5 +1,8 @@
 'use client';
 
+import { IDENTITY } from '@/lib/identity';
+
+
 import { usePathname } from 'next/navigation';
 import { Bot, Search } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -31,7 +34,7 @@ export function Topbar() {
   return (
     <div className="sticky top-0 z-30 flex h-[52px] shrink-0 items-center gap-3.5 border-b border-os-border bg-os-bg2/70 px-6 backdrop-blur">
       <div className="flex items-center gap-[7px] whitespace-nowrap font-mono text-[11px] tracking-[0.04em] text-os-dim">
-        <span>founder-os</span>
+        <span>{IDENTITY.workspace}</span>
         <span className="opacity-45">/</span>
         <span className="text-os-text">{here}</span>
       </div>

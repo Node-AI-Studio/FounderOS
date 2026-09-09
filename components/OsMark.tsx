@@ -1,20 +1,13 @@
-/**
- * The OS mark — the Founder OS brand emblem: the chrome yin-yang circle,
- * extracted from the brand asset onto transparent (public/os-emblem.png) so it
- * drops cleanly onto the dark UI. `color` is kept for API compatibility but no
- * longer inks the mark (the emblem is chrome). The OS logo only — never the
- * "Founder" wordmark.
- */
-export function OsMark({ size = 34, className }: { size?: number; color?: string; className?: string }) {
+import { IDENTITY } from '@/lib/identity';
+
+/** Personal monogram in the existing compact brand-mark slot. */
+export function OsMark({ size = 34, color = 'currentColor', className }: { size?: number; color?: string; className?: string }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/os-emblem.png"
-      alt="Founder OS"
-      width={size}
-      height={size}
-      style={{ width: size, height: size, objectFit: 'contain' }}
-      className={className}
-    />
+    <svg width={size} height={size} viewBox="0 0 34 34" role="img" aria-label={IDENTITY.fullName} className={className} style={{ color }}>
+      <rect x="1" y="1" width="32" height="32" fill="none" stroke="currentColor" />
+      <text x="17" y="18" textAnchor="middle" dominantBaseline="middle" fill="currentColor" className="font-mono" fontSize="12" fontWeight="600">
+        {IDENTITY.initials}
+      </text>
+    </svg>
   );
 }

@@ -1,3 +1,4 @@
+import { IDENTITY } from '@/lib/identity';
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import './globals.css';
@@ -19,7 +20,7 @@ const fontMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FOUNDER OS',
+  title: `${IDENTITY.workspace} | Founder OS`,
   description: 'Personal operating system and AI agent command center',
 };
 

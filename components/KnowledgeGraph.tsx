@@ -1,5 +1,8 @@
 'use client';
 
+import { IDENTITY } from '@/lib/identity';
+
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   forceCollide,
@@ -1907,7 +1910,7 @@ export function KnowledgeGraph({
                   onNodeClick(n);
                 }}
               >
-                <title>Notes: all of Alex&apos;s markdown, click to open the graph</title>
+                <title>{`Notes: all of ${IDENTITY.firstName}'s markdown, click to open the graph`}</title>
                 {memoryCoreInner}
                 {/* synapse sparks — positions written from the camera rAF */}
                 <g
