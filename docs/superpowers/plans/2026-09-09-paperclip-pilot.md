@@ -1027,6 +1027,19 @@ token, so Cristoforo approves those.
 
 Merge with `gh pr merge <number> --squash --delete-branch` if it is right. If not, comment and set the ticket back to `todo`; the agent will pick it up on its next heartbeat. This is the human gate the spec requires.
 
+- [x] **Step 4 result (2026-09-09):** PR #2 reviewed and merged by Cristoforo.
+
+- [x] **Step 5 result (2026-09-09):** released NOD-4..6, then NOD-7..12. Nine
+  agent PRs in one afternoon, all with green `verify`. Eight merged. One
+  rejected by Cristoforo (NOD-10, the Hermes tab rename: Hermes workers stay
+  in use beside Paperclip, so the tab keeps its name; PR #9 closed, ticket
+  cancelled). NOD-11 still running at the time of writing. Each run took
+  five to seven minutes on the Codex subscription. Branch protection is
+  `strict`, so after each merge the next PR needs `gh pr update-branch` and
+  a fresh check before it can merge. Demo seeding is now opt-in (PR #6):
+  `FOUNDER_OS_DEMO_SEED=1` set in local `.env.local`; the Vercel project
+  still needs the same variable for production and preview.
+
 - [ ] **Step 5: Let the remaining nine run unattended**
 
 Nothing to run. Heartbeats pick up `todo` issues. Check daily with:
