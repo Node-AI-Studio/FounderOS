@@ -29,7 +29,7 @@ export function AgentsTabs({ hermesUrl, children }: { hermesUrl?: string; childr
         {(
           [
             ['roster', 'Roster', () => setTab('roster')],
-            ['hermes', 'Hermes Workers', openHermes],
+            ['hermes', 'Control plane', openHermes],
           ] as const
         ).map(([id, label, onClick]) => (
           <button

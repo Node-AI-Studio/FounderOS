@@ -12,11 +12,12 @@ const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
  * from env (HERMES_DASH_URL) with NO host baked into the source.
  */
 describe('agents Hermes tab', () => {
-  test('AgentsTabs is a client component with Roster + Hermes tabs and a lazy iframe', () => {
+  test('AgentsTabs is a client component with Roster + Control plane tabs and a lazy iframe', () => {
     const src = read('components/AgentsTabs.tsx');
     expect(src).toContain("'use client'");
     expect(src).toContain('Roster');
-    expect(src).toContain('Hermes');
+    expect(src).toContain("['hermes', 'Control plane', openHermes]");
+    expect(src).not.toContain('Hermes Workers');
     expect(src).toContain('<iframe');
     // lazy mount: iframe only renders once the tab has been visited
     expect(src).toMatch(/visited|mounted|activated/i);
