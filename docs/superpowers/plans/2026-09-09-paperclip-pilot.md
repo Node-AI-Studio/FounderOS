@@ -496,12 +496,18 @@ ssh -t paperclip 'codex login --device-auth'
 ```
 Expected: a URL and a short code printed. Open the URL on your phone or laptop, sign in with the ChatGPT account that has the Codex plan, enter the code.
 
-- [ ] **Step 2: Verify**
+- [ ] **Step 2: Verify, then enable the nightly trigger**
 
 ```bash
 ssh paperclip 'test -s ~/.codex/auth.json && echo "auth.json present" && stat -c "%a %U" ~/.codex/auth.json && codex --version'
 ```
-Expected: `auth.json present`, mode `600` owned by `paperclip`, a version.
+Expected: `auth.json present`, mode `600` owned by `paperclip`, a version. Now that agents can authenticate, enable the trigger created disabled in Task 13:
+```bash
+ssh paperclip 'source ~/.profile && source ~/pilot.env && T=$(paperclipai routine get "$ROUTINE_ID" --json | jq -r ".triggers[0].id") && paperclipai routine trigger:update "$T" --payload-json "{\"enabled\":true}" >/dev/null && paperclipai routine get "$ROUTINE_ID" --json | jq -c ".triggers | map({cronExpression, enabled})"'
+```
+Expected: `enabled: true`.
+
+Order note: in execution, Task 12 (agents) and Task 13 (routine) were run before Tasks 7 steps 2 to 4, 9 and 10, because they do not need the secrets to exist. Agents were created without `adapterConfig.env`; the `GH_TOKEN` and `OPENAI_API_KEY` bindings are added afterwards with `agent update` (Task 12 step 9 below). Config edits apply on the next run.
 
 - [ ] **Step 3: Do not do this on the Mac**
 
@@ -790,6 +796,19 @@ ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai agent list
 ```
 Expected: three agents, `codex_local`, budgets `0, 0, 500`, two reporting to the console-engineer id.
 
+- [ ] **Step 9: Bind the secrets (run after Tasks 7 and 10 exist)**
+
+If the agents were created before the secrets, add the env bindings now. `agent update` merges `adapterConfig` unless `replaceAdapterConfig` is true.
+
+```bash
+ssh paperclip 'source ~/.profile && source ~/pilot.env && \
+  paperclipai agent update "$CONSOLE_ID"  --payload-json "{\"adapterConfig\":{\"env\":{\"GH_TOKEN\":{\"type\":\"secret_ref\",\"secretId\":\"$GH_SECRET_ID\"}}}}" >/dev/null && \
+  paperclipai agent update "$TEST_ID"     --payload-json "{\"adapterConfig\":{\"env\":{\"GH_TOKEN\":{\"type\":\"secret_ref\",\"secretId\":\"$GH_SECRET_ID\"}}}}" >/dev/null && \
+  paperclipai agent update "$REVIEWER_ID" --payload-json "{\"adapterConfig\":{\"env\":{\"GH_TOKEN\":{\"type\":\"secret_ref\",\"secretId\":\"$GH_SECRET_ID\"},\"OPENAI_API_KEY\":{\"type\":\"secret_ref\",\"secretId\":\"$OPENAI_SECRET_ID\"}}}}" >/dev/null && \
+  paperclipai agent configuration "$REVIEWER_ID" --json | jq -c ".adapterConfig.env | keys"'
+```
+Expected: `["GH_TOKEN","OPENAI_API_KEY"]` for the reviewer. Secret values are never shown; only the binding type and id.
+
 ---
 
 ### Task 13: The nightly routine
@@ -814,12 +833,14 @@ ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai routine cr
 ```
 Expected: `export ROUTINE_ID=<guid>`
 
-- [ ] **Step 2: Attach the schedule trigger**
+- [ ] **Step 2: Attach the schedule trigger, disabled**
+
+Create it disabled so nothing fires before Codex is logged in (Task 9). Enable it in Task 9 step 2 once `auth.json` exists.
 
 ```bash
-ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai routine trigger:create "$ROUTINE_ID" --payload-json "{\"kind\":\"schedule\",\"cronExpression\":\"0 2 * * *\",\"timezone\":\"UTC\",\"enabled\":true,\"label\":\"nightly 02:00 UTC\"}" --json | jq "{kind, cronExpression, enabled}"'
+ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai routine trigger:create "$ROUTINE_ID" --payload-json "{\"kind\":\"schedule\",\"cronExpression\":\"0 2 * * *\",\"timezone\":\"UTC\",\"enabled\":false,\"label\":\"nightly 02:00 UTC\"}" >/dev/null && paperclipai routine get "$ROUTINE_ID" --json | jq -c ".triggers | map({kind, cronExpression, enabled})"'
 ```
-Expected: `{"kind":"schedule","cronExpression":"0 2 * * *","enabled":true}`
+Expected: `[{"kind":"schedule","cronExpression":"0 2 * * *","enabled":false}]`. The `trigger:create` response itself is not a flat trigger object, so verify through `routine get`.
 
 - [ ] **Step 3: Fire it once by hand and watch**
 
