@@ -29,7 +29,7 @@ whether to.
 
 | | |
 |---|---|
-| Host | Hetzner CPX42: 8 vCPU, 16 GB, 320 GB. Ubuntu 26.04. |
+| Host | Hetzner CPX22: 2 vCPU, 4 GB, 80 GB. Ubuntu 26.04. Chosen to match the Command Center box; rescale with `hcloud server change-type` if runs die with exit 137 (that is the box, not Paperclip). |
 | Network | Tailscale. No public inbound. Hetzner firewall denies all except the tailnet. |
 | Runtime | Node 24.11+ and pnpm 9.15+ for Paperclip only. founderos stays on Node 20 and npm. |
 | Install | From a commit-pinned GitHub ref, not `curl \| bash`. Pinned to `fac07b42ad41` (2026-09-09T16:02:59Z). |
@@ -130,8 +130,8 @@ do not invent work.
 - PRs only. A human merges. Agents never push to `main`.
 - Force-push is a hard stop, unchanged from house rules.
 - `npm test && npm run typecheck` green before any PR opens.
-- Concurrency cap: 2 agents executing at once.
-- Reviewer budget: USD 20 per month, hard stop.
+- Concurrency: one run per agent (`maxConcurrentRuns: 1`). Paperclip has no instance-wide cap.
+- Reviewer budget: USD 5 per month, hard stop.
 - Subscription agents: no dollar cap exists. Watch the ChatGPT usage limit
   manually; Paperclip cannot see it.
 
@@ -141,7 +141,7 @@ All four, or the pilot did not pass.
 
 1. Two weeks with no manual restart of Paperclip or its Postgres.
 2. At least ten issues reach `done` via a human-merged PR.
-3. The reviewer's USD 20 cap fires, the agent pauses, and its queued work is
+3. The reviewer's USD 5 cap fires, the agent pauses, and its queued work is
    cancelled. Observed, not assumed.
 4. `pilot-iso` exports and re-imports cleanly with secrets scrubbed, and no
    `pilot-iso` data is visible from inside `nodeai`.
