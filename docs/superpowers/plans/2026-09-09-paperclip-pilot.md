@@ -1036,20 +1036,22 @@ Expected: `0` and `0`.
 - [ ] **Step 3: Export**
 
 ```bash
-ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai company export "$ISO_ID" --out ~/iso-export --include company,agents,projects,issues,skills && ls ~/iso-export && grep -r "fake-isolation-secret-value" ~/iso-export && echo "SECRET LEAKED" || echo "secret scrubbed"'
+ssh paperclip 'source ~/.profile && source ~/pilot.env && paperclipai company export "$ISO_ID" --out ~/iso-export --include company,agents,projects,issues && ls ~/iso-export && grep -r "fake-isolation-secret-value" ~/iso-export && echo "SECRET LEAKED" || echo "secret scrubbed"'
 ```
 Expected: files listed, then `secret scrubbed`.
 
-- [ ] **Step 4: Import as a new company**
+Do not include `skills` in this test. Found on 2026-09-09: with `skills` included, the import fails with `422: External skill source "paperclip" must resolve to a pinned Git commit before import (reason: unpinned_external_source)` and creates an empty company shell. The company-managed `paperclip` and `github-pr-workflow` skills carry `github` provenance at `markdown_only` trust with no pin. This matters for the product plan, not the pilot: **a sellable company template that carries skills must pin every skill source to a commit** before export. Test that separately when building the template (sub-project 5).
+
+- [ ] **Step 4: Import as a new company, with errors visible and an empty-id guard**
+
+Trap from execution: if the import fails and the copy's id ends up empty, `--company-id ""` silently falls through to the context's default company, and the "inspection" prints **Node AI's** agents and secrets as if they were the copy's. Always keep stderr and refuse to inspect an empty id.
 
 ```bash
-ssh paperclip 'source ~/.profile && paperclipai company import ~/iso-export --target new --new-company-name "pilot-iso-copy" --json | jq -r .id' 
+ssh paperclip 'source ~/.profile && paperclipai company import ~/iso-export --target new --new-company-name "pilot-iso-copy" --yes --json > /tmp/import.out 2>/tmp/import.err; echo "exit $?"; cat /tmp/import.err | head -5; COPY=$(jq -r ".companyId // .id // .company.id // empty" /tmp/import.out); [ -n "$COPY" ] || COPY=$(paperclipai company list --json | jq -r ".[] | select(.name==\"pilot-iso-copy\") | .id"); [ -n "$COPY" ] || { echo "IMPORT DID NOT CREATE A COMPANY"; exit 1; }; echo "COPY=$COPY"; paperclipai agent list --company-id "$COPY" --json | jq -c "[.[].name]"; paperclipai issue list --company-id "$COPY" --json | jq -c "[.[].title]"; paperclipai secrets list --company-id "$COPY"'
 ```
-Expected: a new GUID. Then:
-```bash
-ssh paperclip 'source ~/.profile && COPY=$(paperclipai company list --json | jq -r ".[] | select(.name==\"pilot-iso-copy\") | .id") && paperclipai agent list --company-id "$COPY" --json | jq ".[].name" && paperclipai issue list --company-id "$COPY" --json | jq ".[].title" && paperclipai secrets list --company-id "$COPY"'
-```
-Expected: `"iso-agent"`, `"ISO CANARY ISSUE"`, and either no secrets or a declared-but-empty `iso-canary` needing a value. The value must not have travelled.
+Expected: `exit 0`, a GUID, `["iso-agent"]`, `["ISO CANARY ISSUE"]`, and either no secrets or a declared-but-empty `iso-canary`. The value must not have travelled. If the import exits non-zero, the stderr lines are the finding for criterion 4.
+
+Observed on 2026-09-09 (fourth attempt, after `--yes` and dropping `skills`): `exit 0`, copy `204acf91`, agents `["iso-agent"]`, issues `["ISO CANARY ISSUE"]`, secrets empty, and `nodeai` saw zero canary issues throughout. **Criterion 4: pass.** Three throwaway companies (`pilot-iso`, `pilot-iso2`, `pilot-iso3`) exist archived from the earlier attempts; harmless, delete them at closeout if `PAPERCLIP_ENABLE_COMPANY_DELETION` is set.
 
 - [ ] **Step 5: Archive both throwaway companies**
 
