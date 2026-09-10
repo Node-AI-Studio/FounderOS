@@ -1119,6 +1119,18 @@ for N in $(gh pr list --repo Node-AI-Studio/FounderOS --head "agent/*" --json nu
 done
 ```
 
+**Observed on the first reviewer run (2026-09-10):** every run failed in
+`ensure_session` with `acpx_auth_required`, "Authentication required".
+The reviewer has its own `CODEX_HOME` (so it never touches the
+subscription login) and `OPENAI_API_KEY` as a `secret_ref`, but Codex
+0.153 does not authenticate from that env var. It wants the key stored by
+`codex login --with-api-key` inside that home, which did not even exist
+yet. Fix, done once: create the directory named by the reviewer's
+`CODEX_HOME` adapter env, run `codex login --with-api-key` there with the
+reviewer key on stdin, confirm with `codex login status`. Never echo the
+key. Then set the failed reviewer tickets back to `todo` and wake the
+agent. The per-agent `OPENAI_API_KEY` binding can stay; it is harmless.
+
 - [ ] **Step 2: Watch spend climb**
 
 Daily:
