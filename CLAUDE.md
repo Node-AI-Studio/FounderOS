@@ -1,7 +1,7 @@
 # FOUNDER OS
 
 Personal OS / AI agent command center. Live web recreation of the FounderOS
-"Conducting AI" board. Runs on port **4100** (Command Center runs on 3006).
+"Conducting AI" board. Runs on port **4100** (command-center owns 4000).
 
 ## Commands
 
