@@ -90,6 +90,7 @@ export function decideAccess({ token, presented, isProduction }: AuthInput): Aut
 const PUBLIC_PATHS = ['/unlock', '/api/unlock', '/api/webhooks'];
 
 export function isPublicPath(pathname: string): boolean {
+  if (pathname === '/api/health') return true;
   // Exact match, or a full segment beneath it. A bare `startsWith` would also
   // open `/unlocked-secrets`, which is the sort of gap a gate cannot afford.
   return PUBLIC_PATHS.some((base) => pathname === base || pathname.startsWith(`${base}/`));
