@@ -15,7 +15,7 @@
 - No em dashes or en dashes in code, comments, docs, or commit messages.
 - Conventional commits, subject 72 characters or fewer, no `Co-Authored-By` lines, end the body with `Claude-Session: https://claude.ai/code/session_013KTG3L5B9ggrbbKG8RiZWe`.
 - Stage explicit paths. Never `git add -A` or `git add .`.
-- `main` is protected on GitHub: every change lands through a pull request whose `verify` check (tests, typecheck, production build) is green. Merge with `gh pr merge --merge` under your personal GitHub account, never the org account and never the web UI, or the Vercel deploy stays blocked. Direct pushes to `main` are rejected.
+- `main` is protected on GitHub with `enforce_admins` on: every change lands through a pull request whose `verify` check (tests, typecheck, production build) is green AND that carries one approving review from someone other than the author. Cristoforo approves with `gh pr review <n> --approve`, then merges with `gh pr merge <n> --merge --delete-branch` under his personal account, never the org account and never the web UI, or the Vercel deploy stays blocked. Direct pushes to `main` are rejected. Never use `--admin` to skip the review.
 - Never force-push. Never bypass the pre-commit secret scanner.
 - `npm test` and `npm run typecheck` must be green before every commit that touches code.
 - Never write a secret value into a tracked file. Keys live in `.env.local` only.
@@ -166,6 +166,7 @@ Run:
 ```bash
 gh pr checks merge/founder-os --watch
 gh auth status   # confirm the personal account, not the org account
+gh pr review merge/founder-os --approve   # Cristoforo, from an account that did not author the PR
 gh pr merge merge/founder-os --merge --delete-branch
 git checkout main && git pull --ff-only
 ```
@@ -303,7 +304,7 @@ git push -u origin docs/seed-flag-and-node
 gh pr create --base main --fill --body "Names FOUNDER_OS_DEMO_SEED in .env.example and the README, drops the Node 18 claim, pins engines to >=20 <25. Guarded by tests/env-example.test.ts.
 
 https://claude.ai/code/session_013KTG3L5B9ggrbbKG8RiZWe"
-gh pr checks --watch && gh pr merge --merge --delete-branch
+gh pr checks --watch   # then Cristoforo: gh pr review --approve && gh pr merge --merge --delete-branch
 git checkout main && git pull --ff-only
 ```
 
@@ -582,7 +583,7 @@ git push -u origin perf/comms-feed-cache
 gh pr create --base main --fill --body "Stale-while-revalidate cache for the unified comms feed, gathered once at limit 200 and sliced per caller. Warm /comms and home render under one second.
 
 https://claude.ai/code/session_013KTG3L5B9ggrbbKG8RiZWe"
-gh pr checks --watch && gh pr merge --merge --delete-branch
+gh pr checks --watch   # then Cristoforo: gh pr review --approve && gh pr merge --merge --delete-branch
 git checkout main && git pull --ff-only
 ```
 
@@ -747,7 +748,7 @@ git push -u origin ops/launchd-server
 gh pr create --base main --fill --body "launchd job serving the production build from .next-prod on 4100, plus an install script that builds, loads the job, and waits for the port.
 
 https://claude.ai/code/session_013KTG3L5B9ggrbbKG8RiZWe"
-gh pr checks --watch && gh pr merge --merge --delete-branch
+gh pr checks --watch   # then Cristoforo: gh pr review --approve && gh pr merge --merge --delete-branch
 git checkout main && git pull --ff-only
 ```
 
@@ -805,7 +806,7 @@ git commit -m "docs: record the tailnet URL for the production server
 Claude-Session: https://claude.ai/code/session_013KTG3L5B9ggrbbKG8RiZWe"
 git push -u origin docs/tailnet-url
 gh pr create --base main --fill --body "https://claude.ai/code/session_013KTG3L5B9ggrbbKG8RiZWe"
-gh pr checks --watch && gh pr merge --merge --delete-branch
+gh pr checks --watch   # then Cristoforo: gh pr review --approve && gh pr merge --merge --delete-branch
 git checkout main && git pull --ff-only
 ```
 
@@ -863,7 +864,7 @@ git commit -m "docs: phase 1 complete, chat on claude-sonnet-5
 Claude-Session: https://claude.ai/code/session_013KTG3L5B9ggrbbKG8RiZWe"
 git push -u origin docs/phase-1-done
 gh pr create --base main --fill --body "https://claude.ai/code/session_013KTG3L5B9ggrbbKG8RiZWe"
-gh pr checks --watch && gh pr merge --merge --delete-branch
+gh pr checks --watch   # then Cristoforo: gh pr review --approve && gh pr merge --merge --delete-branch
 git checkout main && git pull --ff-only
 ```
 
