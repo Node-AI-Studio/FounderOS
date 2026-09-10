@@ -1671,10 +1671,14 @@ export function KnowledgeGraph({
             <stop offset="0.7" stopColor="#141414" />
             <stop offset="1" stopColor="#303030" />
           </radialGradient>
-          <linearGradient id={`${nodeSurfaceId}-edge`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#050505" />
-            <stop offset="1" stopColor="#707070" />
-          </linearGradient>
+          {[...nodes.filter(n => n.kind === 'team').map(n => ({ id: n.id, color: nodeColor(n) })), { id: 'neutral', color: '#a0a0a0' }].map(halo => (
+            <radialGradient key={halo.id} id={`${nodeSurfaceId}-halo-${halo.id}`}>
+              <stop offset="0" stopColor={halo.color} stopOpacity={0} />
+              <stop offset="0.48" stopColor={halo.color} stopOpacity={0} />
+              <stop offset="0.65" stopColor={halo.color} stopOpacity={0.12} />
+              <stop offset="1" stopColor={halo.color} stopOpacity={0} />
+            </radialGradient>
+          ))}
         </defs>
         {/* orbital rings — faint, slowly-rotating backdrop (memoized; static) */}
         {orbitalRings}
@@ -1706,9 +1710,8 @@ export function KnowledgeGraph({
                 <path key={i} d={connectionPath(s, t)} fill="none" stroke={teamColor} strokeWidth={2.2} strokeLinecap="round" opacity={0.75} className="kg-ray" style={{ transition: 'opacity 0.4s' }} />
               );
             }
-            // de-noised web: every edge wears its pillar's color at a whisper
-            // (0.08); hovering a node raises ITS incident edges to 0.6, keeps
-            // the rest of the lit chain readable, and drops everything else
+            // Department color remains visible at rest; hover emphasizes the
+            // incident connections and dims unrelated branches.
             const tint = connectionColor(s.id, t.id);
             const incident = hoverId !== null && (s.id === hoverId || t.id === hoverId);
             const onChain = !lit || (lit.has(s.id) && lit.has(t.id));
@@ -1720,7 +1723,8 @@ export function KnowledgeGraph({
                 stroke={tint}
                 strokeWidth={incident ? 1.6 : onChain && lit ? 1.2 : 0.9}
                 strokeLinecap="round"
-                opacity={lit ? (incident ? 0.6 : onChain ? 0.35 : 0.04) : 0.08}
+                opacity={lit ? (incident ? 0.85 : onChain ? 0.55 : 0.04) : 0.214}
+                style={{ filter: `drop-shadow(0 0 0.65px ${tint})` }}
               />
             );
           })}
@@ -1750,7 +1754,7 @@ export function KnowledgeGraph({
               if (!s || !t) return null;
               const stroke = connectionColor(b.source, b.target);
               return (
-                <path key={i} d={connectionPath(s, t)} fill="none" stroke={stroke} strokeOpacity={0.5} strokeWidth={branchWidth(b.depth)} strokeLinecap="round" />
+                <path key={i} d={connectionPath(s, t)} fill="none" stroke={stroke} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${stroke})` }} strokeWidth={branchWidth(b.depth)} strokeLinecap="round" />
               );
             })}
           </g>
@@ -1779,7 +1783,7 @@ export function KnowledgeGraph({
               const s = posById.get(l.source);
               const t = posById.get(l.target);
               if (!s || !t) return null;
-              return <line key={`vine-${i}`} x1={s.x} y1={s.y} x2={t.x} y2={t.y} stroke={focusedColor} strokeWidth={0.8} opacity={0.26} />;
+              return <line key={`vine-${i}`} x1={s.x} y1={s.y} x2={t.x} y2={t.y} stroke={focusedColor} strokeWidth={0.8} opacity={0.538} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} />;
             })}
 
             {/* branches by depth:
@@ -1794,21 +1798,21 @@ export function KnowledgeGraph({
               const d = connectionPath(s, t);
               if (b.depth === 4) {
                 return (
-                  <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.5} strokeWidth={branchWidth(4)} strokeLinecap="round" className="kg-fade" />
+                  <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} strokeWidth={branchWidth(4)} strokeLinecap="round" className="kg-fade" />
                 );
               }
               if (b.depth === 3) {
                 return (
-                  <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.5} strokeWidth={branchWidth(3)} strokeLinecap="round" className="kg-fade" />
+                  <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} strokeWidth={branchWidth(3)} strokeLinecap="round" className="kg-fade" />
                 );
               }
               if (b.depth === 2) {
                 return (
-                  <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.5} strokeWidth={branchWidth(2)} strokeLinecap="round" className="kg-dash" />
+                  <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} strokeWidth={branchWidth(2)} strokeLinecap="round" className="kg-dash" />
                 );
               }
               return (
-                <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.5} strokeWidth={branchWidth(1)} strokeLinecap="round" pathLength={1} className="kg-grow" />
+                <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} strokeWidth={branchWidth(1)} strokeLinecap="round" pathLength={1} className="kg-grow" />
               );
             })}
 
@@ -1854,7 +1858,9 @@ export function KnowledgeGraph({
 
         {nodes.map((n) => {
           const cat = CAT[n.kind];
-          const color = nodeColor(n);
+          const surfaceColor = nodeColor(n);
+          const departmentId = teamForFocus(n.id);
+          const color = byId.get(departmentId ?? '')?.color ?? surfaceColor;
           // inside the memory only Alex + the pillar gateways stay visible
           const dim = coreExpanded
             ? n.kind !== 'self' && n.kind !== 'team'
@@ -2078,16 +2084,18 @@ export function KnowledgeGraph({
               }}
             >
               <title>{n.label}</title>
+              {n.kind !== 'self' && <circle r={r * 1.6} fill={`url(#${nodeSurfaceId}-halo-${departmentId ?? 'neutral'})`} pointerEvents="none" />}
               {/* White marks selection without changing department identity. */}
               {selected && <circle r={r + 3.5} fill="none" stroke="#ffffff" strokeWidth={1} opacity={0.4} />}
               <circle
                 r={r}
                 fill={n.kind === 'self' ? color : `url(#${nodeSurfaceId}-face)`}
-                stroke={selected || hoverId === n.id ? '#ffffff' : n.kind === 'self' ? color : `url(#${nodeSurfaceId}-edge)`}
-                strokeWidth={selected || hoverId === n.id ? 2.5 : n.kind === 'self' ? 1.5 : 1.4}
+                stroke={selected || hoverId === n.id ? '#ffffff' : color}
+                strokeOpacity={selected || hoverId === n.id || n.kind === 'self' ? 1 : 0.45}
+                strokeWidth={selected || hoverId === n.id ? 2.5 : n.kind === 'self' ? 1.5 : 0.9}
               />
               {n.kind !== 'self' && (
-                <circle r={r - 1.8} fill="none" stroke={color} strokeOpacity={0.35} strokeWidth={0.55} />
+                <circle r={r - 1.8} fill="none" stroke={surfaceColor} strokeOpacity={0.35} strokeWidth={0.55} />
               )}
               <g style={{ color: n.kind === 'self' ? 'var(--bg)' : color }}>
                 <Icon x={-r * 0.62} y={-r * 0.62} width={r * 1.24} height={r * 1.24} strokeWidth={n.kind === 'self' ? 2 : 1.5} />
