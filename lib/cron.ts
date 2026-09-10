@@ -26,6 +26,7 @@ function dowLabel(field: string): string | null {
 /** Human-readable summary, or null if the expression is not 5 valid fields. */
 export function describeCron(expr: string): string | null {
   if (!isValidCron(expr)) return null;
+  if (expr.trim().split(/\s+/).join(' ') === '0 * * * *') return 'every hour';
   const [min, hour, , , dow] = expr.trim().split(/\s+/);
 
   const every = min.match(/^\*\/(\d+)$/);
