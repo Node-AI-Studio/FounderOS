@@ -90,6 +90,12 @@ describe('bearerFrom', () => {
 });
 
 describe('isPublicPath', () => {
+  test('exposes only the exact health endpoint', () => {
+    expect(isPublicPath('/api/health')).toBe(true);
+    expect(isPublicPath('/api/health/private')).toBe(false);
+    expect(isPublicPath('/api/health-secret')).toBe(false);
+  });
+
   test('leaves the unlock exchange reachable so the gate cannot lock everyone out', () => {
     expect(isPublicPath('/unlock')).toBe(true);
     expect(isPublicPath('/api/unlock')).toBe(true);
