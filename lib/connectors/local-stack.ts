@@ -40,7 +40,7 @@ const BREW = '/opt/homebrew/bin';
 
 export async function localStackStatus(): Promise<ConnectorStatus> {
   const [commandCenter, ollama, tmuxCount] = await Promise.all([
-    ping('http://localhost:4000'),
+    ping('http://localhost:3006'),
     ping('http://localhost:11434/api/tags'),
     tmuxSessions(),
   ]);
@@ -49,7 +49,7 @@ export async function localStackStatus(): Promise<ConnectorStatus> {
   // video/voice tools (Remotion, OpenClaw, whisper, Higgsfield) were dropped
   // 2026-09-10 rather than reported as permanently "down".
   const checks: Check[] = [
-    { name: 'command-center', up: commandCenter, detail: 'Command Center :4000' },
+    { name: 'command-center', up: commandCenter, detail: 'Command Center :3006' },
     { name: 'ollama', up: ollama, detail: 'local LLM :11434' },
     { name: 'tmux', up: tmuxCount > 0, detail: `${tmuxCount} sessions` },
     {
