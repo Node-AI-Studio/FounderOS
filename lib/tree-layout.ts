@@ -10,7 +10,7 @@
  * diagram; the canopy gets a de-overlap sweep so leaves never crowd.
  *
  * Pure + deterministic: no React, no DB. The component feeds these positions to
- * the force simulation as glide targets and draws the branches with `branchPath`.
+ * the force simulation as glide targets and draws the branches with `connectionPath`.
  */
 
 export type Pt = { x: number; y: number };
@@ -61,40 +61,9 @@ const round2 = (n: number): number => {
   return Object.is(v, -0) ? 0 : v;
 };
 
-/**
- * An organic curved branch from `a` (parent, lower) to `b` (child, higher):
- * it rises mostly vertically out of the parent, bends through the middle, then
- * eases vertically into the child — an S that looks grown, never a straight rod.
- */
-export function branchPath(a: Pt, b: Pt): string {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  // Leave the junction diagonally (so limbs separate at the fork, not up the
-  // trunk), then ease toward vertical as the branch reaches its leaf — the
-  // shape of a branch growing out and up. A straight trunk (dx≈0) stays straight.
-  const c1x = a.x + dx * 0.32;
-  const c1y = a.y + dy * 0.42;
-  const c2x = b.x - dx * 0.1;
-  const c2y = a.y + dy * 0.78;
-  return `M ${round2(a.x)} ${round2(a.y)} C ${round2(c1x)} ${round2(c1y)}, ${round2(c2x)} ${round2(c2y)}, ${round2(b.x)} ${round2(b.y)}`;
-}
-
-/**
- * A gentle quadratic arc from `a` to `b`, bowed perpendicular to the chord by
- * `bow`×length — turns the unfocused graph's straight spokes into soft curves
- * that read as a living web. Deterministic; consistent bow direction gives the
- * whole graph a subtle, coherent swirl rather than a starburst of rods.
- */
-export function edgeArc(a: Pt, b: Pt, bow = 0.12): string {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const mx = (a.x + b.x) / 2;
-  const my = (a.y + b.y) / 2;
-  const off = bow * len;
-  const cx = mx + (-dy / len) * off; // perpendicular to the chord
-  const cy = my + (dx / len) * off;
-  return `M ${round2(a.x)} ${round2(a.y)} Q ${round2(cx)} ${round2(cy)}, ${round2(b.x)} ${round2(b.y)}`;
+/** Direct connection shared by the overview, focused tree and exit transition. */
+export function connectionPath(a: Pt, b: Pt): string {
+  return `M ${round2(a.x)} ${round2(a.y)} L ${round2(b.x)} ${round2(b.y)}`;
 }
 
 /** Smooth trunk→leaf taper: branch stroke width by depth, monotonic, min 1. */

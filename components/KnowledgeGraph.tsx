@@ -18,7 +18,7 @@ import { Crown, ArrowLeft, ChevronLeft, ChevronRight, ClipboardList, Maximize2, 
 import { graphDirectory, orderGraphDepartments, SELF_ID, toolSlugOf, workerNodeId, type DirectoryGroup, type KGNode, type KGNodeKind, type KnowledgeGraph as KGData } from '@/lib/knowledge-graph';
 import { ACTION_LENSES, ENTITY_LENSES, FUNCTION_LENSES, lensNodeSet, type Lens } from '@/lib/graph-lens';
 import { GraphDirectory } from '@/components/GraphDirectory';
-import { branchPath, branchWidth, cyclicDeltaF, edgeArc, focusWheel, radialRestLayout, responsiveRingR, rotateAbout, shortestAngleDelta, treeLayout, wheelPoint, wheelStageGeom, wheelStageSpot, type RestLayoutResult, type TreeLayoutResult, type TreeNodePos } from '@/lib/tree-layout';
+import { connectionPath, branchWidth, cyclicDeltaF, focusWheel, radialRestLayout, responsiveRingR, rotateAbout, shortestAngleDelta, treeLayout, wheelPoint, wheelStageGeom, wheelStageSpot, type RestLayoutResult, type TreeLayoutResult, type TreeNodePos } from '@/lib/tree-layout';
 import { rafThrottle } from '@/lib/raf-throttle';
 import { buildToolWiki, prettifySlug } from '@/lib/agent-wiki';
 import { cameraRect, lerpRect, memoryNodePos, pickRestTier, R_CORE, type MemoryGraph, type Rect } from '@/lib/memory-core';
@@ -904,20 +904,16 @@ export function KnowledgeGraph({
           const dir = key.slice(sep + 1);
           const teamPos = posOf(teamId);
           if (!selfPos || !teamPos) continue;
-          // same bow as edgeArc so the dots ride the drawn spoke exactly
+          // Linear interpolation keeps the dots on the direct connection.
           const dx = teamPos.x - selfPos.x;
           const dy = teamPos.y - selfPos.y;
-          const len = Math.hypot(dx, dy) || 1;
-          const mx = (selfPos.x + teamPos.x) / 2 + (-dy / len) * 0.12 * len;
-          const my = (selfPos.y + teamPos.y) / 2 + (dx / len) * 0.12 * len;
           const seed = (hashStr(teamId) % 100) / 100;
           const u =
             dir === 'out'
               ? (now / 2600 + seed) % 1
               : 1 - ((now / 3300 + seed * 1.7) % 1);
-          const a = 1 - u;
-          const x = a * a * selfPos.x + 2 * a * u * mx + u * u * teamPos.x;
-          const y = a * a * selfPos.y + 2 * a * u * my + u * u * teamPos.y;
+          const x = selfPos.x + dx * u;
+          const y = selfPos.y + dy * u;
           el.setAttribute('transform', `translate(${x},${y})`);
           el.setAttribute('opacity', String(0.9 * Math.sin(Math.PI * u)));
         }
@@ -1688,13 +1684,13 @@ export function KnowledgeGraph({
             const pathway = coreExpanded && l.kind === 'pillar';
             if (coreExpanded && !pathway) {
               return (
-                <path key={i} d={edgeArc(s, t)} fill="none" stroke={EDGE_COLOR[l.kind] ?? 'var(--dim)'} strokeWidth={0.9} strokeLinecap="round" opacity={0.02} style={{ transition: 'opacity 0.4s' }} />
+                <path key={i} d={connectionPath(s, t)} fill="none" stroke={EDGE_COLOR[l.kind] ?? 'var(--dim)'} strokeWidth={0.9} strokeLinecap="round" opacity={0.02} style={{ transition: 'opacity 0.4s' }} />
               );
             }
             if (pathway) {
               const teamColor = byId.get(t.id)?.color ?? 'var(--text)';
               return (
-                <path key={i} d={edgeArc(s, t)} fill="none" stroke={teamColor} strokeWidth={2.2} strokeLinecap="round" opacity={0.75} className="kg-ray" style={{ transition: 'opacity 0.4s' }} />
+                <path key={i} d={connectionPath(s, t)} fill="none" stroke={teamColor} strokeWidth={2.2} strokeLinecap="round" opacity={0.75} className="kg-ray" style={{ transition: 'opacity 0.4s' }} />
               );
             }
             // de-noised web: every edge wears its pillar's color at a whisper
@@ -1707,7 +1703,7 @@ export function KnowledgeGraph({
             return (
               <path
                 key={i}
-                d={edgeArc(s, t)}
+                d={connectionPath(s, t)}
                 fill="none"
                 stroke={tint}
                 strokeWidth={incident ? 1.6 : onChain && lit ? 1.2 : 0.9}
@@ -1746,15 +1742,14 @@ export function KnowledgeGraph({
                 : b.depth === 2 ? 'var(--accent)'
                 : 'var(--text)';
               return (
-                <path key={i} d={branchPath(s, t)} fill="none" stroke={stroke} strokeWidth={branchWidth(b.depth)} strokeLinecap="round" />
+                <path key={i} d={connectionPath(s, t)} fill="none" stroke={stroke} strokeWidth={branchWidth(b.depth)} strokeLinecap="round" />
               );
             })}
           </g>
         )}
 
-        {/* Focused: the department grown as an organic tree — curved, tapered
-            branches with a dept-tinted glow, an energy pulse, and popping
-            leaves. Keyed by department so the growth replays on each switch. */}
+        {/* Focused department: direct, tapered branches retain the department
+            glow, energy pulse and leaf animation on each switch. */}
         {focusTree && (
           <g key={focusTeamId ?? 'focus'} style={{ pointerEvents: 'none' }}>
             <defs>
@@ -1788,7 +1783,7 @@ export function KnowledgeGraph({
               const s = posById.get(b.source);
               const t = posById.get(b.target);
               if (!s || !t) return null;
-              const d = branchPath(s, t);
+              const d = connectionPath(s, t);
               if (b.depth === 4) {
                 return (
                   <path key={`br-${i}`} d={d} fill="none" stroke="var(--brain-2)" strokeWidth={branchWidth(4)} strokeLinecap="round" className="kg-fade" />
@@ -1838,7 +1833,7 @@ export function KnowledgeGraph({
                 return (
                   <path
                     key={`fl-${teamId}-${i}`}
-                    d={branchPath(s, t)}
+                    d={connectionPath(s, t)}
                     fill="none"
                     stroke={byId.get(teamId)?.color ?? 'var(--text-3)'}
                     strokeWidth={branchWidth(b.depth) * 0.8}
