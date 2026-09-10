@@ -184,7 +184,7 @@ Only after phase 3 exists, because the folder is what would be sold.
 |---|---|
 | 2026-09-10 | Keep the 44 unwired catalog tiles for now (Cristoforo). Revisit in 2.3. |
 | 2026-09-10 | Persistent URL via launchd and Tailscale, not a container host yet. |
-| 2026-09-10 | `main` is protected with admins enforced: every change lands by pull request with the `verify` check green and one approving review from a non-author, merged with `gh pr merge` under the personal account. No `--admin` bypass. |
+| 2026-09-10 | `main` is protected: PR with green `verify` and one review. Admin enforcement is off, so founders merge their own PRs with `gh pr merge --admin` under personal accounts; `nodeagencyai` is a plain member whose PRs need the check and a human approval. |
 | 2026-09-10 | No em dashes, no emojis, dark monochrome artifacts (house style). |
 | 2026-09-10 | Slack bot channel membership and the Obsidian vault switch are Cristoforo's manual actions, not code. |
 
