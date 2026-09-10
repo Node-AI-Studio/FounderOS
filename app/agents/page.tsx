@@ -131,7 +131,10 @@ export default function AgentsPage() {
       {/* Roster = the OS runtime below; Hermes = a worker-pool dashboard
           embedded from whatever host HERMES_DASH_URL points at. Unset in the
           demo, so the tab reports "not configured" instead of a dead frame. */}
-      <AgentsTabs hermesUrl={process.env.HERMES_DASH_URL}>
+      <AgentsTabs
+        hermesUrl={process.env.HERMES_DASH_URL}
+        paperclipUrl={process.env.PAPERCLIP_DASH_URL}
+      >
       <div className="mb-6">
         <ConductorChat agentNames={agentNames} />
       </div>
