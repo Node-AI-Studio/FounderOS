@@ -5,9 +5,9 @@ import { describe, expect, test } from 'vitest';
 const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
 /**
- * /brain layout contract (Alex, 2026-07-12): the capture box is ONE
- * compact untitled part riding the right of the G-BRAIN header — text or
- * dropped documents — and the knowledge graph sits directly under the title.
+ * /brain layout contract (Node AI, 2026-07-12): the capture box is ONE
+ * compact untitled part riding the right of the G-BRAIN header - text or
+ * dropped documents - and the knowledge graph sits directly under the title.
  */
 describe('/brain header capture + graph placement', () => {
   test('the compact dump rides the header right slot; no standalone dump section', () => {

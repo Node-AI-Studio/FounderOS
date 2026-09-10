@@ -46,8 +46,8 @@ back to local brain-store grep when the database is unreachable. Default
 
 ## Real connectors & agents (v2)
 
-Alex's directive: real integrations, not larp. Strict black & white theme
-(UI polish deferred — he'll design it himself once everything is wired).
+Node AI's directive: real integrations, not larp. Strict black & white theme
+(UI polish deferred - Node AI will design it once everything is wired).
 
 - `lib/connectors/` — 12 connector groups, all returning honest
   `ConnectorStatus` (never fake "connected"): `email.ts` (4 IMAP slots),
@@ -58,7 +58,7 @@ Alex's directive: real integrations, not larp. Strict black & white theme
   `wispr.ts` (local flow.sqlite readonly — LIVE), `obsidian.ts` (vault fs;
   needs macOS Documents permission), `local-stack.ts` (ports 4000/3789/11434/
   18789 + tmux + brew binaries).
-- `lib/creds.ts` — credential resolution: process.env first, then Alex's
+- `lib/creds.ts` - credential resolution: process.env first, then Node AI's
   canonical files at runtime. NEVER copy secret values into this repo.
 - `lib/agents/runtime.ts` + `real.ts` — agent registry; every seeded agent row
   maps 1:1 to a `RuntimeAgent` with a real `run()` (enforced by seed tests).

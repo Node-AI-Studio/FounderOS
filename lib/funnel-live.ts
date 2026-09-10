@@ -1,14 +1,14 @@
 /**
- * Live funnel provider — Alex's real Attio pipeline mapped into the same
+ * Live funnel provider - Node AI's real Attio pipeline mapped into the same
  * FunnelJourney shape the seeded funnel uses, so /funnel swaps sources at the
  * repo level exactly as designed. Honest by construction: returns null when
  * the key is missing or Attio is unreachable (the page falls back to seed and
  * says so), Closed Lost is excluded but counted, unknown stages are skipped.
  *
- * ICP fit is a transparent heuristic over the qualification fields Alex
+ * ICP fit is a transparent heuristic over the qualification fields Node AI
  * actually fills in Attio (budget / pain points / timeline / description /
- * deal value) — it drives node size AND how tightly a lead orbits its hub.
- * Swap it for a real ICP model whenever he defines one.
+ * deal value) - it drives node size AND how tightly a lead orbits its hub.
+ * Swap it for a real ICP model whenever Node AI defines one.
  */
 import { resolveAttioKey } from '@/lib/creds';
 import { FUNNEL_STAGES } from '@/lib/funnel';
@@ -52,7 +52,7 @@ export type AttioContacts = {
   companies: Map<string, string>;
 };
 
-/** Alex's 10 Attio stages → the 5 canonical hubs. Closed Lost leaves the funnel. */
+/** Node AI's 10 Attio stages → the 5 canonical hubs. Closed Lost leaves the funnel. */
 export const ATTIO_STAGE_MAP: Record<string, FunnelStage> = {
   'New Lead': 'first_touch',
   Contacted: 'engaged',
@@ -79,8 +79,8 @@ export function classifyVenture(dealName: string): 'vantage' | 'launchpad-cohort
 }
 
 /**
- * Likelihood-to-buy relative to ICP, 20–100. Deliberately simple and legible:
- * each qualification field Alex filled is evidence of fit.
+ * Likelihood-to-buy relative to ICP, 20-100. Deliberately simple and legible:
+ * each qualification field Node AI filled is evidence of fit.
  */
 export function icpScore(deal: AttioDeal): number {
   const has = (arr?: unknown[]) => Array.isArray(arr) && arr.length > 0;

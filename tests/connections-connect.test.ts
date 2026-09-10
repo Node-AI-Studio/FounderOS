@@ -5,8 +5,8 @@ import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { POST, DELETE } from '@/app/api/connections/connect/route';
 import { readEnvLocal } from '@/lib/creds';
 
-/** The connect flow writes ONLY to .env.local (gitignored) — never to
- *  Alex's canonical machine files, never into the repo. */
+/** The connect flow writes ONLY to .env.local (gitignored) - never to
+ *  Node AI's canonical machine files, never into the repo. */
 describe('POST /api/connections/connect', () => {
   let tmp: string;
   const prevOverride = process.env.FOUNDER_OS_ENV_LOCAL;

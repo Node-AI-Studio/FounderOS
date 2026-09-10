@@ -367,7 +367,7 @@ export function ClientRosterCard({
   );
 }
 
-/** Memory note detail: one page from Alex's brain-store constellation. */
+/** Memory note detail: one page from Node AI's brain-store constellation. */
 export function MemoryNoteCard({
   note, color, onBack, onClose,
 }: {

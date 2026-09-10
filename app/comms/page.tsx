@@ -31,7 +31,7 @@ export default async function CommsPage() {
   ]);
   const tags = getDb().contactTags.all();
   const feed = annotatePriorities(rawFeed, tags);
-  // Generic defaults ship in code; Alex's real work brands live in
+  // Generic defaults ship in code; Node AI's real work brands live in
   // COMMS_WORK_KEYWORDS (.env.local, gitignored) so they never reach the demo.
   const workKeywords = [...DEFAULT_WORK_KEYWORDS, ...parseWorkKeywords(process.env.COMMS_WORK_KEYWORDS)];
   const calLegend = caldavAccounts().map((a) => ({ name: a.name, color: a.color }));

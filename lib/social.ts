@@ -97,7 +97,7 @@ export function syncSocialSnapshots(
   return recorded;
 }
 
-/** Live sync from Alex's Zernio config — called on every dashboard read. */
+/** Live sync from Node AI's Zernio config - called on every dashboard read. */
 export function syncFromZernioConfig(db: FounderDb, today?: string): number {
   return syncSocialSnapshots(db, zernioAccounts(), today ?? new Date().toISOString().slice(0, 10));
 }

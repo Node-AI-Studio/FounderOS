@@ -181,7 +181,7 @@ describe('seedDatabase', () => {
     seedDatabase(db);
     const snaps = db.emailList.snapshots();
     expect(snaps.length).toBeGreaterThan(0);
-    // Latest count is the real "Alex's Newsletter" active subscriber count
+    // Latest count is the real "Node AI's Newsletter" active subscriber count
     // (pulled from Beehiiv 2026-07-07). Bumped deliberately as the list grows.
     expect(db.emailList.latest()?.subscribers).toBe(2141);
     // Honest shape: the list only exists from its 2026-05-28 bulk import — no

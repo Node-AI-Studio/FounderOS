@@ -1,6 +1,6 @@
 /**
- * Lenses over the operating knowledge graph (Alex, 2026-07-12): slice the
- * same 114 nodes three ways — by ENTITY TYPE, by BUSINESS FUNCTION (core vs
+ * Lenses over the operating knowledge graph (Node AI, 2026-07-12): slice the
+ * same 114 nodes three ways - by ENTITY TYPE, by BUSINESS FUNCTION (core vs
  * enabling, plus his two venture teams), and by ACTION (what a thing is
  * actually used for). Picking a lens lights the matching nodes and dims the
  * rest. Pure data + matchers; the component supplies the node list and a

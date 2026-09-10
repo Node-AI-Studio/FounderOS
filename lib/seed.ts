@@ -36,7 +36,7 @@ const GRAY = {
   dark: '#525252',
 };
 
-// Alex's five operating pillars (2026-06-12 directive).
+// Node AI's five operating pillars (2026-06-12 directive).
 const departments: Department[] = [
   { id: 'dept-sales', name: 'Sales', slug: 'sales', tagline: 'Pipeline and deals.', color: GRAY.white, order: 1 },
   { id: 'dept-marketing-growth', name: 'Marketing/Growth', slug: 'marketing-growth', tagline: 'Publishing, content, attention.', color: GRAY.light, order: 2 },
@@ -455,7 +455,7 @@ const agents: Agent[] = [
 ];
 
 // ── Humans in the process ─────────────────────────────────────────────────────
-// Real heads (Marco, Nadia) plus larp-first seeds for the roles Alex will hire
+// Real heads (Marco, Nadia) plus larp-first seeds for the roles Node AI will hire
 // into (rename when the real person lands). Tools use the agents' slug
 // namespace so the graph chain still ends in tools for humans too.
 const people: Person[] = [
@@ -1103,7 +1103,7 @@ const socialDms: SocialDm[] = DM_TARGETS.map((t) => ({
 // (source 'seed-dummy'; real messages arrive as source 'manychat'). Four
 // threads, inbound + outbound, believable Vantage / FounderOS lead-gen tone.
 const socialDmMessages: SocialDmMessage[] = [
-  // Alex — agency owner off a reel
+  // Demo agency owner off a reel
   ['ig-alex', 'Alex Rivera', 'alex.rivera', 'in', 'saw your reel on the 3-agent setup 🔥 do you actually work with agencies?', null, '2026-07-18T14:02:00.000Z'],
   ['ig-alex', 'Alex Rivera', 'alex.rivera', 'out', 'appreciate it! yeah — agencies are exactly who Vantage is built for. what are you running right now?', null, '2026-07-18T14:09:00.000Z'],
   ['ig-alex', 'Alex Rivera', 'alex.rivera', 'in', 'SMMA, ~12 clients, drowning in fulfillment tbh 😅', null, '2026-07-18T14:15:00.000Z'],
