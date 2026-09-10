@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { INTEGRATIONS, connectKeysFor } from '@/lib/integrations-catalog';
 import { readEnvLocal, upsertEnvLocal, removeEnvLocal } from '@/lib/creds';
+import { invalidateConnectorStatuses } from '@/lib/connectors';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,6 +54,7 @@ export async function POST(req: Request) {
   }
 
   upsertEnvLocal(Object.fromEntries(names.map((k) => [k, body.values[k].trim()])));
+  invalidateConnectorStatuses();
   const saved = readEnvLocal();
   const keySaved = [...allowed].every((k) => Boolean(saved[k]));
   return NextResponse.json({ ok: true, keySaved, partial: !keySaved });
@@ -68,5 +70,6 @@ export async function DELETE(req: Request) {
   const entry = entryFor(body.slug);
   if (!entry) return NextResponse.json({ ok: false, error: 'unknown integration' }, { status: 400 });
   removeEnvLocal(connectKeysFor(entry));
+  invalidateConnectorStatuses();
   return NextResponse.json({ ok: true, keySaved: false });
 }

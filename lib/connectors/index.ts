@@ -21,6 +21,7 @@ import { ghlStatus } from '@/lib/connectors/ghl';
 import { getBrainProvider } from '@/lib/brain';
 import { resolveManychatKey, runtimeEnv } from '@/lib/creds';
 import type { ConnectorStatus } from '@/lib/connectors/types';
+import { createStatusCache } from '@/lib/connectors/status-cache';
 
 async function brainConnectorStatus(): Promise<ConnectorStatus> {
   const status = await getBrainProvider().status();
@@ -68,7 +69,7 @@ const CHECKS: [string, ConnectorStatus['kind'], () => Promise<ConnectorStatus>][
   ['notion', 'notion', () => notionStatus(runtimeEnv())],
 ];
 
-export async function allConnectorStatuses(): Promise<ConnectorStatus[]> {
+async function runAllChecks(): Promise<ConnectorStatus[]> {
   return Promise.all(
     CHECKS.map(([id, kind, check]) =>
       check().catch(
@@ -82,4 +83,19 @@ export async function allConnectorStatuses(): Promise<ConnectorStatus[]> {
       ),
     ),
   );
+}
+
+// One cache per server process. Pages read it instantly; a background refresh
+// runs once the snapshot is older than the TTL. Tests that want live results
+// pass { fresh: true }; the connect flow calls invalidateConnectorStatuses()
+// so a freshly pasted key shows up on the next render, not a minute later.
+const STATUS_TTL_MS = 60_000;
+const statusCache = createStatusCache(runAllChecks, { ttlMs: STATUS_TTL_MS });
+
+export async function allConnectorStatuses(opts?: { fresh?: boolean }): Promise<ConnectorStatus[]> {
+  return statusCache.get(opts);
+}
+
+export function invalidateConnectorStatuses(): void {
+  statusCache.invalidate();
 }
