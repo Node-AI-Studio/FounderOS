@@ -1131,6 +1131,15 @@ reviewer key on stdin, confirm with `codex login status`. Never echo the
 key. Then set the failed reviewer tickets back to `todo` and wake the
 agent. The per-agent `OPENAI_API_KEY` binding can stay; it is harmless.
 
+**Second failure, same day:** with the login in place, runs completed in
+about thirty seconds, `usage` null, and Paperclip marked them `succeeded`
+while parking the tickets with "could not resolve this issue's missing
+disposition". The run summary held the real error: "You have no credits
+remaining" from the OpenAI API. The key is valid but the platform account
+has no prepaid credit. Two lessons: fund the API account before the
+reviewer's first run, and Paperclip reports a model-side failure as a
+successful run, so a zero-usage "success" needs a look at `resultJson`.
+
 - [ ] **Step 2: Watch spend climb**
 
 Daily:
