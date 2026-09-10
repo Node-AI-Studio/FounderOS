@@ -23,6 +23,8 @@ export type TreeBranch = { source: string; target: string; depth: number };
 export type TreeLayoutInput = {
   selfId: string;
   teamId: string;
+  /** Optional decision maker between the department and its task branches. */
+  headId?: string;
   /** the focused team's SOP task nodes, in display order */
   taskIds: string[];
   /** taskId → the single worker (agent or person) who does it — monogamous */
@@ -74,7 +76,7 @@ export function branchWidth(depth: number): number {
 export type RestLayoutInput = {
   selfId: string;
   /** ordered pillars; tools must be deduped to one primary pillar each */
-  pillars: { teamId: string; taskIds: string[]; workerIds: string[]; toolIds: string[] }[];
+  pillars: { teamId: string; headId?: string; taskIds: string[]; workerIds: string[]; toolIds: string[] }[];
   /** radius per depth: [self, team, task, worker, tool]. Omit to derive from width/height. */
   ringR?: number[];
   cx: number;
@@ -95,9 +97,10 @@ export type RestLayoutResult = { positions: Map<string, Pt> };
 const RING_FRAC = [0, 90 / 600, 146 / 600, 198 / 600, 248 / 600];
 
 /** Responsive ring radii [self, team, task, worker, tool] for a given canvas size. */
-export function responsiveRingR(width: number, height: number): number[] {
+export function responsiveRingR(width: number, height: number, withHeads = false): number[] {
   const m = Math.max(1, Math.min(width, height));
-  return RING_FRAC.map((f) => round2(f * m));
+  const fractions = withHeads ? [0, 90 / 600, 194 / 600, 240 / 600, 288 / 600] : RING_FRAC;
+  return fractions.map((f) => round2(f * m));
 }
 
 /**
@@ -136,6 +139,7 @@ export function radialRestLayout(input: RestLayoutInput): RestLayoutResult {
   pillars.forEach((p, i) => {
     const center = centersRaw[i] + offset;
     positions.set(p.teamId, polar(ringR[1], center));
+    if (p.headId) positions.set(p.headId, polar((ringR[1] + ringR[2]) / 2, center));
     const half = (spans[i] / 2) * SECTOR_FILL;
     const ring = (ids: string[], r: number) => {
       const k = ids.length;
@@ -153,10 +157,11 @@ export function radialRestLayout(input: RestLayoutInput): RestLayoutResult {
 }
 
 export function treeLayout(input: TreeLayoutInput): TreeLayoutResult {
-  const { selfId, teamId, taskIds, workerByTask, toolsByWorker, width: W, height: H } = input;
+  const { selfId, teamId, headId, taskIds, workerByTask, toolsByWorker, width: W, height: H } = input;
   const margin = input.margin ?? 70;
   const cx = W / 2;
-  const yOf = (depth: number) => H * DEPTH_FRAC[depth];
+  const bands = headId ? [0.86, 0.76, 0.42, 0.24, 0.07] : DEPTH_FRAC;
+  const yOf = (depth: number) => H * bands[depth];
   const clampX = (x: number) => Math.max(margin, Math.min(W - margin, x));
 
   const positions = new Map<string, TreeNodePos>();
@@ -170,7 +175,11 @@ export function treeLayout(input: TreeLayoutInput): TreeLayoutResult {
 
   // task limbs — fan above the department; the cone is capped by the rise so
   // the ≤45° lean always holds against this band's actual height gap.
-  const teamY = yOf(1);
+  const teamY = headId ? H * 0.66 : yOf(1);
+  if (headId) {
+    positions.set(headId, { x: cx, y: teamY, depth: 1.5 });
+    branches.push({ source: teamId, target: headId, depth: 1 });
+  }
   const taskY = yOf(2);
   const workerY = yOf(3);
   const n = taskIds.length;
@@ -182,7 +191,7 @@ export function treeLayout(input: TreeLayoutInput): TreeLayoutResult {
     const x = clampX(cx + t * half);
     taskX.set(id, x);
     positions.set(id, { x, y: taskY, depth: 2 });
-    branches.push({ source: teamId, target: id, depth: 2 });
+    branches.push({ source: headId ?? teamId, target: id, depth: 2 });
   });
 
   // workers — monogamous, so each sits DIRECTLY above its one task: a clean

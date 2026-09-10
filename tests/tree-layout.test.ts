@@ -585,3 +585,32 @@ describe('branchWidth', () => {
     expect(branchWidth(4)).toBeGreaterThanOrEqual(1);
   });
 });
+
+
+describe('department leadership placement', () => {
+  test('aligns each head between its department and task ring', () => {
+    const { positions } = radialRestLayout({
+      selfId: 'self', cx: 400, cy: 300, ringR: [0, 90, 194, 240, 288],
+      pillars: [{ teamId: 'team:a', headId: 'head:a', taskIds: ['task:a'], workerIds: [], toolIds: [] }],
+    });
+    const head = positions.get('head:a')!;
+    expect(head).toBeDefined();
+    expect(head.x).toBeCloseTo(positions.get('team:a')!.x);
+    expect(head.y).toBeLessThan(positions.get('team:a')!.y);
+    expect(head.y).toBeGreaterThan(positions.get('task:a')!.y);
+  });
+
+  test('routes expanded task branches through the department head', () => {
+    const input = baseInput({ headId: 'head:dept-sales' });
+    const { positions, branches } = treeLayout(input);
+    const head = positions.get(input.headId!)!;
+    expect(head).toBeDefined();
+    expect(head.y).toBeLessThan(positions.get(input.teamId)!.y);
+    expect(branches).toContainEqual({ source: input.teamId, target: input.headId, depth: 1 });
+    for (const task of input.taskIds) {
+      expect(head.y).toBeGreaterThan(positions.get(task)!.y);
+      expect(branches).toContainEqual({ source: input.headId, target: task, depth: 2 });
+      expect(branches.some(b => b.source === input.teamId && b.target === task)).toBe(false);
+    }
+  });
+});

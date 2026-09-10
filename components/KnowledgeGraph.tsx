@@ -14,7 +14,7 @@ import {
   forceY,
   type Simulation,
 } from 'd3-force';
-import { Crown, ArrowLeft, ChevronLeft, ChevronRight, ClipboardList, Maximize2, Sparkles, User, UserRound, Users, Wrench, X, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ClipboardList, Maximize2, Sparkles, User, UserRound, Users, Wrench, X, type LucideIcon } from 'lucide-react';
 import { graphDirectory, orderGraphDepartments, SELF_ID, toolSlugOf, workerNodeId, type DirectoryGroup, type KGNode, type KGNodeKind, type KnowledgeGraph as KGData } from '@/lib/knowledge-graph';
 import { ACTION_LENSES, ENTITY_LENSES, FUNCTION_LENSES, lensNodeSet, type Lens } from '@/lib/graph-lens';
 import { GraphDirectory } from '@/components/GraphDirectory';
@@ -35,7 +35,7 @@ const W = 880;
 const H = 600;
 const CX = W / 2;
 const CY = H / 2;
-const RING_R = responsiveRingR(W, H); // self · teams · employees · tools — responsive to canvas
+const RING_R = responsiveRingR(W, H, true); // Extra space between departments and tasks for their heads.
 const MARGIN = 78; // horizontal margin for focus rows
 // focus mode: the wheel enlarges and its hub sinks below the canvas — the
 // focused tree grows out of the wheel's top; you turn INTO it (lib/tree-layout)
@@ -51,7 +51,7 @@ const RIM_DELTA_DEG = (WHEEL_GEOM.delta * 180) / Math.PI;
 const CAT: Record<KGNodeKind, { color: string; Icon: LucideIcon; label: string; r: number }> = {
   self: { color: 'var(--text)', Icon: Sparkles, label: 'Notes', r: 18 },
   team: { color: 'var(--brain-1)', Icon: Users, label: 'Pillars', r: 15 },
-  head: { color: 'var(--brain-2)', Icon: Crown, label: 'Dept heads', r: 12 },
+  head: { color: 'var(--brain-2)', Icon: UserRound, label: 'Dept heads', r: 12 },
   task: { color: '#a0a0a0', Icon: ClipboardList, label: 'SOP tasks', r: 7 },
   person: { color: '#d0d0d0', Icon: UserRound, label: 'Humans', r: 10 },
   employee: { color: '#d0d0d0', Icon: User, label: 'AI agents', r: 10 },
@@ -337,13 +337,13 @@ export function KnowledgeGraph({
     const node = byId.get(id);
     const set = new Set<string>([id]);
     if (!node) return set;
-    if (node.kind === 'team') {
+    if (node.kind === 'team' || node.kind === 'head') {
+      const team = node.kind === 'team' ? id : id.replace('head:', 'team:');
       set.add(SELF_ID);
-      for (const w of workersOfTeam.get(id) ?? []) chainOfWorker(w, set);
-      for (const t of tasksOfTeam.get(id) ?? []) set.add(t);
-    } else if (node.kind === 'head') {
-      set.add(SELF_ID);
-      set.add(id.replace('head:', 'team:'));
+      set.add(team);
+      set.add(team.replace('team:', 'head:'));
+      for (const w of workersOfTeam.get(team) ?? []) chainOfWorker(w, set);
+      for (const t of tasksOfTeam.get(team) ?? []) set.add(t);
     } else if (node.kind === 'task') {
       set.add(SELF_ID);
       const team = teamOfTask.get(id);
@@ -358,6 +358,10 @@ export function KnowledgeGraph({
     } else {
       for (const m of adjacency.get(id) ?? []) set.add(m);
     }
+    for (const member of [...set]) {
+      const team = teamForFocus(member);
+      if (team) set.add(team.replace('team:', 'head:'));
+    }
     return set;
   };
 
@@ -365,7 +369,7 @@ export function KnowledgeGraph({
 
   const focusSet = useMemo(() => {
     if (!focusTeamId) return null;
-    const set = new Set<string>([SELF_ID, focusTeamId]);
+    const set = new Set<string>([SELF_ID, focusTeamId, focusTeamId.replace('team:', 'head:')]);
     for (const t of tasksOfTeam.get(focusTeamId) ?? []) set.add(t);
     for (const w of workersOfTeam.get(focusTeamId) ?? []) {
       set.add(w);
@@ -397,6 +401,7 @@ export function KnowledgeGraph({
         treeLayout({
           selfId: SELF_ID,
           teamId: team.id,
+          headId: byId.has(team.id.replace('team:', 'head:')) ? team.id.replace('team:', 'head:') : undefined,
           taskIds,
           workerByTask,
           toolsByWorker,
@@ -430,12 +435,13 @@ export function KnowledgeGraph({
     }
     const pillars = teams.map((t) => ({
       teamId: t.id,
+      headId: byId.has(t.id.replace('team:', 'head:')) ? t.id.replace('team:', 'head:') : undefined,
       taskIds: tasksOfTeam.get(t.id) ?? [],
       workerIds: workersOfTeam.get(t.id) ?? [],
       toolIds: toolsByPillar.get(t.id) ?? [],
     }));
     return radialRestLayout({ selfId: SELF_ID, pillars, ringR: RING_R, cx: CX, cy: CY });
-  }, [graph, tasksOfTeam, workersOfTeam, workersOfTool, teamOfWorker]);
+  }, [graph, byId, tasksOfTeam, workersOfTeam, workersOfTool, teamOfWorker]);
 
   // Staggered label rows for the focused tree: within each band (tasks,
   // workers, tools) labels alternate between two heights so long titles stay
@@ -644,7 +650,12 @@ export function KnowledgeGraph({
       const a = (i / peers) * Math.PI * 2;
       return { ...n, x: CX + Math.cos(a) * (RING_R[n.ring] || 1), y: CY + Math.sin(a) * (RING_R[n.ring] || 1) };
     });
-    const links: SimLink[] = graph.edges.map((e) => ({ source: e.source, target: e.target, kind: e.kind }));
+    // Department ownership stays in the data; displayed task branches pass through the head.
+    const links: SimLink[] = graph.edges.map((e) => {
+      const headId = e.source.replace('team:', 'head:');
+      const source = e.kind === 'sop' && byId.has(headId) ? headId : e.source;
+      return { source, target: e.target, kind: e.kind };
+    });
     nodesRef.current = nodes;
     linksRef.current = links;
 
@@ -1457,7 +1468,7 @@ export function KnowledgeGraph({
           ] as const
         ).map(({ label, color, Icon }) => (
           <span key={label} className="flex items-center gap-1.5 font-mono text-[9.5px] text-os-muted">
-            <Icon className="h-3 w-3" style={{ color }} strokeWidth={2} />
+            {label === 'Dept head' ? <span className="font-mono text-[8px]">CXO</span> : <Icon className="h-3 w-3" style={{ color }} strokeWidth={2} />}
             {label}
           </span>
         ))}
@@ -1869,7 +1880,7 @@ export function KnowledgeGraph({
               : false;
           const inFocus = focusSet?.has(n.id) ?? false;
           const selected = selectedAgentId === n.id || selectedToolId === n.id || selectedTaskId === n.id || selectedHumanId === n.id;
-          const showLabel = n.kind === 'self' || n.kind === 'team' || inFocus || (hoverId ? (lit?.has(n.id) ?? false) : false);
+          const showLabel = n.kind !== 'head' && (n.kind === 'self' || n.kind === 'team' || inFocus || (hoverId ? (lit?.has(n.id) ?? false) : false));
           const Icon = cat.Icon;
           // tier radius + a connection-count bump for workers and tools, so
           // heavily-wired nodes read heavier at a glance
@@ -2098,7 +2109,11 @@ export function KnowledgeGraph({
                 <circle r={r - 1.8} fill="none" stroke={surfaceColor} strokeOpacity={0.35} strokeWidth={0.55} />
               )}
               <g style={{ color: n.kind === 'self' ? 'var(--bg)' : color }}>
-                <Icon x={-r * 0.62} y={-r * 0.62} width={r * 1.24} height={r * 1.24} strokeWidth={n.kind === 'self' ? 2 : 1.5} />
+                {n.kind === 'head' ? (
+                  <text x={0} y={r * 0.21} textAnchor="middle" fill="currentColor" fontFamily="var(--font-mono)" fontSize={r * 0.625} fontWeight={600} letterSpacing={-0.4}>
+                    {n.label}
+                  </text>
+                ) : <Icon x={-r * 0.62} y={-r * 0.62} width={r * 1.24} height={r * 1.24} strokeWidth={n.kind === 'self' ? 2 : 1.5} />}
               </g>
               {showLabel && (
                 <text
@@ -2388,7 +2403,7 @@ export function KnowledgeGraph({
                 return (
                   <div key={k} className="flex items-center gap-2">
                     <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border" style={{ borderColor: legendColor, color: legendColor }}>
-                      <Icon className="h-3 w-3" strokeWidth={2} />
+                      {k === 'head' ? <span className="font-mono text-[7px]">CXO</span> : <Icon className="h-3 w-3" strokeWidth={2} />}
                     </span>
                     <span className="flex-1 text-[11px] font-semibold">{cat.label}</span>
                     <span className="font-mono text-[10px] text-os-dim">{count}</span>
