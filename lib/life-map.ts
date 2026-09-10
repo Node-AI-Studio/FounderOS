@@ -1,8 +1,8 @@
 /**
- * Alex's life map: the radial taxonomy at the heart of the OS.
- * Center = Alex's life; ring 1 = color-coded life areas; ring 2 = the
+ * Node AI's life map: the radial taxonomy at the heart of the OS.
+ * Center = Node AI's life; ring 1 = color-coded life areas; ring 2 = the
  * modules inside each area. Communication additionally carries the contact
- * tier system — the numbered/colored response-priority ladder for people.
+ * tier system - the numbered/colored response-priority ladder for people.
  *
  * This is the one place colors enter the otherwise black & white OS:
  * each life area owns a hue, and everything underneath inherits it.
@@ -158,7 +158,7 @@ export type ContactTier = {
 };
 
 /**
- * The response-priority ladder for people Alex talks to.
+ * The response-priority ladder for people Node AI talks to.
  * 1 = red (clients & students), 2 = yellow (brand), 3 = green (personal).
  * Specific people get overrides via the contact_tags table.
  */

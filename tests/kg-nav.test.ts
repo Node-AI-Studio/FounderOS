@@ -5,8 +5,8 @@ import { describe, expect, test } from 'vitest';
 const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
 /**
- * Graph navigation contract (Alex, 2026-07-12): side paddles turn the
- * wheel from mid-height — never only from the top bar — and the detail card
+ * Graph navigation contract (Node AI, 2026-07-12): side paddles turn the
+ * wheel from mid-height - never only from the top bar - and the detail card
  * carries an explicit trail: Back · <pillar> steps node → pillar; the pillar
  * bar's Back steps pillar → home.
  */

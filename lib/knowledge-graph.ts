@@ -2,10 +2,10 @@ import type { Agent, Department, Person, SopTask } from '@/lib/schemas';
 import { lifeAreaForDepartment } from '@/lib/life-map';
 
 /**
- * The operating-knowledge graph that powers the /brain force graph — Alex's
- * life and the org in one. Five concentric rings: Alex at the core (ring 0),
+ * The operating-knowledge graph that powers the /brain force graph - Node AI's
+ * life and the org in one. Five concentric rings: Node AI at the core (ring 0),
  * the life pillars / teams tinted by their life-area color (ring 1), the
- * written-out SOP tasks — the actual jobs (ring 2), the workers who do them —
+ * written-out SOP tasks - the actual jobs (ring 2), the workers who do them -
  * AI agents AND human employees (ring 3), and the software tools they use
  * (ring 4). Each task is done by exactly ONE worker and each worker owns
  * exactly ONE task (the monogamy rule; the seed tests enforce it). Pure data;
@@ -28,7 +28,7 @@ export type KGNode = {
   id: string;
   kind: KGNodeKind;
   label: string;
-  ring: number; // 0 = Alex core → 4 = outer (tools)
+  ring: number; // 0 = Node AI core → 4 = outer (tools)
   color?: string; // life-area tint (teams)
 };
 
@@ -157,7 +157,7 @@ export function buildKnowledgeGraph(
   const nodes: KGNode[] = [];
   const edges: KGEdge[] = [];
 
-  // Alex at the core — every pillar hangs off him (the life-at-the-core idea
+  // Node AI at the core - every pillar hangs off the core (the life-at-the-core idea
   // folded in from the old life map).
   nodes.push({ id: SELF_ID, kind: 'self', label: 'Alex', ring: RING.self });
 
@@ -197,7 +197,7 @@ export function buildKnowledgeGraph(
 
   // First pass: which departments touch each tool? A tool used from several
   // departments is DUPLICATED — one copy per department — so its lines stay
-  // local instead of crossing the wheel (Alex: no messy long edges).
+  // local instead of crossing the wheel (Node AI: no messy long edges).
   const deptsOfTool = new Map<string, Set<string>>();
   const workerRows: { nodeId: string; kind: 'employee' | 'person'; label: string; deptId: string; tools: string[] }[] = [
     ...agents.map((a) => ({ nodeId: `emp:${a.id}`, kind: 'employee' as const, label: a.name, deptId: a.departmentId, tools: a.tools })),

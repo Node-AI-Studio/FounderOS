@@ -1,7 +1,7 @@
 # Agent roster migration (2026-06-12)
 
 The roster was restructured into instance agents + worker sub-agents
-(Alex's directive: prep for OpenClaw Hermes / Claude Code instances on a
+(Node AI's directive: prep for OpenClaw Hermes / Claude Code instances on a
 dedicated host, one agent per domain with task workers at the bottom of the
 hierarchy).
 

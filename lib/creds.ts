@@ -3,10 +3,10 @@ import os from 'node:os';
 import path from 'node:path';
 
 /**
- * Credential resolution for connectors. Alex's keys already live in
+ * Credential resolution for connectors. Node AI's keys already live in
  * canonical locations around the machine (~/.config/social/.env,
  * knowledge/.env.agents, ~/.config/mcp.json, project .env files). Connectors
- * resolve from process.env first, then fall back to those files at runtime —
+ * resolve from process.env first, then fall back to those files at runtime -
  * no secrets are ever copied into this repo.
  */
 

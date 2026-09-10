@@ -24,7 +24,7 @@ export type FunnelAcquisition =
   | 'word_of_mouth';
 
 /** The rim segments, in render order around the circle. X and LinkedIn share
- * one wedge (Alex condensed them — both are his text-platform funnels). */
+ * one wedge (Node AI condensed them - both are Node AI's text-platform funnels). */
 export const ACQUISITIONS: { id: FunnelAcquisition; label: string }[] = [
   { id: 'instagram', label: 'Instagram' },
   { id: 'youtube', label: 'YouTube' },
@@ -41,7 +41,7 @@ const SEGMENT_INDEX: Record<FunnelAcquisition, number> = Object.fromEntries(
 /**
  * Keyword families, first match wins. Order matters: youtube before form so
  * "long-form" stays YouTube; explicit word-of-mouth before the form fallback.
- * Instagram owns Meta paid + ManyChat + TikTok short-form (Alex runs ads
+ * Instagram owns Meta paid + ManyChat + TikTok short-form (Node AI runs ads
  * and DM automations through the IG/FB machine).
  */
 const MATCHERS: { id: FunnelAcquisition; re: RegExp }[] = [
@@ -54,9 +54,9 @@ const MATCHERS: { id: FunnelAcquisition; re: RegExp }[] = [
 ];
 
 /**
- * Which rim segment a journey enters through — classified from its entry
+ * Which rim segment a journey enters through - classified from its entry
  * touch (label + channel). Unattributed stays word_of_mouth: the honest
- * bucket for "we didn't track this", exactly Alex's framing of referrals.
+ * bucket for "we didn't track this", exactly Node AI's framing of referrals.
  */
 export function acquisitionFor(j: HasTouches): FunnelAcquisition {
   const entry = j.touches[0];
