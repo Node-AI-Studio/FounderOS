@@ -3,7 +3,7 @@
 import { IDENTITY } from '@/lib/identity';
 
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
   forceCollide,
   forceLink,
@@ -221,6 +221,7 @@ export function KnowledgeGraph({
   /** physics tuning (the in-UI editor is retired; these still configure the sim) */
   repelDefault?: number; linkDistDefault?: number; centerDefault?: number;
 }) {
+  const nodeSurfaceId = useId();
   // fixed physics — the slider editor gave way to the always-on directory
   const centerForce = centerDefault;
   const repel = repelDefault;
@@ -1655,6 +1656,17 @@ export function KnowledgeGraph({
         aria-label="Operating knowledge graph"
         onClick={clearAll}
       >
+        <defs>
+          <radialGradient id={`${nodeSurfaceId}-face`} cx="50%" cy="35%" r="75%">
+            <stop offset="0" stopColor="#080808" />
+            <stop offset="0.7" stopColor="#141414" />
+            <stop offset="1" stopColor="#303030" />
+          </radialGradient>
+          <linearGradient id={`${nodeSurfaceId}-edge`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#050505" />
+            <stop offset="1" stopColor="#707070" />
+          </linearGradient>
+        </defs>
         {/* orbital rings — faint, slowly-rotating backdrop (memoized; static) */}
         {orbitalRings}
 
@@ -2067,9 +2079,17 @@ export function KnowledgeGraph({
               {/* selection echoes the vault's orange — one visual language
                   between the core and the outlined outer nodes */}
               {selected && <circle r={r + 3.5} fill="none" stroke={HUB_COLOR} strokeWidth={1} opacity={0.4} />}
-              <circle r={r} fill={n.kind === 'self' ? color : 'var(--surface)'} stroke={color} strokeWidth={selected || hoverId === n.id ? 2.5 : 1.5} />
+              <circle
+                r={r}
+                fill={n.kind === 'self' ? color : `url(#${nodeSurfaceId}-face)`}
+                stroke={n.kind === 'self' || selected || hoverId === n.id ? color : `url(#${nodeSurfaceId}-edge)`}
+                strokeWidth={selected || hoverId === n.id ? 2.5 : n.kind === 'self' ? 1.5 : 1.4}
+              />
+              {n.kind !== 'self' && (
+                <circle r={r - 1.8} fill="none" stroke={color} strokeOpacity={0.35} strokeWidth={0.55} />
+              )}
               <g style={{ color: n.kind === 'self' ? 'var(--bg)' : color }}>
-                <Icon x={-r * 0.62} y={-r * 0.62} width={r * 1.24} height={r * 1.24} strokeWidth={2} />
+                <Icon x={-r * 0.62} y={-r * 0.62} width={r * 1.24} height={r * 1.24} strokeWidth={n.kind === 'self' ? 2 : 1.5} />
               </g>
               {showLabel && (
                 <text
