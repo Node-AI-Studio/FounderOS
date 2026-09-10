@@ -77,9 +77,6 @@ export function Sidebar() {
         <div className="flex items-center gap-2 whitespace-nowrap font-mono text-[10px] text-os-muted">
           <span className="dot ok pulse" /> {live ? `${live.up}/${live.total}` : '—/—'} systems live
         </div>
-        <div className="whitespace-nowrap font-mono text-[10px] text-os-dim">
-          localhost:4100 · sqlite · real agents
-        </div>
       </div>
     </aside>
   );
