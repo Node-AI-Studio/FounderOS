@@ -17,6 +17,7 @@ export function ConnectFlow({
   keySaved,
   keys,
   guidance,
+  wired = true,
 }: {
   slug: string;
   connected: boolean;
@@ -24,6 +25,8 @@ export function ConnectFlow({
   keys: string[];
   /** Live connector detail for guidance-only tools (keys.length === 0). */
   guidance?: string;
+  /** False when the tile has no connector: it is listed, not wired. */
+  wired?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -151,10 +154,10 @@ export function ConnectFlow({
         </button>
       ) : (
         <span
-          title={guidance ?? 'Connects through local setup, not a pasted key'}
+          title={wired ? guidance ?? 'Connects through local setup, not a pasted key' : 'No connector behind this tile yet'}
           className="cursor-help rounded-full border border-os-border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-os-dim"
         >
-          Setup
+          {wired ? 'Setup' : 'Not wired'}
         </span>
       )}
     </div>

@@ -25,8 +25,6 @@ export const KEY_SLOTS: KeySlot[] = [
   { envVar: 'STRIPE_SECRET_KEY', label: 'Stripe secret key', group: 'Payments' },
   { envVar: 'PAYPAL_CLIENT_ID', label: 'PayPal client id', group: 'Payments' },
   { envVar: 'PAYPAL_CLIENT_SECRET', label: 'PayPal client secret', group: 'Payments' },
-  { envVar: 'SQUARE_ACCESS_TOKEN', label: 'Square access token', group: 'Payments' },
-  { envVar: 'WHOP_API_KEY', label: 'Whop API key', group: 'Payments' },
   { envVar: 'NOTION_API_KEY', label: 'Notion integration secret', group: 'Notion' },
   { envVar: 'MANYCHAT_API_KEY', label: 'ManyChat API key', group: 'Social', hint: 'ManyChat → Settings → API (Instagram DM automation)' },
   { envVar: 'GBRAIN_STORE', label: 'Brain-store path override', group: 'G-Brain' },

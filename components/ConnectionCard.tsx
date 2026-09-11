@@ -25,6 +25,7 @@ export function ConnectionCard({ entry, guidance }: { entry: CatalogEntry; guida
         keySaved={entry.keySaved}
         keys={connectKeysFor(entry)}
         guidance={guidance}
+        wired={Boolean(entry.connectorId)}
       />
     </div>
   );
