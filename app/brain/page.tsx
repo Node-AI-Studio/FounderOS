@@ -1,3 +1,4 @@
+import { brainLayers } from '@/lib/brain-layers';
 import { createGBrainProvider, readStoreNotes } from '@/lib/connectors/gbrain';
 import { attioClients } from '@/lib/connectors/attio';
 import { readVaultNotes } from '@/lib/connectors/obsidian';
@@ -142,7 +143,9 @@ function memoryConstellation(): MemoryGraph | undefined {
 }
 
 export default async function BrainPage() {
-  const overview = await createGBrainProvider().overview();
+  const provider = createGBrainProvider();
+  const overview = await provider.overview();
+  const stats = await provider.stats().catch(() => null);
   const { store, doctor } = overview;
   const db = getDb();
   const knowledgeGraph = buildKnowledgeGraph(db.agents.all(), db.departments.all(), db.people.all(), db.sopTasks.all());
@@ -159,36 +162,8 @@ export default async function BrainPage() {
       .map((r) => [r.agentId, r]),
   );
   const warnings = doctor.checks.filter((c) => c.status !== 'ok');
-  const supabaseCheck = doctor.checks.find((c) => /supabase|database/i.test(c.name));
-  const zeroEntropyCheck = doctor.checks.find((c) => /zero|embed/i.test(c.name));
-  const fallbackActive = supabaseCheck ? supabaseCheck.status !== 'ok' : !doctor.connected;
-
-  const layers: { name: string; sub: string; val: string; state: string }[] = [
-    {
-      name: 'gbrain CLI',
-      sub: 'v0.41 · ~/.bun/bin/gbrain · doctor --fast',
-      val: doctor.connected ? 'LIVE' : 'UNREACHABLE',
-      state: doctor.connected ? 'connected' : 'error',
-    },
-    {
-      name: 'brain-store/',
-      sub: `${storeShort} · markdown knowledge`,
-      val: `${store.totalFiles} pages`,
-      state: store.totalFiles > 0 ? 'connected' : 'available',
-    },
-    {
-      name: 'ZeroEntropy',
-      sub: 'hybrid-search embeddings · key in ~/.config/knowledge',
-      val: zeroEntropyCheck ? (zeroEntropyCheck.status === 'ok' ? 'LIVE' : zeroEntropyCheck.status.toUpperCase()) : 'LIVE',
-      state: zeroEntropyCheck && zeroEntropyCheck.status !== 'ok' ? 'available' : 'connected',
-    },
-    {
-      name: 'Supabase Second Brain',
-      sub: '918 pages / 11k chunks · free tier idle-pause',
-      val: fallbackActive ? 'PAUSED' : 'LIVE',
-      state: fallbackActive ? 'available' : 'connected',
-    },
-  ];
+  const layers = brainLayers(overview, stats, storeShort);
+  const fallbackActive = layers.find((l) => l.name === 'Supabase Second Brain')?.state !== 'connected';
 
   return (
     <div>
@@ -255,7 +230,7 @@ export default async function BrainPage() {
           </div>
           <div className="grid flex-1 place-items-center">
             <div className="w-full max-w-[540px]">
-              <BrainCore clusters={clusters} health={doctor.healthScore} doctor={doctor} fallbackActive={fallbackActive} />
+              <BrainCore clusters={clusters} health={doctor.healthScore} doctor={doctor} fallbackActive={fallbackActive} remotePages={stats?.pages ?? null} />
             </div>
           </div>
         </div>
@@ -358,12 +333,12 @@ export default async function BrainPage() {
           <Stage step="3" title="Supabase Postgres + pgvector" caption='"Second Brain" · ZeroEntropy embeddings'>
             <div className="grid grid-cols-2 gap-2">
               <div className="rounded-md-t border border-os-border bg-os-surface2 px-3 py-2.5">
-                <div className="font-mono text-xl font-bold">918</div>
-                <div className="font-mono text-[10px] uppercase tracking-wider text-os-dim">pages · last known</div>
+                <div className="font-mono text-xl font-bold">{stats ? stats.pages : 'n/a'}</div>
+                <div className="font-mono text-[10px] uppercase tracking-wider text-os-dim">pages · gbrain stats</div>
               </div>
               <div className="rounded-md-t border border-os-border bg-os-surface2 px-3 py-2.5">
-                <div className="font-mono text-xl font-bold">11k</div>
-                <div className="font-mono text-[10px] uppercase tracking-wider text-os-dim">chunks · last known</div>
+                <div className="font-mono text-xl font-bold">{stats ? stats.chunks : 'n/a'}</div>
+                <div className="font-mono text-[10px] uppercase tracking-wider text-os-dim">chunks · gbrain stats</div>
               </div>
             </div>
             <div className="mt-3 space-y-1.5 text-[11px] leading-relaxed text-os-muted">

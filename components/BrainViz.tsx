@@ -8,14 +8,13 @@ import { layoutBrainNodes, polar, type BrainCluster } from '@/lib/brain-viz';
 export function BrainViz({
   clusters,
   health,
-  supabasePages = 918,
-  version = 'v0.41',
+  remotePages,
   compact = false,
 }: {
   clusters: BrainCluster[];
   health: number | null;
-  supabasePages?: number;
-  version?: string;
+  /** Page count from `gbrain stats`; null when the CLI was unreachable. */
+  remotePages: number | null;
   compact?: boolean;
 }) {
   const { nodes, labels } = layoutBrainNodes(clusters);
@@ -145,7 +144,7 @@ export function BrainViz({
           HEALTH / 100
         </text>
         <text x="260" y="288" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="7.5" letterSpacing="1.5" fill="var(--brain-2)">
-          GBRAIN {version.toUpperCase()}
+          GBRAIN
         </text>
       </g>
 
@@ -159,7 +158,7 @@ export function BrainViz({
             ZEROENTROPY · EMBEDDINGS
           </text>
           <text x="260" y="44" textAnchor="middle" fill="var(--text-3)">
-            SUPABASE · {supabasePages} PAGES · PAUSED
+            SUPABASE · {remotePages ?? '?'} PAGES
           </text>
         </g>
       )}

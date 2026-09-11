@@ -28,11 +28,14 @@ export function BrainCore({
   health,
   doctor,
   fallbackActive,
+  remotePages,
 }: {
   clusters: BrainCluster[];
   health: number | null;
   doctor: Doctor;
   fallbackActive: boolean;
+  /** Page count from `gbrain stats`; null when the CLI was unreachable. */
+  remotePages: number | null;
 }) {
   const [open, setOpen] = useState(false);
   const warnings = doctor.checks.filter((c) => c.status !== 'ok');
@@ -52,7 +55,7 @@ export function BrainCore({
   return (
     <>
       <div className="relative">
-        <BrainViz clusters={clusters} health={health} />
+        <BrainViz clusters={clusters} health={health} remotePages={remotePages} />
         {/* Hotspot over the central health gauge (~50%/50% of the SVG box). */}
         <button
           type="button"
