@@ -1,7 +1,7 @@
 import { IDENTITY } from '@/lib/identity';
 /**
- * Alex's life map: the radial taxonomy at the heart of the OS.
- * Center = Alex's life; ring 1 = color-coded life areas; ring 2 = the
+ * The operator's life map: the radial taxonomy at the heart of the OS.
+ * Center = the operator's life; ring 1 = color-coded life areas; ring 2 = the
  * modules inside each area. Communication additionally carries the contact
  * tier system — the numbered/colored response-priority ladder for people.
  *
@@ -159,7 +159,7 @@ export type ContactTier = {
 };
 
 /**
- * The response-priority ladder for people Alex talks to.
+ * The response-priority ladder for people the operator talks to.
  * 1 = red (clients & students), 2 = yellow (brand), 3 = green (personal).
  * Specific people get overrides via the contact_tags table.
  */

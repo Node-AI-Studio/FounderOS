@@ -112,11 +112,11 @@ most.
   gate and accepts anything when the secret is blank. Make a blank secret a
   503, use `safeEqual`, and drop the unauthenticated GET. Done when the new
   test for the blank-secret case passes.
-- [ ] **2.6 Finish the Alex sweep.** 170 references on `main`; fewer on
+- [x] **2.6 Finish the Alex sweep.** Done 2026-09-11, PR #27. 170 references on `main`; fewer on
   `founder-os` after the wording commits, but the theme storage key, the
   life-map label, the knowledge-graph self node, and the escalation target
   still say Alex. Done when `grep -rn -i alex lib app components` returns only
-  seed fixtures that 2.1 deletes.
+  `lib/seed.ts`, the demo fixture (guarded by `tests/no-previous-owner.test.ts`).
 - [ ] **2.7 Brain page honesty.** Remove the hardcoded "918 pages / 11k chunks"
   and "v0.41", and stop the embeddings row defaulting to LIVE. Done when every
   number on `/brain` comes from `gbrain stats` or the store walk.

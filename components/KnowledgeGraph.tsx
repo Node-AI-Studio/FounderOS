@@ -58,7 +58,7 @@ const CAT: Record<KGNodeKind, { color: string; Icon: LucideIcon; label: string; 
   tool: { color: '#d0d0d0', Icon: Wrench, label: 'Tools', r: 7.5 },
 };
 
-// Everything reads bright at rest (Alex, 2026-07-12: "keep it all lit up"
+// Everything reads bright at rest (2026-07-12: "keep it all lit up"
 // — the old tier dimming made tools/tasks look dark from the top view).
 const TIER_OPACITY: Record<KGNodeKind, number> = {
   self: 1,
@@ -70,7 +70,7 @@ const TIER_OPACITY: Record<KGNodeKind, number> = {
   tool: 0.94,
 };
 
-// legend + hit-test order: the chain as it reads outward from Alex
+// legend + hit-test order: the chain as it reads outward from the operator
 const LEGEND_KINDS: KGNodeKind[] = ['self', 'team', 'task', 'person', 'employee', 'tool'];
 
 const nodeColor = (n: KGNode) => n.color ?? CAT[n.kind].color;
@@ -100,10 +100,10 @@ const agoLabel = (iso: string): string => {
   return `${Math.floor(h / 24)}d ago`;
 };
 
-// ── Alex memory core (Notes constellation) ────────────────────────────
+// ── operator memory core (Notes constellation) ────────────────────────────
 // Constellation disc scales: R_CORE lives in lib/memory-core (the spacing
 // contract against the pillar ring is unit-tested there); the disc shrinks at
-// the trunk base of a focused tree and blooms when Alex is expanded via
+// the trunk base of a focused tree and blooms when the operator is expanded via
 // one smooth CSS transform.
 const CORE_SCALE_TREE = 38 / R_CORE;
 const CORE_SCALE_EXPANDED = 96 / R_CORE;
@@ -121,7 +121,7 @@ const hashStr = (s: string) => {
 
 // Notes-style folder tinting from the theme's existing palette — stable
 // hash so a folder keeps its color across reloads.
-// The whole vault burns one HARD reddish orange (Alex's call, 2026-07-06)
+// The whole vault burns one HARD reddish orange (design call, 2026-07-06)
 // — the per-node shimmer opacity plus the synapse sparks carry all the
 // variation. Hubs are the same fire, just bigger, with their radiating spokes.
 const HUB_COLOR = '#e35c35';
@@ -194,7 +194,7 @@ type SimNode = KGNode & { x: number; y: number; vx?: number; vy?: number; fx?: n
 type SimLink = { source: SimNode | string; target: SimNode | string; kind: string };
 
 /**
- * Alex's operating-knowledge graph: Alex at the core, pillars (teams),
+ * The operator's operating-knowledge graph: the operator at the core, pillars (teams),
  * their written-out SOP tasks, the single worker (human or AI) who does each
  * job, and their tools — concentric, with live physics, a slowly-rotating
  * orbital backdrop and a faint drifting grid. Hover any node to trace its
@@ -208,7 +208,7 @@ export function KnowledgeGraph({
   repelDefault = 150, linkDistDefault = 60, centerDefault = 0.32,
 }: {
   graph: KGData; agents?: Agent[]; departments?: Department[]; people?: Person[]; tasks?: SopTask[];
-  /** distilled brain-store constellation drawn at the core (Alex = his memory) */
+  /** distilled brain-store constellation drawn at the core (the operator = their memory) */
   memory?: MemoryGraph;
   /** the client roster shown when the Clients pillar is focused */
   clients?: ClientLite[];
@@ -381,7 +381,7 @@ export function KnowledgeGraph({
   // Organic bottom-to-top tree for EVERY pillar: department at the base
   // (trunk) → SOP tasks (limbs) → each task's single worker directly above it
   // → tools (canopy). One layout per department, because the wheel mounts the
-  // departments in EXPANDED form (Alex): the flanks carry their whole tree
+  // departments in EXPANDED form (design note): the flanks carry their whole tree
   // tilted on the rim and a step rigidly rotates them into position.
   const allTrees: Map<string, TreeLayoutResult> = useMemo(() => {
     const byLabel = (a: string, b: string) => (byId.get(a)?.label ?? '').localeCompare(byId.get(b)?.label ?? '');
@@ -529,7 +529,7 @@ export function KnowledgeGraph({
   // so every sector's rim spot sweeps continuously along the arc: pressing an
   // arrow ROTATES the wheel and the neighbor arcs up into the top view.
   // stageVel gives it MASS: the turn winds up, coasts, and settles like a
-  // large wheel instead of springing (Alex: "a large wheel animation").
+  // large wheel instead of springing (design note: "a large wheel animation").
   const stagePhaseRef = useRef(0);
   const stageTargetRef = useRef(0);
   const stageVelRef = useRef(0);
@@ -563,7 +563,7 @@ export function KnowledgeGraph({
       if (focused()) return wheelPoint(r, { x: CX, y: CY }, FOCUS_WHEEL, wheelRef.current);
       return rotateAbout(r, { x: CX, y: CY }, wheelRef.current);
     };
-    // the rim (Alex: a huge wheel with the departments ALREADY expanded):
+    // the rim (design note: a huge wheel with the departments ALREADY expanded):
     // every department's full tree is mounted on the rim at its sector angle
     // and rigidly rotated about the sunken hub by the LIVE eased phase — an
     // arrow press rotates the whole assembly clockwise/counterclockwise and
@@ -945,7 +945,7 @@ export function KnowledgeGraph({
 
   const nodes = nodesRef.current;
   const links = linksRef.current;
-  // lenses (Alex taxonomy): slice the graph by entity type, business
+  // lenses (2026-07-12 taxonomy): slice the graph by entity type, business
   // function, or action — the matching nodes stay lit, everything else dims.
   // Focus and hover both outrank an armed lens.
   const [lensId, setLensId] = useState<string | null>(null);
@@ -1028,7 +1028,7 @@ export function KnowledgeGraph({
 
   // ── communication pulses ────────────────────────────────────────────────────
   // Little dots ride the pillar spokes between the memory core and each
-  // department head — outbound white (Alex briefing the pillar), inbound in
+  // department head, outbound white (the operator briefing the pillar), inbound in
   // the pillar's color (the department reporting home). Positioned imperatively
   // in the camera rAF (they must follow LIVE drifting endpoints), so React
   // renders each circle exactly once.
@@ -1215,7 +1215,7 @@ export function KnowledgeGraph({
         ))}
         </g>
 
-        {/* the middle of the brain is Notes: all of Alex's markdown */}
+        {/* the middle of the brain is Notes: all of the operator's markdown */}
         <text
           y={R_CORE + 22}
           textAnchor="middle"
@@ -1241,7 +1241,7 @@ export function KnowledgeGraph({
       <>
         {/* (No edge vignette: on light themes its var(--bg) overlay painted a
             darker rectangular frame around a lighter center — the "faint box"
-            Alex flagged. The canvas now fills the frame cleanly.) */}
+            the operator flagged. The canvas now fills the frame cleanly.) */}
         {/* ring guides ride the same wheel as the nodes: small sunburst at
             home, huge low-hub arcs in focus — cx/cy/r are CSS-transitionable,
             so the rails visibly morph into the apparatus instead of floating
@@ -1354,7 +1354,7 @@ export function KnowledgeGraph({
     setFocusId(null);
     setCoreExpanded(false);
     clearDetail();
-    // GLIDE back to the main view (Alex, 2026-07-12: "see the animation of
+    // GLIDE back to the main view (2026-07-12: "see the animation of
     // it going back into the circle form") — the tree unwinds and every node
     // flows firmly onto its sunburst spot: a near-rigid rest pull for ~1.1s so
     // the circle re-forms visibly but decisively, no tornado aftermath.
@@ -1500,7 +1500,7 @@ export function KnowledgeGraph({
 
   const onNodeClick = (n: KGNode) => {
     if (n.kind === 'self') {
-      // Alex IS the memory: clicking him dives into (or out of) the
+      // The operator IS the memory: clicking them dives into (or out of) the
       // constellation. Without memory data he stays the old clear-all anchor.
       if (memoryOn) {
         const entering = !coreExpanded;
@@ -1603,7 +1603,7 @@ export function KnowledgeGraph({
   ) : null;
 
   // (The Clients pillar used to auto-open its roster in the detail slot —
-  // Alex read the unprompted pop-up as a bug, 2026-07-12. Cards now open
+  // The unprompted pop-up read as a bug (2026-07-12). Cards now open
   // only when a node is explicitly clicked, on every pillar equally.)
 
   // ── node dragging ───────────────────────────────────────────────────────────
@@ -1840,7 +1840,7 @@ export function KnowledgeGraph({
           </g>
         )}
 
-        {/* the flank departments ride the rim ALREADY EXPANDED (Alex): their
+        {/* the flank departments ride the rim ALREADY EXPANDED (design note): their
             limbs draw faint from the live gliding nodes, so each tilted tree
             reads as a whole department mounted on the huge wheel */}
         {focusTree && flankTeams && (
@@ -1872,7 +1872,7 @@ export function KnowledgeGraph({
           const surfaceColor = nodeColor(n);
           const departmentId = teamForFocus(n.id);
           const color = byId.get(departmentId ?? '')?.color ?? surfaceColor;
-          // inside the memory only Alex + the pillar gateways stay visible
+          // inside the memory only the operator + the pillar gateways stay visible
           const dim = coreExpanded
             ? n.kind !== 'self' && n.kind !== 'team'
             : lit
@@ -1888,9 +1888,9 @@ export function KnowledgeGraph({
           const r = cat.r + (isWorker(n.kind) || n.kind === 'tool' ? Math.min(2.5, degree * 0.3) : 0);
           // hierarchy brightness at rest; dimmed nodes drop to 0.15 on hover,
           // in focus, ONLY the flanking pillar gateways stay visible beside
-          // the tree (Alex: nothing behind the pillar I'm looking at) —
+          // the tree (design note: nothing behind the pillar I'm looking at),
           // every other unfocused node rides the carousel fully hidden
-          // flanks show a PORTION of their department (Alex): the gateway
+          // flanks show a PORTION of their department (design note): the gateway
           // reads at 0.6, its condensed cluster at a whisper — transparent so
           // it never overbears the stage; everything further is fully hidden
           const sectorTeam = n.kind === 'team' ? n.id : teamForFocus(n.id);
@@ -1909,9 +1909,9 @@ export function KnowledgeGraph({
                 : 0.15
             : TIER_OPACITY[n.kind];
 
-          // Alex rendered as his memory: the Notes constellation of real
+          // The operator rendered as their memory: the Notes constellation of real
           // brain-store notes, folder-tinted, wikilinks as hairlines. Collapsed
-          // it's one Alex-sized click target; expanded (camera dived in) the
+          // it's one operator-sized click target; expanded (camera dived in) the
           // individual notes become readable and clickable.
           if (n.kind === 'self' && memoryOn) {
             return (

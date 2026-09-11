@@ -20,7 +20,7 @@ type ScreenCtx = { title: string; context: string };
 /** Cross-component open signal — the Topbar agent icon fires this. */
 export const CONDUCTOR_OPEN_EVENT = 'conductor:open';
 
-const WIDTH_KEY = 'alex-conductor-w';
+const WIDTH_KEY = 'founder-os-conductor-w';
 const MIN_W = 300;
 const MAX_W = 760;
 const clampW = (w: number) => Math.min(MAX_W, Math.max(MIN_W, Math.round(w)));
@@ -28,7 +28,7 @@ const clampW = (w: number) => Math.min(MAX_W, Math.max(MIN_W, Math.round(w)));
 export function ConductorPanel() {
   const pathname = usePathname() ?? '/';
   const [open, setOpen] = useState(false);
-  // Alex controls the size: drag the left edge; the width persists
+  // The operator controls the size: drag the left edge; the width persists
   const [width, setWidth] = useState(380);
   useEffect(() => {
     try {
