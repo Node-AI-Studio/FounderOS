@@ -1,3 +1,4 @@
+import { IDENTITY } from '@/lib/identity';
 import Link from 'next/link';
 import { ArrowUpRight, Zap } from 'lucide-react';
 import { getDb } from '@/lib/data';
@@ -192,7 +193,7 @@ export default async function HomePage() {
 
       <PageHeader
         eyebrow="operator console"
-        title={`${greeting()}, Alex`}
+        title={`${greeting()}, ${IDENTITY.firstName}`}
         caret
         right={<Kbd>⌘K</Kbd>}
       />

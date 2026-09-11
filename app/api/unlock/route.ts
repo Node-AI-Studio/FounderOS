@@ -14,11 +14,15 @@ function safeNext(next: string | undefined): string {
   return next && next.startsWith('/') && !next.startsWith('//') ? next : '/';
 }
 
-function setSession(response: NextResponse, token: string): NextResponse {
+function setSession(response: NextResponse, token: string, requestUrl: string): NextResponse {
   response.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true, // page scripts can never read it
     sameSite: 'lax', // another origin cannot ride it
-    secure: process.env.NODE_ENV === 'production', // plain-http localhost still works
+    // `Secure` follows the protocol the operator actually used, not NODE_ENV:
+    // a production build served over plain http (localhost, a LAN or Tailscale
+    // IP) otherwise sets a cookie some browsers refuse to store, and the unlock
+    // page silently loops. Over https the flag is on as before.
+    secure: new URL(requestUrl).protocol === 'https:',
     path: '/',
     maxAge: 60 * 60 * 24 * 30,
   });
@@ -73,6 +77,7 @@ export async function POST(request: Request) {
       ? NextResponse.redirect(new URL(safeNext(next), request.url), 303)
       : NextResponse.json({ ok: true }),
     configured,
+    request.url,
   );
 }
 

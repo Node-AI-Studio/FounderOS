@@ -6,7 +6,7 @@ const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
 /**
  * Department heads (2026-08-05) render in the /brain graph: a 'head'
- * kind with the Crown icon, sized between pillars and workers, a "Dept head"
+ * kind with an executive monogram, sized between pillars and workers, a "Dept head"
  * legend chip, and pillar-layer placement in the neural strand view. The
  * radial graph is client-only (ssr:false) so this contract lives at source
  * level; the node/edge shape itself is covered in knowledge-graph.test.ts.
@@ -14,10 +14,11 @@ const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 describe('department heads render wiring', () => {
   test('KnowledgeGraph styles the head kind and shows it in the legend', () => {
     const src = read('components/KnowledgeGraph.tsx');
-    expect(src).toContain("head: { color: 'var(--brain-2)', Icon: Crown");
+    expect(src).toContain("n.kind === 'head' ? (");
+    expect(src).toMatch(/<text[^>]*fontSize=\{r \* 0\.625\}[^>]*>\s*\{n.label\}/);
     expect(src).toContain("label: 'Dept heads'");
     expect(src).toContain("{ label: 'Dept head', color: CAT.head.color, Icon: CAT.head.Icon }");
-    expect(src).toMatch(/import \{ Crown,/);
+    expect(src).not.toMatch(/import \{[^}]*\bCrown\b/);
     // focus + hover treat a head as part of its pillar
     expect(src).toContain("n.id.replace('head:', 'team:')");
   });

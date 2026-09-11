@@ -1,6 +1,4 @@
 import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import { execFile } from 'node:child_process';
 import type { ConnectorStatus } from '@/lib/connectors/types';
 
@@ -38,44 +36,26 @@ function tmuxSessions(): Promise<number> {
   });
 }
 
-const HOME = os.homedir();
 const BREW = '/opt/homebrew/bin';
 
 export async function localStackStatus(): Promise<ConnectorStatus> {
-  const [commandCenter, remotionStudio, ollama, openclawGateway, tmuxCount] = await Promise.all([
+  const [commandCenter, ollama, tmuxCount] = await Promise.all([
     ping('http://localhost:4000'),
-    ping('http://localhost:3789'),
     ping('http://localhost:11434/api/tags'),
-    ping('http://localhost:18789'),
     tmuxSessions(),
   ]);
 
-  const remotionDir = fs.existsSync(path.join(HOME, 'Projects', 'remotion-pipeline'));
-
+  // Only what this machine actually runs for Node AI. The previous owner's
+  // video/voice tools (Remotion, OpenClaw, whisper, Higgsfield) were dropped
+  // 2026-09-10 rather than reported as permanently "down".
   const checks: Check[] = [
-    { name: 'command-center', up: commandCenter, detail: 'command-center :4000' },
-    {
-      name: 'remotion',
-      up: remotionStudio || remotionDir,
-      detail: remotionStudio ? 'studio live :3789' : remotionDir ? 'pipeline installed' : 'missing',
-    },
+    { name: 'command-center', up: commandCenter, detail: 'Command Center :4000' },
     { name: 'ollama', up: ollama, detail: 'local LLM :11434' },
-    { name: 'openclaw', up: openclawGateway, detail: 'gateway :18789' },
     { name: 'tmux', up: tmuxCount > 0, detail: `${tmuxCount} sessions` },
-    {
-      name: 'whisper',
-      up: Boolean(binExists(`${BREW}/whisper-cli`, '/usr/local/bin/whisper-cli')),
-      detail: 'local transcription',
-    },
     {
       name: 'ffmpeg',
       up: Boolean(binExists(`${BREW}/ffmpeg`, '/usr/local/bin/ffmpeg')),
       detail: 'media processing',
-    },
-    {
-      name: 'higgsfield',
-      up: Boolean(binExists(path.join(HOME, '.npm-global', 'bin', 'higgsfield'), `${BREW}/higgsfield`)),
-      detail: 'AI video CLI',
     },
     {
       name: 'gh',

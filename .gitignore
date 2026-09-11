@@ -18,3 +18,8 @@ dir-sidebar.jpeg
 .env
 .env.local
 .env.*.local
+ops/paperclip/pilot.env
+
+# Local dev server log
+.devserver.log
+.vercel

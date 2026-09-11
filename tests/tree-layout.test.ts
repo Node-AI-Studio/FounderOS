@@ -1,10 +1,9 @@
 import { afterAll, describe, expect, test } from 'vitest';
 import {
-  branchPath,
+  connectionPath,
   branchWidth,
   cyclicDeltaF,
   cyclicDist,
-  edgeArc,
   focusWheel,
   radialRestLayout,
   responsiveRingR,
@@ -562,22 +561,19 @@ describe('radialRestLayout responsive + density', () => {
   });
 });
 
-describe('edgeArc', () => {
-  test('curves from a to b via a quadratic control point off the chord', () => {
-    const d = edgeArc({ x: 0, y: 0 }, { x: 100, y: 0 });
-    expect(d.startsWith('M 0 0')).toBe(true);
-    expect(d).toContain('Q');
-    expect(d.trimEnd().endsWith('100 0')).toBe(true);
+describe('connectionPath', () => {
+  test.each([
+    [{ x: 0, y: 0 }, { x: 100, y: 0 }, 'M 0 0 L 100 0'],
+    [{ x: 100, y: 500 }, { x: 200, y: 100 }, 'M 100 500 L 200 100'],
+    [{ x: -40, y: 20 }, { x: -40, y: -80 }, 'M -40 20 L -40 -80'],
+    [{ x: 10, y: 10 }, { x: 10, y: 10 }, 'M 10 10 L 10 10'],
+  ])('connects overview and focused node positions directly', (a, b, expected) => {
+    expect(connectionPath(a, b)).toBe(expected);
   });
 
-  test('bows perpendicular to the chord, and the bow scales with edge length', () => {
-    // horizontal chord → perpendicular is vertical; control y = bow*len
-    expect(edgeArc({ x: 0, y: 0 }, { x: 100, y: 0 })).toContain('Q 50 12');
-    expect(edgeArc({ x: 0, y: 0 }, { x: 200, y: 0 })).toContain('Q 100 24'); // 2× length → 2× bow
-  });
-
-  test('deterministic', () => {
-    expect(edgeArc({ x: 1, y: 2 }, { x: 9, y: 4 })).toBe(edgeArc({ x: 1, y: 2 }, { x: 9, y: 4 }));
+  test('rounds live simulation coordinates without emitting negative zero', () => {
+    expect(connectionPath({ x: -0.001, y: 12.3456 }, { x: 100.999, y: -8.7654 }))
+      .toBe('M 0 12.35 L 101 -8.77');
   });
 });
 
@@ -590,31 +586,31 @@ describe('branchWidth', () => {
   });
 });
 
-describe('branchPath', () => {
-  test('curvature scales with branch length (control points are length-proportional)', () => {
-    const c1 = (d: string) => d.split('C')[1].trim().split(/[ ,]+/).slice(0, 2).map(Number);
-    const [sx, sy] = c1(branchPath({ x: 100, y: 400 }, { x: 140, y: 300 })); // dx40 dy-100
-    const [lx, ly] = c1(branchPath({ x: 100, y: 400 }, { x: 180, y: 200 })); // dx80 dy-200 (2×)
-    expect(lx - 100).toBeCloseTo((sx - 100) * 2, 1);
-    expect(ly - 400).toBeCloseTo((sy - 400) * 2, 1);
+
+describe('department leadership placement', () => {
+  test('aligns each head between its department and task ring', () => {
+    const { positions } = radialRestLayout({
+      selfId: 'self', cx: 400, cy: 300, ringR: [0, 90, 194, 240, 288],
+      pillars: [{ teamId: 'team:a', headId: 'head:a', taskIds: ['task:a'], workerIds: [], toolIds: [] }],
+    });
+    const head = positions.get('head:a')!;
+    expect(head).toBeDefined();
+    expect(head.x).toBeCloseTo(positions.get('team:a')!.x);
+    expect(head.y).toBeLessThan(positions.get('team:a')!.y);
+    expect(head.y).toBeGreaterThan(positions.get('task:a')!.y);
   });
 
-  test('organic curve that starts at a and ends at b', () => {
-    const d = branchPath({ x: 100, y: 500 }, { x: 200, y: 100 });
-    expect(d.startsWith('M 100 500')).toBe(true);
-    expect(d).toContain('C');
-    expect(d.trimEnd().endsWith('200 100')).toBe(true);
-  });
-
-  test('deterministic', () => {
-    const a = { x: 100, y: 500 };
-    const b = { x: 200, y: 100 };
-    expect(branchPath(a, b)).toBe(branchPath(a, b));
-  });
-
-  test('bows off the chord (not a straight line)', () => {
-    const d = branchPath({ x: 100, y: 500 }, { x: 300, y: 100 });
-    expect(d).not.toContain('L');
-    expect(d).toContain('C');
+  test('routes expanded task branches through the department head', () => {
+    const input = baseInput({ headId: 'head:dept-sales' });
+    const { positions, branches } = treeLayout(input);
+    const head = positions.get(input.headId!)!;
+    expect(head).toBeDefined();
+    expect(head.y).toBeLessThan(positions.get(input.teamId)!.y);
+    expect(branches).toContainEqual({ source: input.teamId, target: input.headId, depth: 1 });
+    for (const task of input.taskIds) {
+      expect(head.y).toBeGreaterThan(positions.get(task)!.y);
+      expect(branches).toContainEqual({ source: input.headId, target: task, depth: 2 });
+      expect(branches.some(b => b.source === input.teamId && b.target === task)).toBe(false);
+    }
   });
 });

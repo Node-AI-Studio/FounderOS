@@ -1,3 +1,4 @@
+import { IDENTITY } from '@/lib/identity';
 import type { Agent, Department, Person, SopTask } from '@/lib/schemas';
 import { lifeAreaForDepartment } from '@/lib/life-map';
 
@@ -159,7 +160,7 @@ export function buildKnowledgeGraph(
 
   // Alex at the core — every pillar hangs off him (the life-at-the-core idea
   // folded in from the old life map).
-  nodes.push({ id: SELF_ID, kind: 'self', label: 'Alex', ring: RING.self });
+  nodes.push({ id: SELF_ID, kind: 'self', label: IDENTITY.firstName, ring: RING.self });
 
   // Teams / life pillars (ring 1) — only departments that actually have workers,
   // tinted with their life-area color.
