@@ -1,8 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { imapClientOptions, parseInboxConfigs } from '@/lib/connectors/email';
 import { configuredProcessors } from '@/lib/connectors/payments';
-import { metaAdsStatus } from '@/lib/connectors/meta-ads';
-import { ghlStatus } from '@/lib/connectors/ghl';
 
 describe('parseInboxConfigs', () => {
   test('returns empty when nothing is configured', () => {
@@ -13,18 +11,18 @@ describe('parseInboxConfigs', () => {
     const env = {
       INBOX_1_HOST: 'imap.gmail.com',
       INBOX_1_USER: 'admin@founderos.ai',
-      INBOX_1_PASS: 'app-pass-1',
+      INBOX_1_PASS: 'fake-pass-1',
       INBOX_2_HOST: 'imap.gmail.com',
       INBOX_2_USER: 'alex@example.com',
-      INBOX_2_PASS: 'app-pass-2',
+      INBOX_2_PASS: 'fake-pass-2',
       INBOX_2_NAME: 'LC Main',
       INBOX_3_HOST: 'imap.fastmail.com',
       INBOX_3_PORT: '1993',
       INBOX_3_USER: 'ops@vantage.co',
-      INBOX_3_PASS: 'app-pass-3',
+      INBOX_3_PASS: 'fake-pass-3',
       INBOX_4_HOST: 'imap.gmail.com',
       INBOX_4_USER: 'personal@gmail.com',
-      INBOX_4_PASS: 'app-pass-4',
+      INBOX_4_PASS: 'fake-pass-4',
     };
     const inboxes = parseInboxConfigs(env);
     expect(inboxes).toHaveLength(4);
@@ -34,7 +32,7 @@ describe('parseInboxConfigs', () => {
       host: 'imap.gmail.com',
       port: 993,
       user: 'admin@founderos.ai',
-      pass: 'app-pass-1',
+      pass: 'fake-pass-1',
       smtpHost: 'smtp.gmail.com', // imap. → smtp. default
       smtpPort: 465,
     });
@@ -68,44 +66,6 @@ describe('parseInboxConfigs', () => {
     const inboxes = parseInboxConfigs(env);
     expect(inboxes).toHaveLength(1);
     expect(inboxes[0].id).toBe('inbox-2');
-  });
-});
-
-describe('metaAdsStatus', () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  test('reports not_configured without a token — never a fake connected', async () => {
-    vi.stubEnv('META_ADS_ACCESS_TOKEN', '');
-    const status = await metaAdsStatus();
-    expect(status.id).toBe('meta-ads');
-    expect(status.kind).toBe('ads');
-    expect(status.state).toBe('not_configured');
-    expect(status.detail).toMatch(/META_ADS_ACCESS_TOKEN/);
-  });
-
-  test('reports connected once META_ADS_ACCESS_TOKEN is set', async () => {
-    vi.stubEnv('META_ADS_ACCESS_TOKEN', 'EAAG-test-token');
-    const status = await metaAdsStatus();
-    expect(status.state).toBe('connected');
-  });
-});
-
-describe('ghlStatus', () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  test('needs BOTH the private-integration token and the location id', async () => {
-    vi.stubEnv('GHL_API_KEY', 'pit-token');
-    vi.stubEnv('GHL_LOCATION_ID', '');
-    expect((await ghlStatus()).state).toBe('not_configured');
-    vi.stubEnv('GHL_LOCATION_ID', 'loc_123');
-    const status = await ghlStatus();
-    expect(status.state).toBe('connected');
-    expect(status.id).toBe('ghl');
-    expect(status.kind).toBe('crm');
   });
 });
 

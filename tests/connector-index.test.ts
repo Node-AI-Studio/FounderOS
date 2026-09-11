@@ -1,26 +1,17 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { allConnectorStatuses } from '@/lib/connectors';
+import { CONNECTOR_IDS, allConnectorStatuses } from '@/lib/connectors';
 
 vi.mock('@/lib/connectors/email', () => ({ emailStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/gcal', () => ({ calendarStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/slack', () => ({ slackStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/payments', () => ({ paymentsStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/notion', () => ({ notionStatus: async () => ({}) }));
-vi.mock('@/lib/connectors/zernio', () => ({ zernioStatus: async () => ({}) }));
-vi.mock('@/lib/connectors/beehiiv', () => ({ beehiivStatus: async () => ({}) }));
-vi.mock('@/lib/connectors/manychat', () => ({ manychatStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/attio', () => ({ attioStatus: async () => ({}) }));
-vi.mock('@/lib/connectors/arcads', () => ({ arcadsStatus: async () => ({}) }));
-vi.mock('@/lib/connectors/miro', () => ({ miroStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/wispr', () => ({ wisprStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/whatsapp', () => ({ whatsappStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/obsidian', () => ({ obsidianStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/local-stack', () => ({ localStackStatus: async () => ({}) }));
 vi.mock('@/lib/connectors/llm', () => ({ llmStatus: async () => ({}) }));
-vi.mock('@/lib/connectors/webinarjam', () => ({ webinarjamStatus: async () => ({}) }));
-vi.mock('@/lib/connectors/trakyo', () => ({ trakyoStatus: async () => ({}) }));
-vi.mock('@/lib/connectors/meta-ads', () => ({ metaAdsStatus: async () => ({}) }));
-vi.mock('@/lib/connectors/ghl', () => ({ ghlStatus: async () => ({}) }));
 vi.mock('@/lib/brain', () => ({
   getBrainProvider: () => ({ status: async () => ({ connected: false }) }),
 }));
@@ -40,4 +31,10 @@ test('allConnectorStatuses includes Paperclip orchestration status', async () =>
     kind: 'orchestration',
     state: 'not_configured',
   }));
+});
+
+test('the registry lists exactly the connectors with a real status function', () => {
+  const ids = [...CONNECTOR_IDS].sort();
+  expect(ids).toEqual(['attio', 'calendar', 'email', 'gbrain', 'llm', 'local-stack', 'notion', 'obsidian', 'paperclip', 'payments', 'slack', 'whatsapp', 'wispr']);
+  for (const gone of ['ghl', 'meta-ads', 'trakyo', 'skool']) expect(ids).not.toContain(gone);
 });
