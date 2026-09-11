@@ -40,8 +40,8 @@ data on any page.
 |---|---|
 | Branches | `main` has 11 Paperclip commits. `founder-os` has 46 commits of our work. Neither knows the other. Two conflicting files. |
 | Tests | 959 passing, typecheck clean, on both branches |
-| Connectors | 12 live on `founder-os`; `main` still registers Bennett's nine |
-| Seed | Local DB holds 1,814 seeded rows from August. Seed flag undocumented. |
+| Connectors | 13 registered (2026-09-11); the catalog points at nothing else and unwired tiles have no Connect button |
+| Seed | Off since 2026-09-11. Local DB holds only real rows (chat runs); `lib/seed.ts` is the test fixture. |
 | Server | launchd job on 127.0.0.1:4100 from `.next-prod`, fronted by Tailscale Serve at the https tailnet URL |
 | Agents | Paperclip on the Hetzner box pushes as `nodeai-agents`, write on FounderOS only |
 | LLM | Vercel AI Gateway, `anthropic/claude-sonnet-5`, $15 credit as of 2026-09-11 |
@@ -150,7 +150,10 @@ Every page returned 200 with no demo mark. What is blank, and what fills it:
 | / | 0/0 roster, 0 runs, audience chart blank | as above |
 | /comms | live; WhatsApp reports a read timeout (Full Disk Access for the launchd process) | Cristoforo, System Settings |
 
-Exit: every page shows our data or an honest empty state.
+Exit: every page shows our data or an honest empty state. Reached 2026-09-11
+(PRs #23 to #31, all verified on the launchd server). Owed by Cristoforo:
+confirm or rename the venture ids (2.4), say which unwired tiles to wire this
+quarter (2.3), grant Full Disk Access to the launchd process so WhatsApp reads.
 
 ## Phase 3: the encoded company (month two)
 
@@ -158,6 +161,11 @@ This is the part the cohort sells and the repo does not contain. Needs a
 brainstorm before a plan, because it is a structure decision on top of the
 existing Node AI brain, not a new store.
 
+- [ ] **3.0 Supabase under the repo layer.** Agreed in principle 2026-09-11,
+  ahead of Railway: the repo layer (`lib/db.ts`) gets a Postgres implementation
+  against a Supabase project so the encoded company and the run history survive
+  the laptop. Same repo methods, same Zod schemas, same tests with a second
+  backend. Done when `npm test` runs the repo suite against both backends.
 - [ ] **3.1 Design the folder.** From the webinar, the spine is: a company
   identity file, `context.md`, `decisions.md`, an invariants file (rules that
   are never broken), then one folder per department holding its agents and
