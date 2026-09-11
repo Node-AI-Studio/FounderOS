@@ -42,7 +42,7 @@ data on any page.
 | Tests | 959 passing, typecheck clean, on both branches |
 | Connectors | 12 live on `founder-os`; `main` still registers Bennett's nine |
 | Seed | Local DB holds 1,814 seeded rows from August. Seed flag undocumented. |
-| Server | launchd job on 127.0.0.1:4100 from `.next-prod`; survives closed terminals. Tailnet https URL pending the certificate toggle. |
+| Server | launchd job on 127.0.0.1:4100 from `.next-prod`, fronted by Tailscale Serve at the https tailnet URL |
 | Agents | Paperclip on the Hetzner box pushes as `nodeai-agents`, write on FounderOS only |
 | LLM | Vercel AI Gateway, `anthropic/claude-sonnet-5`, $15 credit as of 2026-09-11 |
 | Scheduler | None. Cron rows are stored and never run. |
@@ -70,7 +70,7 @@ Detailed plan: `docs/superpowers/plans/2026-09-10-phase-1-consolidate.md`
   session that started it. Done when a launchd job runs `next start` at login
   from its own build directory and survives closing every terminal. Verify:
   `launchctl list | grep founderos` and a curl after a reboot.
-- [x] **1.5 Stable URL.** Done 2026-09-11 over http: `http://cristoforos-macbook-pro.tail75c26d.ts.net`, unlock verified through it (PR #21 fixed proxied redirects). https waits for the tailnet certificate toggle. Why: phone access, and https removes the cookie
+- [x] **1.5 Stable https URL.** Done 2026-09-11: `https://cristoforos-macbook-pro.tail75c26d.ts.net`, redirect, unlock, and the Secure cookie verified through it (PR #21 fixed proxied redirects). http is off. Why: phone access, and https removes the cookie
   problem for good. Done when `tailscale serve status` shows 4100 and the
   unlock flow works from the phone. Verify: open the ts.net URL on the phone.
 - [x] **1.6 Real model.** Done 2026-09-11: $15 credit on the gateway, `LLM_MODEL=anthropic/claude-sonnet-5`, Conductor answered. Why: agent chat runs on `google/gemini-2.5-flash-lite`
@@ -78,7 +78,7 @@ Detailed plan: `docs/superpowers/plans/2026-09-10-phase-1-consolidate.md`
   `LLM_MODEL=anthropic/claude-sonnet-5`, and the Conductor answers. Verify:
   `POST /api/agents/conductor/chat` returns text, not 500.
 
-Exit: one branch, one always-on server, one URL, chat on the right model. Reached 2026-09-11; owed: the reboot test and the https toggle.
+Exit: one branch, one always-on server, one URL, chat on the right model. Reached 2026-09-11; owed: the reboot test.
 
 ## Phase 2: make the data ours (next two weeks)
 
@@ -228,8 +228,7 @@ Only after phase 3 exists, because the folder is what would be sold.
 | 2026-09-10 | `main` is protected: PR with green `verify` and one review. Admin enforcement is off, so founders merge their own PRs with `gh pr merge --admin` under personal accounts; agent PRs need the check and a human approval. |
 | 2026-09-11 | Agents act on GitHub as `nodeai-agents` (display name Node AI Agents, mail `agents@nodeagency.ai` on the admin inbox): org member, write on FounderOS only, read elsewhere. Its fine-grained token `paperclip` (Contents and Pull requests, FounderOS only, expires 2027-09-12) is Paperclip secret `github-founderos` v2 and the box's only GitHub login. Fence proven 2026-09-11: branch push accepted, push to `main` refused. |
 | 2026-09-11 | `nodeagencyai` is left exactly as it is: still an org owner, still owns its profile repo. Nothing on this Mac or the box authenticates as it any more. Its two stray repos moved into the org; `nespola-osint-old` is a strict subset of `nespola-osint` and can be deleted. |
-| 2026-09-11 | Production URL on the tailnet: `http://cristoforos-macbook-pro.tail75c26d.ts.net`, Tailscale Serve on port 80 proxying 127.0.0.1:4100. Switch to `tailscale serve --bg --https=443 http://127.0.0.1:4100` once certificates are enabled. |
-| 2026-09-11 | Tailscale Serve needs HTTPS certificates enabled on the tailnet (admin console, DNS, HTTPS Certificates) before it can front 4100 over https. Until then the tailnet URL is http only. |
+| 2026-09-11 | Production URL on the tailnet: `https://cristoforos-macbook-pro.tail75c26d.ts.net`, Tailscale Serve on 443 proxying 127.0.0.1:4100, certificates enabled on the tailnet the same day. |
 | 2026-09-11 | Fine-grained tokens on the org need owner approval (Org settings, Third-party Access, Personal access tokens, Pending requests). The API for that list returns 404 on this org; approve in the browser. |
 | 2026-09-10 | No em dashes, no emojis, dark monochrome artifacts (house style). |
 | 2026-09-10 | Slack bot channel membership and the Obsidian vault switch are Cristoforo's manual actions, not code. |
