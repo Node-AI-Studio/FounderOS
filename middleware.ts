@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { ACCESS_TOKEN_ENV, bearerFrom, decideAccess, isPublicPath, SESSION_COOKIE } from './lib/auth';
+import { ACCESS_TOKEN_ENV, bearerFrom, decideAccess, isPublicPath, publicOrigin, SESSION_COOKIE } from './lib/auth';
 
 /**
  * One gate in front of every page and API route. See lib/auth.ts for why this
@@ -38,7 +38,8 @@ export function middleware(request: NextRequest) {
     );
   }
 
-  const unlock = new URL('/unlock', request.url);
+  // Built from the visitor's origin, so a phone on the tailnet is not sent to localhost.
+  const unlock = new URL('/unlock', publicOrigin(request.headers, request.url));
   // Round-trip the destination so unlocking lands where the operator was going.
   unlock.searchParams.set('next', pathname + request.nextUrl.search);
   return NextResponse.redirect(unlock);

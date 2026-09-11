@@ -94,3 +94,20 @@ export function isPublicPath(pathname: string): boolean {
   // open `/unlocked-secrets`, which is the sort of gap a gate cannot afford.
   return PUBLIC_PATHS.some((base) => pathname === base || pathname.startsWith(`${base}/`));
 }
+
+/**
+ * The origin the visitor typed, not the one Next bound to.
+ *
+ * Behind Tailscale Serve or any reverse proxy, `request.url` carries the bind
+ * address (`http://localhost:4100`), so a redirect built from it sends a phone
+ * on the tailnet to a localhost it does not have. Proxies name the public host
+ * in X-Forwarded-Host and, when they terminate TLS, the scheme in
+ * X-Forwarded-Proto. Tailscale Serve omits the proto header on plain http, so
+ * http is the default. First value wins when a proxy chain appends a list.
+ */
+export function publicOrigin(headers: Headers, fallbackUrl: string): string {
+  const host = headers.get('x-forwarded-host')?.split(',')[0]?.trim();
+  if (!host) return new URL(fallbackUrl).origin;
+  const proto = headers.get('x-forwarded-proto')?.split(',')[0]?.trim() || 'http';
+  return `${proto}://${host}`;
+}
