@@ -1,6 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { IDENTITY } from '@/lib/identity';
+
+
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
   forceCollide,
   forceLink,
@@ -11,11 +14,11 @@ import {
   forceY,
   type Simulation,
 } from 'd3-force';
-import { Crown, ArrowLeft, ChevronLeft, ChevronRight, ClipboardList, Maximize2, Sparkles, User, UserRound, Users, Wrench, X, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, ClipboardList, Maximize2, Sparkles, User, UserRound, Users, Wrench, X, type LucideIcon } from 'lucide-react';
 import { graphDirectory, orderGraphDepartments, SELF_ID, toolSlugOf, workerNodeId, type DirectoryGroup, type KGNode, type KGNodeKind, type KnowledgeGraph as KGData } from '@/lib/knowledge-graph';
 import { ACTION_LENSES, ENTITY_LENSES, FUNCTION_LENSES, lensNodeSet, type Lens } from '@/lib/graph-lens';
 import { GraphDirectory } from '@/components/GraphDirectory';
-import { branchPath, branchWidth, cyclicDeltaF, edgeArc, focusWheel, radialRestLayout, responsiveRingR, rotateAbout, shortestAngleDelta, treeLayout, wheelPoint, wheelStageGeom, wheelStageSpot, type RestLayoutResult, type TreeLayoutResult, type TreeNodePos } from '@/lib/tree-layout';
+import { connectionPath, branchWidth, cyclicDeltaF, focusWheel, radialRestLayout, responsiveRingR, rotateAbout, shortestAngleDelta, treeLayout, wheelPoint, wheelStageGeom, wheelStageSpot, type RestLayoutResult, type TreeLayoutResult, type TreeNodePos } from '@/lib/tree-layout';
 import { rafThrottle } from '@/lib/raf-throttle';
 import { buildToolWiki, prettifySlug } from '@/lib/agent-wiki';
 import { cameraRect, lerpRect, memoryNodePos, pickRestTier, R_CORE, type MemoryGraph, type Rect } from '@/lib/memory-core';
@@ -32,7 +35,7 @@ const W = 880;
 const H = 600;
 const CX = W / 2;
 const CY = H / 2;
-const RING_R = responsiveRingR(W, H); // self · teams · employees · tools — responsive to canvas
+const RING_R = responsiveRingR(W, H, true); // Extra space between departments and tasks for their heads.
 const MARGIN = 78; // horizontal margin for focus rows
 // focus mode: the wheel enlarges and its hub sinks below the canvas — the
 // focused tree grows out of the wheel's top; you turn INTO it (lib/tree-layout)
@@ -48,11 +51,11 @@ const RIM_DELTA_DEG = (WHEEL_GEOM.delta * 180) / Math.PI;
 const CAT: Record<KGNodeKind, { color: string; Icon: LucideIcon; label: string; r: number }> = {
   self: { color: 'var(--text)', Icon: Sparkles, label: 'Notes', r: 18 },
   team: { color: 'var(--brain-1)', Icon: Users, label: 'Pillars', r: 15 },
-  head: { color: 'var(--brain-2)', Icon: Crown, label: 'Dept heads', r: 12 },
-  task: { color: 'var(--muted)', Icon: ClipboardList, label: 'SOP tasks', r: 7 },
-  person: { color: 'var(--warn)', Icon: UserRound, label: 'Humans', r: 10 },
-  employee: { color: 'var(--accent)', Icon: User, label: 'AI agents', r: 10 },
-  tool: { color: 'var(--kg-tool)', Icon: Wrench, label: 'Tools', r: 7.5 },
+  head: { color: 'var(--brain-2)', Icon: UserRound, label: 'Dept heads', r: 12 },
+  task: { color: '#a0a0a0', Icon: ClipboardList, label: 'SOP tasks', r: 7 },
+  person: { color: '#d0d0d0', Icon: UserRound, label: 'Humans', r: 10 },
+  employee: { color: '#d0d0d0', Icon: User, label: 'AI agents', r: 10 },
+  tool: { color: '#d0d0d0', Icon: Wrench, label: 'Tools', r: 7.5 },
 };
 
 // Everything reads bright at rest (Alex, 2026-07-12: "keep it all lit up"
@@ -72,16 +75,12 @@ const LEGEND_KINDS: KGNodeKind[] = ['self', 'team', 'task', 'person', 'employee'
 
 const nodeColor = (n: KGNode) => n.color ?? CAT[n.kind].color;
 
-// Each segment of the chain gets its own visible colour: Alex → department
-// (white) → SOP tasks (muted) → the worker who does the job (accent) → tools
-// (cyan); agent↔agent reporting in accent.
-const EDGE_COLOR: Record<string, string> = {
-  pillar: 'var(--text)',
-  sop: 'var(--muted)',
-  does: 'var(--accent)',
-  member: 'var(--muted)',
-  uses: 'var(--brain-2)',
-  reports: 'var(--accent)',
+// Type is encoded by the glyph; color identifies a department.
+const DIRECTORY_COLORS = {
+  employee: CAT.employee.color,
+  person: CAT.person.color,
+  task: CAT.task.color,
+  tool: CAT.tool.color,
 };
 
 // Task titles are whole jobs ("Broadcast directives across the fleet") — trim
@@ -218,6 +217,7 @@ export function KnowledgeGraph({
   /** physics tuning (the in-UI editor is retired; these still configure the sim) */
   repelDefault?: number; linkDistDefault?: number; centerDefault?: number;
 }) {
+  const nodeSurfaceId = useId();
   // fixed physics — the slider editor gave way to the always-on directory
   const centerForce = centerDefault;
   const repel = repelDefault;
@@ -318,6 +318,9 @@ export function KnowledgeGraph({
     return null;
   };
 
+  const connectionColor = (source: string, target: string) =>
+    byId.get(teamForFocus(source) ?? teamForFocus(target) ?? '')?.color ?? 'var(--muted)';
+
   // The full chain below a worker (its tools) and above it (its task + team).
   const chainOfWorker = (w: string, set: Set<string>) => {
     set.add(w);
@@ -334,13 +337,13 @@ export function KnowledgeGraph({
     const node = byId.get(id);
     const set = new Set<string>([id]);
     if (!node) return set;
-    if (node.kind === 'team') {
+    if (node.kind === 'team' || node.kind === 'head') {
+      const team = node.kind === 'team' ? id : id.replace('head:', 'team:');
       set.add(SELF_ID);
-      for (const w of workersOfTeam.get(id) ?? []) chainOfWorker(w, set);
-      for (const t of tasksOfTeam.get(id) ?? []) set.add(t);
-    } else if (node.kind === 'head') {
-      set.add(SELF_ID);
-      set.add(id.replace('head:', 'team:'));
+      set.add(team);
+      set.add(team.replace('team:', 'head:'));
+      for (const w of workersOfTeam.get(team) ?? []) chainOfWorker(w, set);
+      for (const t of tasksOfTeam.get(team) ?? []) set.add(t);
     } else if (node.kind === 'task') {
       set.add(SELF_ID);
       const team = teamOfTask.get(id);
@@ -355,6 +358,10 @@ export function KnowledgeGraph({
     } else {
       for (const m of adjacency.get(id) ?? []) set.add(m);
     }
+    for (const member of [...set]) {
+      const team = teamForFocus(member);
+      if (team) set.add(team.replace('team:', 'head:'));
+    }
     return set;
   };
 
@@ -362,7 +369,7 @@ export function KnowledgeGraph({
 
   const focusSet = useMemo(() => {
     if (!focusTeamId) return null;
-    const set = new Set<string>([SELF_ID, focusTeamId]);
+    const set = new Set<string>([SELF_ID, focusTeamId, focusTeamId.replace('team:', 'head:')]);
     for (const t of tasksOfTeam.get(focusTeamId) ?? []) set.add(t);
     for (const w of workersOfTeam.get(focusTeamId) ?? []) {
       set.add(w);
@@ -394,6 +401,7 @@ export function KnowledgeGraph({
         treeLayout({
           selfId: SELF_ID,
           teamId: team.id,
+          headId: byId.has(team.id.replace('team:', 'head:')) ? team.id.replace('team:', 'head:') : undefined,
           taskIds,
           workerByTask,
           toolsByWorker,
@@ -427,12 +435,13 @@ export function KnowledgeGraph({
     }
     const pillars = teams.map((t) => ({
       teamId: t.id,
+      headId: byId.has(t.id.replace('team:', 'head:')) ? t.id.replace('team:', 'head:') : undefined,
       taskIds: tasksOfTeam.get(t.id) ?? [],
       workerIds: workersOfTeam.get(t.id) ?? [],
       toolIds: toolsByPillar.get(t.id) ?? [],
     }));
     return radialRestLayout({ selfId: SELF_ID, pillars, ringR: RING_R, cx: CX, cy: CY });
-  }, [graph, tasksOfTeam, workersOfTeam, workersOfTool, teamOfWorker]);
+  }, [graph, byId, tasksOfTeam, workersOfTeam, workersOfTool, teamOfWorker]);
 
   // Staggered label rows for the focused tree: within each band (tasks,
   // workers, tools) labels alternate between two heights so long titles stay
@@ -641,7 +650,12 @@ export function KnowledgeGraph({
       const a = (i / peers) * Math.PI * 2;
       return { ...n, x: CX + Math.cos(a) * (RING_R[n.ring] || 1), y: CY + Math.sin(a) * (RING_R[n.ring] || 1) };
     });
-    const links: SimLink[] = graph.edges.map((e) => ({ source: e.source, target: e.target, kind: e.kind }));
+    // Department ownership stays in the data; displayed task branches pass through the head.
+    const links: SimLink[] = graph.edges.map((e) => {
+      const headId = e.source.replace('team:', 'head:');
+      const source = e.kind === 'sop' && byId.has(headId) ? headId : e.source;
+      return { source, target: e.target, kind: e.kind };
+    });
     nodesRef.current = nodes;
     linksRef.current = links;
 
@@ -900,20 +914,16 @@ export function KnowledgeGraph({
           const dir = key.slice(sep + 1);
           const teamPos = posOf(teamId);
           if (!selfPos || !teamPos) continue;
-          // same bow as edgeArc so the dots ride the drawn spoke exactly
+          // Linear interpolation keeps the dots on the direct connection.
           const dx = teamPos.x - selfPos.x;
           const dy = teamPos.y - selfPos.y;
-          const len = Math.hypot(dx, dy) || 1;
-          const mx = (selfPos.x + teamPos.x) / 2 + (-dy / len) * 0.12 * len;
-          const my = (selfPos.y + teamPos.y) / 2 + (dx / len) * 0.12 * len;
           const seed = (hashStr(teamId) % 100) / 100;
           const u =
             dir === 'out'
               ? (now / 2600 + seed) % 1
               : 1 - ((now / 3300 + seed * 1.7) % 1);
-          const a = 1 - u;
-          const x = a * a * selfPos.x + 2 * a * u * mx + u * u * teamPos.x;
-          const y = a * a * selfPos.y + 2 * a * u * my + u * u * teamPos.y;
+          const x = selfPos.x + dx * u;
+          const y = selfPos.y + dy * u;
           el.setAttribute('transform', `translate(${x},${y})`);
           el.setAttribute('opacity', String(0.9 * Math.sin(Math.PI * u)));
         }
@@ -947,6 +957,7 @@ export function KnowledgeGraph({
   const lit = focusSet ?? (hoverId ? litFor(hoverId) : null) ?? lensLit;
   const posById = new Map(nodes.map((n) => [n.id, n]));
   const focusedTeam = focusTeamId ? byId.get(focusTeamId) : null;
+  const focusedColor = focusedTeam?.color ?? 'var(--muted)';
 
   // Exit crossfade: when a focused tree closes, keep its skeleton for ~650ms
   // drawn from the LIVE node positions — the limbs stay attached to the nodes
@@ -1427,28 +1438,41 @@ export function KnowledgeGraph({
     setHoverId(nodeId);
   };
   const directoryPanel = (
-    <GraphDirectory groups={directory} onPick={pickFromDirectory} onHover={hoverFromDirectory} collapsed={directoryCollapsed} onToggleCollapse={() => setDirectoryCollapsed((v) => !v)} className="h-full" />
+    <GraphDirectory colors={DIRECTORY_COLORS} groups={directory} onPick={pickFromDirectory} onHover={hoverFromDirectory} collapsed={directoryCollapsed} onToggleCollapse={() => setDirectoryCollapsed((v) => !v)} className="h-full" />
   );
 
-  // compact legend for the fullscreen wheel: color + icon per kind, with the
-  // Notes core in its vault orange
-  const compactLegend = (
-    <div className="flex items-center gap-3 rounded-sm-t border border-os-border-strong bg-os-bg/85 px-2.5 py-1.5 backdrop-blur">
-      {(
-        [
-          { label: 'Notes', color: HUB_COLOR, Icon: CAT.self.Icon },
-          { label: 'Dept head', color: CAT.head.color, Icon: CAT.head.Icon },
-          { label: 'Human', color: CAT.person.color, Icon: CAT.person.Icon },
-          { label: 'AI agent', color: CAT.employee.color, Icon: CAT.employee.Icon },
-          { label: 'Tool', color: CAT.tool.color, Icon: CAT.tool.Icon },
-          { label: 'SOP task', color: CAT.task.color, Icon: CAT.task.Icon },
-        ] as const
-      ).map(({ label, color, Icon }) => (
-        <span key={label} className="flex items-center gap-1.5 font-mono text-[9.5px] text-os-muted">
-          <Icon className="h-3 w-3" style={{ color }} strokeWidth={2} />
-          {label}
+  const departmentLegend = (
+    <div aria-label="Department colors" className="flex flex-wrap gap-x-3 gap-y-1">
+      {deptList.map((dept) => (
+        <span key={dept.teamId} className="flex items-center gap-1.5 font-mono text-[9.5px] text-os-muted">
+          <span className="h-1.5 w-1.5" style={{ background: dept.color }} aria-hidden />
+          {dept.name}
         </span>
       ))}
+    </div>
+  );
+
+  // Fullscreen legend separates department colors from node-type symbols.
+  const compactLegend = (
+    <div className="flex flex-col gap-2 rounded-sm-t border border-os-border-strong bg-os-bg/85 px-2.5 py-1.5 backdrop-blur">
+      {departmentLegend}
+      <div className="flex flex-wrap items-center gap-3">
+        {(
+          [
+            { label: 'Notes', color: HUB_COLOR, Icon: CAT.self.Icon },
+            { label: 'Dept head', color: CAT.head.color, Icon: CAT.head.Icon },
+            { label: 'Human', color: CAT.person.color, Icon: CAT.person.Icon },
+            { label: 'AI agent', color: CAT.employee.color, Icon: CAT.employee.Icon },
+            { label: 'Tool', color: CAT.tool.color, Icon: CAT.tool.Icon },
+            { label: 'SOP task', color: CAT.task.color, Icon: CAT.task.Icon },
+          ] as const
+        ).map(({ label, color, Icon }) => (
+          <span key={label} className="flex items-center gap-1.5 font-mono text-[9.5px] text-os-muted">
+            {label === 'Dept head' ? <span className="font-mono text-[8px]">CXO</span> : <Icon className="h-3 w-3" style={{ color }} strokeWidth={2} />}
+            {label}
+          </span>
+        ))}
+      </div>
     </div>
   );
 
@@ -1547,7 +1571,7 @@ export function KnowledgeGraph({
       task={selectedTask}
       assigneeName={selectedTaskWorkerNode?.label ?? selectedTask.assigneeId}
       assigneeKindLabel={selectedTask.assigneeKind === 'person' ? 'human employee' : 'AI agent'}
-      assigneeColor={selectedTask.assigneeKind === 'person' ? 'var(--warn)' : 'var(--accent)'}
+      assigneeColor={CAT.employee.color}
       runtime={taskRuntime}
       tools={toolChips(selectedTaskWorker)}
       onClose={clearDetail}
@@ -1560,7 +1584,7 @@ export function KnowledgeGraph({
     <GraphHumanDetailCard
       person={selectedHuman}
       deptName={byId.get(`team:${selectedHuman.departmentId}`)?.label ?? selectedHuman.departmentId}
-      color="var(--warn)"
+      color={CAT.person.color}
       task={selectedHumanTask}
       tools={toolChips(selectedHumanId)}
       onClose={clearDetail}
@@ -1652,6 +1676,21 @@ export function KnowledgeGraph({
         aria-label="Operating knowledge graph"
         onClick={clearAll}
       >
+        <defs>
+          <radialGradient id={`${nodeSurfaceId}-face`} cx="50%" cy="35%" r="75%">
+            <stop offset="0" stopColor="#080808" />
+            <stop offset="0.7" stopColor="#141414" />
+            <stop offset="1" stopColor="#303030" />
+          </radialGradient>
+          {[...nodes.filter(n => n.kind === 'team').map(n => ({ id: n.id, color: nodeColor(n) })), { id: 'neutral', color: '#a0a0a0' }].map(halo => (
+            <radialGradient key={halo.id} id={`${nodeSurfaceId}-halo-${halo.id}`}>
+              <stop offset="0" stopColor={halo.color} stopOpacity={0} />
+              <stop offset="0.48" stopColor={halo.color} stopOpacity={0} />
+              <stop offset="0.65" stopColor={halo.color} stopOpacity={0.12} />
+              <stop offset="1" stopColor={halo.color} stopOpacity={0} />
+            </radialGradient>
+          ))}
+        </defs>
         {/* orbital rings — faint, slowly-rotating backdrop (memoized; static) */}
         {orbitalRings}
 
@@ -1673,31 +1712,30 @@ export function KnowledgeGraph({
             const pathway = coreExpanded && l.kind === 'pillar';
             if (coreExpanded && !pathway) {
               return (
-                <path key={i} d={edgeArc(s, t)} fill="none" stroke={EDGE_COLOR[l.kind] ?? 'var(--dim)'} strokeWidth={0.9} strokeLinecap="round" opacity={0.02} style={{ transition: 'opacity 0.4s' }} />
+                <path key={i} d={connectionPath(s, t)} fill="none" stroke={connectionColor(s.id, t.id)} strokeWidth={0.9} strokeLinecap="round" opacity={0.02} style={{ transition: 'opacity 0.4s' }} />
               );
             }
             if (pathway) {
               const teamColor = byId.get(t.id)?.color ?? 'var(--text)';
               return (
-                <path key={i} d={edgeArc(s, t)} fill="none" stroke={teamColor} strokeWidth={2.2} strokeLinecap="round" opacity={0.75} className="kg-ray" style={{ transition: 'opacity 0.4s' }} />
+                <path key={i} d={connectionPath(s, t)} fill="none" stroke={teamColor} strokeWidth={2.2} strokeLinecap="round" opacity={0.75} className="kg-ray" style={{ transition: 'opacity 0.4s' }} />
               );
             }
-            // de-noised web: every edge wears its pillar's color at a whisper
-            // (0.08); hovering a node raises ITS incident edges to 0.6, keeps
-            // the rest of the lit chain readable, and drops everything else
-            const team = byId.get(teamForFocus(s.id) ?? teamForFocus(t.id) ?? '');
-            const tint = team?.color ?? EDGE_COLOR[l.kind] ?? 'var(--dim)';
+            // Department color remains visible at rest; hover emphasizes the
+            // incident connections and dims unrelated branches.
+            const tint = connectionColor(s.id, t.id);
             const incident = hoverId !== null && (s.id === hoverId || t.id === hoverId);
             const onChain = !lit || (lit.has(s.id) && lit.has(t.id));
             return (
               <path
                 key={i}
-                d={edgeArc(s, t)}
+                d={connectionPath(s, t)}
                 fill="none"
                 stroke={tint}
                 strokeWidth={incident ? 1.6 : onChain && lit ? 1.2 : 0.9}
                 strokeLinecap="round"
-                opacity={lit ? (incident ? 0.6 : onChain ? 0.35 : 0.04) : 0.08}
+                opacity={lit ? (incident ? 0.85 : onChain ? 0.55 : 0.04) : 0.214}
+                style={{ filter: `drop-shadow(0 0 0.65px ${tint})` }}
               />
             );
           })}
@@ -1725,21 +1763,16 @@ export function KnowledgeGraph({
               const s = posById.get(b.source);
               const t = posById.get(b.target);
               if (!s || !t) return null;
-              const stroke =
-                b.depth === 4 ? 'var(--brain-2)'
-                : b.depth === 3 ? (byId.get(b.target)?.kind === 'person' ? 'var(--warn)' : 'var(--accent)')
-                : b.depth === 2 ? 'var(--accent)'
-                : 'var(--text)';
+              const stroke = connectionColor(b.source, b.target);
               return (
-                <path key={i} d={branchPath(s, t)} fill="none" stroke={stroke} strokeWidth={branchWidth(b.depth)} strokeLinecap="round" />
+                <path key={i} d={connectionPath(s, t)} fill="none" stroke={stroke} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${stroke})` }} strokeWidth={branchWidth(b.depth)} strokeLinecap="round" />
               );
             })}
           </g>
         )}
 
-        {/* Focused: the department grown as an organic tree — curved, tapered
-            branches with a dept-tinted glow, an energy pulse, and popping
-            leaves. Keyed by department so the growth replays on each switch. */}
+        {/* Focused department: direct, tapered branches retain the department
+            glow, energy pulse and leaf animation on each switch. */}
         {focusTree && (
           <g key={focusTeamId ?? 'focus'} style={{ pointerEvents: 'none' }}>
             <defs>
@@ -1761,37 +1794,36 @@ export function KnowledgeGraph({
               const s = posById.get(l.source);
               const t = posById.get(l.target);
               if (!s || !t) return null;
-              return <line key={`vine-${i}`} x1={s.x} y1={s.y} x2={t.x} y2={t.y} stroke="var(--brain-2)" strokeWidth={0.8} opacity={0.26} />;
+              return <line key={`vine-${i}`} x1={s.x} y1={s.y} x2={t.x} y2={t.y} stroke={focusedColor} strokeWidth={0.8} opacity={0.538} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} />;
             })}
 
             {/* branches by depth:
                 · self → department = solid trunk (grows in)
                 · department → task = animated dotted line (work flows dept→task)
-                · task → worker     = short solid hop, tinted human/AI
+                · task → worker     = short solid hop in the department color
                 · worker → tool     = straight solid line */}
             {focusTree.branches.map((b, i) => {
               const s = posById.get(b.source);
               const t = posById.get(b.target);
               if (!s || !t) return null;
-              const d = branchPath(s, t);
+              const d = connectionPath(s, t);
               if (b.depth === 4) {
                 return (
-                  <path key={`br-${i}`} d={d} fill="none" stroke="var(--brain-2)" strokeWidth={branchWidth(4)} strokeLinecap="round" className="kg-fade" />
+                  <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} strokeWidth={branchWidth(4)} strokeLinecap="round" className="kg-fade" />
                 );
               }
               if (b.depth === 3) {
-                const workerColor = byId.get(b.target)?.kind === 'person' ? 'var(--warn)' : 'var(--accent)';
                 return (
-                  <path key={`br-${i}`} d={d} fill="none" stroke={workerColor} strokeWidth={branchWidth(3)} strokeLinecap="round" className="kg-fade" />
+                  <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} strokeWidth={branchWidth(3)} strokeLinecap="round" className="kg-fade" />
                 );
               }
               if (b.depth === 2) {
                 return (
-                  <path key={`br-${i}`} d={d} fill="none" stroke="var(--accent)" strokeWidth={branchWidth(2)} strokeLinecap="round" className="kg-dash" />
+                  <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} strokeWidth={branchWidth(2)} strokeLinecap="round" className="kg-dash" />
                 );
               }
               return (
-                <path key={`br-${i}`} d={d} fill="none" stroke="var(--text)" strokeWidth={branchWidth(1)} strokeLinecap="round" pathLength={1} className="kg-grow" />
+                <path key={`br-${i}`} d={d} fill="none" stroke={focusedColor} strokeOpacity={0.442} style={{ filter: `drop-shadow(0 0 0.65px ${focusedColor})` }} strokeWidth={branchWidth(1)} strokeLinecap="round" pathLength={1} className="kg-grow" />
               );
             })}
 
@@ -1812,7 +1844,7 @@ export function KnowledgeGraph({
             limbs draw faint from the live gliding nodes, so each tilted tree
             reads as a whole department mounted on the huge wheel */}
         {focusTree && flankTeams && (
-          <g opacity={0.22} style={{ pointerEvents: 'none' }}>
+          <g opacity={0.11} style={{ pointerEvents: 'none' }}>
             {[...flankTeams].map((teamId) =>
               (allTrees.get(teamId)?.branches ?? []).map((b, i) => {
                 // the shared trunk base (self) belongs to the apex tree only
@@ -1823,7 +1855,7 @@ export function KnowledgeGraph({
                 return (
                   <path
                     key={`fl-${teamId}-${i}`}
-                    d={branchPath(s, t)}
+                    d={connectionPath(s, t)}
                     fill="none"
                     stroke={byId.get(teamId)?.color ?? 'var(--text-3)'}
                     strokeWidth={branchWidth(b.depth) * 0.8}
@@ -1837,7 +1869,9 @@ export function KnowledgeGraph({
 
         {nodes.map((n) => {
           const cat = CAT[n.kind];
-          const color = nodeColor(n);
+          const surfaceColor = nodeColor(n);
+          const departmentId = teamForFocus(n.id);
+          const color = byId.get(departmentId ?? '')?.color ?? surfaceColor;
           // inside the memory only Alex + the pillar gateways stay visible
           const dim = coreExpanded
             ? n.kind !== 'self' && n.kind !== 'team'
@@ -1846,7 +1880,7 @@ export function KnowledgeGraph({
               : false;
           const inFocus = focusSet?.has(n.id) ?? false;
           const selected = selectedAgentId === n.id || selectedToolId === n.id || selectedTaskId === n.id || selectedHumanId === n.id;
-          const showLabel = n.kind === 'self' || n.kind === 'team' || inFocus || (hoverId ? (lit?.has(n.id) ?? false) : false);
+          const showLabel = n.kind !== 'head' && (n.kind === 'self' || n.kind === 'team' || inFocus || (hoverId ? (lit?.has(n.id) ?? false) : false));
           const Icon = cat.Icon;
           // tier radius + a connection-count bump for workers and tools, so
           // heavily-wired nodes read heavier at a glance
@@ -1907,7 +1941,7 @@ export function KnowledgeGraph({
                   onNodeClick(n);
                 }}
               >
-                <title>Notes: all of Alex&apos;s markdown, click to open the graph</title>
+                <title>{`Notes: all of ${IDENTITY.firstName}'s markdown, click to open the graph`}</title>
                 {memoryCoreInner}
                 {/* synapse sparks — positions written from the camera rAF */}
                 <g
@@ -2061,12 +2095,25 @@ export function KnowledgeGraph({
               }}
             >
               <title>{n.label}</title>
-              {/* selection echoes the vault's orange — one visual language
-                  between the core and the outlined outer nodes */}
-              {selected && <circle r={r + 3.5} fill="none" stroke={HUB_COLOR} strokeWidth={1} opacity={0.4} />}
-              <circle r={r} fill={n.kind === 'self' ? color : 'var(--surface)'} stroke={color} strokeWidth={selected || hoverId === n.id ? 2.5 : 1.5} />
+              {n.kind !== 'self' && <circle r={r * 1.6} fill={`url(#${nodeSurfaceId}-halo-${departmentId ?? 'neutral'})`} pointerEvents="none" />}
+              {/* White marks selection without changing department identity. */}
+              {selected && <circle r={r + 3.5} fill="none" stroke="#ffffff" strokeWidth={1} opacity={0.4} />}
+              <circle
+                r={r}
+                fill={n.kind === 'self' ? color : `url(#${nodeSurfaceId}-face)`}
+                stroke={selected || hoverId === n.id ? '#ffffff' : color}
+                strokeOpacity={selected || hoverId === n.id || n.kind === 'self' ? 1 : 0.45}
+                strokeWidth={selected || hoverId === n.id ? 2.5 : n.kind === 'self' ? 1.5 : 0.9}
+              />
+              {n.kind !== 'self' && (
+                <circle r={r - 1.8} fill="none" stroke={surfaceColor} strokeOpacity={0.35} strokeWidth={0.55} />
+              )}
               <g style={{ color: n.kind === 'self' ? 'var(--bg)' : color }}>
-                <Icon x={-r * 0.62} y={-r * 0.62} width={r * 1.24} height={r * 1.24} strokeWidth={2} />
+                {n.kind === 'head' ? (
+                  <text x={0} y={r * 0.21} textAnchor="middle" fill="currentColor" fontFamily="var(--font-mono)" fontSize={r * 0.625} fontWeight={600} letterSpacing={-0.4}>
+                    {n.label}
+                  </text>
+                ) : <Icon x={-r * 0.62} y={-r * 0.62} width={r * 1.24} height={r * 1.24} strokeWidth={n.kind === 'self' ? 2 : 1.5} />}
               </g>
               {showLabel && (
                 <text
@@ -2345,16 +2392,18 @@ export function KnowledgeGraph({
               ))}
             </div>
 
-            <div className="mb-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-os-dim">Legend</div>
+            <div className="mb-2">{departmentLegend}</div>
+            <div className="mb-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-os-dim">Node types</div>
             <div className="flex flex-col gap-1">
               {LEGEND_KINDS.map((k) => {
                 const cat = CAT[k];
                 const count = graph.nodes.filter((n) => n.kind === k).length;
                 const Icon = cat.Icon;
+                const legendColor = k === 'self' ? HUB_COLOR : cat.color;
                 return (
                   <div key={k} className="flex items-center gap-2">
-                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border" style={{ borderColor: cat.color, color: cat.color }}>
-                      <Icon className="h-3 w-3" strokeWidth={2} />
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border" style={{ borderColor: legendColor, color: legendColor }}>
+                      {k === 'head' ? <span className="font-mono text-[7px]">CXO</span> : <Icon className="h-3 w-3" strokeWidth={2} />}
                     </span>
                     <span className="flex-1 text-[11px] font-semibold">{cat.label}</span>
                     <span className="font-mono text-[10px] text-os-dim">{count}</span>

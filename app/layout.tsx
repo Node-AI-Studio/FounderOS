@@ -1,3 +1,4 @@
+import { IDENTITY } from '@/lib/identity';
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import './globals.css';
@@ -5,9 +6,12 @@ import { Sidebar } from '@/components/Sidebar';
 import { Topbar } from '@/components/Topbar';
 import { CommandPalette } from '@/components/CommandPalette';
 import { ConductorPanel } from '@/components/ConductorPanel';
+import { cookies, headers } from 'next/headers';
 import { getDb } from '@/lib/data';
 import type { Command } from '@/lib/palette';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
+import { ACCESS_TOKEN_ENV, bearerFrom, decideAccess, SESSION_COOKIE } from '@/lib/auth';
+import { MisconfiguredGate, UnlockGate } from '@/components/UnlockGate';
 
 const fontMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -16,7 +20,7 @@ const fontMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FOUNDER OS',
+  title: `${IDENTITY.workspace} | Founder OS`,
   description: 'Personal operating system and AI agent command center',
 };
 
@@ -58,7 +62,46 @@ function buildCommands(): Command[] {
   return [...NAV_COMMANDS, ...agents, ...tools];
 }
 
+/**
+ * The access gate lives here rather than in middleware.
+ *
+ * Next 14 compiles middleware to an Edge v8 worker, and Vercel's bundle for it
+ * crashed on `__dirname` before a single route could render. This layout already
+ * runs on every page, so it gives the same "a new route is protected the moment
+ * it exists" property with no Edge runtime involved.
+ *
+ * Rendering the locked screen rather than redirecting to /unlock is deliberate:
+ * a layout does not know its own pathname, so a redirect would bounce /unlock
+ * to itself forever.
+ *
+ * Note the seam this leaves: layouts do not wrap route handlers, so everything
+ * under app/api is no longer gated here.
+ */
+function gate() {
+  return decideAccess({
+    token: process.env[ACCESS_TOKEN_ENV],
+    presented: cookies().get(SESSION_COOKIE)?.value ?? bearerFrom(headers().get('authorization')),
+    isProduction: process.env.NODE_ENV === 'production',
+  });
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const access = gate();
+
+  if (access.kind !== 'allow') {
+    return (
+      <html lang="en" className={fontMono.variable} suppressHydrationWarning>
+        <body>
+          {access.kind === 'misconfigured' ? (
+            <MisconfiguredGate detail={access.detail} />
+          ) : (
+            <UnlockGate />
+          )}
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="en" className={fontMono.variable} suppressHydrationWarning>
       <head>

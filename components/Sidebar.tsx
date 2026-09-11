@@ -1,5 +1,8 @@
 'use client';
 
+import { IDENTITY } from '@/lib/identity';
+
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -59,7 +62,7 @@ export function Sidebar() {
         <div>
           <div className="text-[13px] font-bold tracking-[0.14em]">FOUNDER OS</div>
           <div className="mt-[3px] whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.16em] text-os-dim">
-            v3 · Operator Mode
+            {IDENTITY.workspace} · {IDENTITY.firstName}
           </div>
         </div>
       </div>
@@ -73,9 +76,6 @@ export function Sidebar() {
       <div className="flex flex-col gap-2 border-t border-os-border px-[18px] py-3.5">
         <div className="flex items-center gap-2 whitespace-nowrap font-mono text-[10px] text-os-muted">
           <span className="dot ok pulse" /> {live ? `${live.up}/${live.total}` : '—/—'} systems live
-        </div>
-        <div className="whitespace-nowrap font-mono text-[10px] text-os-dim">
-          localhost:4100 · sqlite · real agents
         </div>
       </div>
     </aside>

@@ -1,3 +1,4 @@
+import { IDENTITY } from '@/lib/identity';
 /**
  * Alex's life map: the radial taxonomy at the heart of the OS.
  * Center = Alex's life; ring 1 = color-coded life areas; ring 2 = the
@@ -177,7 +178,7 @@ export function buildLifeMap(): LifeMap {
     {
       id: 'center',
       type: 'center',
-      label: "Alex's Life",
+      label: `${IDENTITY.firstName}'s Life`,
       color: '#fafafa',
       parent: null,
       detail: 'The core. Everything orbits this.',

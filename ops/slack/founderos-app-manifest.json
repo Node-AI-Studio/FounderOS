@@ -1,0 +1,31 @@
+{
+  "display_information": {
+    "name": "Node AI OS",
+    "description": "Node AI OS operator console bot. Separate from Node Command Center.",
+    "background_color": "#0a0a0a"
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "Node AI OS",
+      "always_online": false
+    }
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "channels:read",
+        "channels:history",
+        "channels:join",
+        "channels:manage",
+        "chat:write",
+        "groups:read",
+        "users:read"
+      ]
+    }
+  },
+  "settings": {
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "token_rotation_enabled": false
+  }
+}

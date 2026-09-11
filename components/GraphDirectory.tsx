@@ -27,9 +27,10 @@ const GROUP_COLOR: Record<DirectoryGroup['kind'], string> = {
 };
 
 export function GraphDirectory({
-  groups, onPick, onHover, collapsed = false, onToggleCollapse, className = '',
+  groups, onPick, onHover, collapsed = false, onToggleCollapse, className = '', colors = GROUP_COLOR,
 }: {
   groups: DirectoryGroup[];
+  colors?: Record<DirectoryGroup['kind'], string>;
   /** kind + row id (node id; tools pass their slug) */
   onPick: (kind: DirectoryGroup['kind'], id: string) => void;
   onHover?: (kind: DirectoryGroup['kind'], id: string | null) => void;
@@ -77,7 +78,7 @@ export function GraphDirectory({
       <div className="min-h-0 flex-1 overflow-y-auto px-1.5 pb-2">
         {groups.map((g, gi) => {
           const Icon = GROUP_ICON[g.kind];
-          const color = GROUP_COLOR[g.kind];
+          const color = colors[g.kind];
           return (
             <div key={g.kind} className={gi > 0 ? 'mt-2 border-t border-os-border pt-0.5' : undefined}>
               {/* segment title carries the kind's COLOR; SOLID background so the
