@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createCommsFeedCache } from '@/lib/comms-feed-cache';
+import { createCommsFeedCache, createWeekEventsCache } from '@/lib/comms-feed-cache';
 import type { CommsItem } from '@/lib/comms';
 
 function item(n: number): CommsItem {
@@ -81,5 +81,23 @@ describe('createCommsFeedCache', () => {
     expect(await cache.read()).toHaveLength(1);
     await cache.settle();
     expect(await cache.read()).toHaveLength(1);
+  });
+});
+
+describe('createWeekEventsCache', () => {
+  it('fetches once inside the TTL and again after invalidate()', async () => {
+    let calls = 0;
+    const cache = createWeekEventsCache(
+      async () => {
+        calls += 1;
+        return [];
+      },
+      { ttlMs: 60_000, now: () => 0 },
+    );
+    await cache.read();
+    await cache.read();
+    cache.invalidate();
+    await cache.read();
+    expect(calls).toBe(2);
   });
 });

@@ -1,6 +1,7 @@
 import { createStatusCache } from '@/lib/connectors/status-cache';
 import { gatherCommsFeed } from '@/lib/comms-feed';
 import type { CommsItem } from '@/lib/comms';
+import { upcomingEvents, type CalEvent } from '@/lib/connectors/gcal';
 
 /**
  * Stale-while-revalidate wrapper around the unified comms feed.
@@ -49,4 +50,35 @@ export function cachedCommsFeed(limit = 40, opts?: { fresh?: boolean }): Promise
 /** Drop the snapshot, for example after an inbox is added through the connect flow. */
 export function invalidateCommsFeed(): void {
   feedCache.invalidate();
+  weekEventsCache.invalidate();
+}
+
+// The /comms week strip: one CalDAV REPORT per Google inbox per render, each
+// with an 8 s timeout. Same snapshot pattern; same TTL; invalidated together.
+export type WeekEventsCache = {
+  read(opts?: { fresh?: boolean }): Promise<CalEvent[]>;
+  invalidate(): void;
+  settle(): Promise<void>;
+};
+
+export function createWeekEventsCache(
+  fetchEvents: () => Promise<CalEvent[]>,
+  opts: { ttlMs: number; now?: () => number },
+): WeekEventsCache {
+  const cache = createStatusCache(fetchEvents, { ttlMs: opts.ttlMs, now: opts.now });
+  return {
+    read: (o) => cache.get(o),
+    invalidate: () => cache.invalidate(),
+    settle: () => cache.settle(),
+  };
+}
+
+const weekEventsCache = createWeekEventsCache(
+  () => upcomingEvents(undefined, { days: 7, limit: 200 }),
+  { ttlMs: FEED_TTL_MS },
+);
+
+/** Seven days of calendar events for the comms week strip. */
+export function cachedWeekEvents(opts?: { fresh?: boolean }): Promise<CalEvent[]> {
+  return weekEventsCache.read(opts);
 }
