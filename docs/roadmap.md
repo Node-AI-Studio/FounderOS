@@ -117,7 +117,7 @@ most.
   life-map label, the knowledge-graph self node, and the escalation target
   still say Alex. Done when `grep -rn -i alex lib app components` returns only
   `lib/seed.ts`, the demo fixture (guarded by `tests/no-previous-owner.test.ts`).
-- [ ] **2.7 Brain page honesty.** Remove the hardcoded "918 pages / 11k chunks"
+- [x] **2.7 Brain page honesty.** Done 2026-09-11, PR #28. Also fixed: the launchd PATH lacked `~/.bun/bin`, so production could not run the gbrain CLI at all. Remove the hardcoded "918 pages / 11k chunks"
   and "v0.41", and stop the embeddings row defaulting to LIVE. Done when every
   number on `/brain` comes from `gbrain stats` or the store walk.
 - [ ] **2.8 Real costs.** Agent runs never record tokens and chat discards the

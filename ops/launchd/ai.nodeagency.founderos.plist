@@ -26,7 +26,7 @@
     <key>NEXT_DIST_DIR</key>
     <string>.next-prod</string>
     <key>PATH</key>
-    <string>/opt/homebrew/opt/node@24/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <string>/Users/cristoforoperrone/.bun/bin:/opt/homebrew/opt/node@24/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
     <key>HOME</key>
     <string>/Users/cristoforoperrone</string>
   </dict>
