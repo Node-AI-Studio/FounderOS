@@ -33,8 +33,6 @@ export const ENTITY_LENSES: Lens[] = [
 export const FUNCTION_LENSES: Lens[] = [
   { id: 'fn-core', group: 'function', label: 'Core' },
   { id: 'fn-enabling', group: 'function', label: 'Enabling' },
-  { id: 'fn-agency', group: 'function', label: 'Agency team' },
-  { id: 'fn-clientos', group: 'function', label: 'ClientOS team' },
 ];
 
 export const ACTION_LENSES: Lens[] = [
@@ -57,11 +55,10 @@ export const ALL_LENSES: Lens[] = [...ENTITY_LENSES, ...FUNCTION_LENSES, ...ACTI
 const CORE_DEPTS = new Set(['team:dept-sales', 'team:dept-marketing-growth', 'team:dept-clients']);
 const ENABLING_DEPTS = new Set(['team:dept-tech', 'team:dept-finance', 'team:dept-comms']);
 
-/** Venture team rosters — seeded agent ids (graph nodes are `emp:<id>`). */
-const VENTURE_TEAMS: Record<string, string[]> = {
-  'fn-agency': ['vantage-sales', 'vantage-fanbasis', 'fanbasis-sales'],
-  'fn-clientos': ['launchpad-cohort-sales'],
-};
+/** Venture team rosters (graph nodes are `emp:<id>`). Empty until Node AI's
+ *  lines of business exist in lib/ventures.ts; the Teams lens is then honest
+ *  empty rather than lighting the previous owner's crews. */
+const VENTURE_TEAMS: Record<string, string[]> = {};
 
 /** What each action actually runs on — seeded agent ids, honest best-fit. */
 const ACTION_AGENTS: Record<string, string[]> = {
@@ -107,7 +104,7 @@ export function lensNodeSet(lensId: string, ctx: LensContext): Set<string> {
       byKind('team');
       break;
     case 'ent-teams': {
-      const members = idSet([...VENTURE_TEAMS['fn-agency'], ...VENTURE_TEAMS['fn-clientos']]);
+      const members = idSet(Object.values(VENTURE_TEAMS).flat());
       for (const n of ctx.nodes) if (members.has(n.id)) out.add(n.id);
       break;
     }
@@ -121,12 +118,6 @@ export function lensNodeSet(lensId: string, ctx: LensContext): Set<string> {
         const team = n.kind === 'team' ? n.id : ctx.teamOf(n.id);
         if (team && depts.has(team)) out.add(n.id);
       }
-      break;
-    }
-    case 'fn-agency':
-    case 'fn-clientos': {
-      const members = idSet(VENTURE_TEAMS[lensId]);
-      for (const n of ctx.nodes) if (members.has(n.id)) out.add(n.id);
       break;
     }
     default: {

@@ -122,7 +122,7 @@ export function mapGhlOpportunities(
         FunnelJourneySchema.parse({
           id,
           name: o.contact?.name || o.name || 'Unnamed opportunity',
-          venture: 'agency', // GHL carries no venture attribute; agency by default
+          venture: 'unassigned', // ventures are not decided yet
           status: canonical,
           product: won ? `GHL: ${stage.name}` : null,
           amountUsd: value > 0 ? value : won ? 0 : null,

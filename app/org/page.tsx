@@ -107,8 +107,9 @@ export default function OrgChartPage({ searchParams }: { searchParams?: { ventur
         title="Agent Hierarchy"
       />
 
-      {/* Venture switcher: Agency / ClientOS / LeadGenOS, one
-          click swaps which crew lights up below. All data stays shared. */}
+      {/* Venture switcher: one click swaps which crew lights up below. All data
+          stays shared. Hidden while lib/ventures.ts is empty. */}
+      {VENTURES.length > 0 && (
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Link
           href="/org"
@@ -136,6 +137,7 @@ export default function OrgChartPage({ searchParams }: { searchParams?: { ventur
         })}
         {venture && <span className="text-[11px] text-os-dim">{venture.kind} · {venture.detail}</span>}
       </div>
+      )}
 
       {venture && (
         <div

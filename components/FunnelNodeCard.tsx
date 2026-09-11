@@ -103,7 +103,7 @@ export function FunnelNodeCard({ node, onClose }: { node: FunnelSpaceNode; onClo
             </div>
           )}
           <div className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-wide text-os-dim">
-            {getVenture(node.venture)?.label ?? node.venture} · {stageLabel}
+            {getVenture(node.venture) ? `${getVenture(node.venture)!.label} · ` : ''}{stageLabel}
             {dealDiffers ? ` · deal: ${node.name}` : ''}
           </div>
         </div>

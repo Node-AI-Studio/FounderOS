@@ -372,6 +372,7 @@ export default async function FunnelPage({
 
       {/* one control line: venture filter · synced sources · view toggle */}
       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        {VENTURE_TABS.length > 1 && (
         <span className="flex items-center gap-1.5">
           {VENTURE_TABS.map((tab) => {
             const active = (venture ?? 'all') === tab.id;
@@ -397,7 +398,8 @@ export default async function FunnelPage({
             );
           })}
         </span>
-        <span className="h-3 w-px bg-os-border" />
+        )}
+        {VENTURE_TABS.length > 1 && <span className="h-3 w-px bg-os-border" />}
         <span className="flex items-center gap-2.5" title={isLive ? `${excludedCount} lost/closed-lost excluded` : undefined}>
           <SourceCheck status={attio} live={Boolean(attioLive?.journeys.length)} count={attioLive?.total} />
           <SourceCheck status={ghl} live={Boolean(ghlLive?.journeys.length)} count={ghlLive?.total} />

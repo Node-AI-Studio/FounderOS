@@ -1,5 +1,5 @@
 /**
- * Node AI's three lines of business, the venture lens over the OS.
+ * The venture lens over the OS: one saved filter per line of business.
  *
  * One database, one G-Brain, one agent roster: ventures never partition the
  * data. They are saved filters — each one names the agents that serve it per
@@ -24,74 +24,14 @@ export type Venture = {
   areaAgents: Record<string, string[]>;
 };
 
-const SHARED_OPS = ['conductor', 'stack-monitor'];
-const SHARED_KNOWLEDGE = ['data-agent', 'markdown-auditor', 'vector-auditor'];
-
-export const VENTURES: Venture[] = [
-  {
-    id: 'agency',
-    label: 'Agency',
-    kind: 'AI software agency',
-    color: '#00ffaa',
-    detail: 'Client builds and retainers, delivered by Node AI.',
-    brainTag: 'agency',
-    focus: [
-      'Active client builds shipped on schedule',
-      'Pipeline: proposals out, deals advanced in Attio',
-      'Every handoff documented in the brain',
-    ],
-    areaAgents: {
-      marketing: ['social-agent', 'zernio-publisher', 'remotion-editor', 'higgsfield-creative'],
-      sales: ['vantage-sales', 'vantage-fanbasis', 'sales-agent', 'sales-calls-data'],
-      communication: ['comms-agent', 'gmail-worker', 'slack-worker', 'whatsapp-worker', 'crm-pulse'],
-      finances: ['payments-pulse', 'stripe-sales', 'processor-confirmation'],
-      knowledge: [...SHARED_KNOWLEDGE, 'notion-sync'],
-      operations: SHARED_OPS,
-    },
-  },
-  {
-    id: 'clientos',
-    label: 'ClientOS',
-    kind: 'Product',
-    color: '#d9263f',
-    detail: 'The client portal: discovery, proposals, signing, onboarding.',
-    brainTag: 'clientos',
-    focus: [
-      'Proposals signed through the portal',
-      'Onboarding completed without manual steps',
-      'Portal uptime and support response',
-    ],
-    areaAgents: {
-      marketing: ['social-agent', 'zernio-publisher', 'remotion-editor'],
-      sales: ['launchpad-cohort-sales', 'sales-agent', 'sales-calls-data'],
-      communication: ['gmail-worker', 'comms-agent', 'crm-pulse'],
-      finances: ['payments-pulse', 'stripe-sales', 'processor-confirmation'],
-      knowledge: SHARED_KNOWLEDGE,
-      operations: SHARED_OPS,
-    },
-  },
-  {
-    id: 'leadgenos',
-    label: 'LeadGenOS',
-    kind: 'Product',
-    color: '#a3e635',
-    detail: 'Lead scraping, enrichment and outbound campaigns for clients.',
-    brainTag: 'leadgenos',
-    focus: [
-      'Tenant campaigns sending on schedule',
-      'Enrichment cost per lead within budget',
-      'Replies routed to the client CRM',
-    ],
-    areaAgents: {
-      marketing: ['social-agent', 'zernio-publisher'],
-      sales: ['sales-agent', 'crm-pulse'],
-      communication: ['gmail-worker', 'crm-pulse', 'comms-agent'],
-      finances: ['payments-pulse', 'stripe-sales'],
-      knowledge: SHARED_KNOWLEDGE,
-      operations: SHARED_OPS,
-    },
-  },
-];
+/**
+ * Empty on purpose (2026-09-11): Node AI's lines of business are added in a
+ * second moment. While this is empty the funnel tabs, the org switcher, the
+ * brain-dump venture tags and the graph team lenses hide themselves. To add a
+ * line of business: one entry here, its id in FunnelVentureSchema, and a rule
+ * in classifyVenture (lib/funnel-live.ts).
+ */
+export const VENTURES: Venture[] = [];
 
 export function getVenture(id: string): Venture | null {
   return VENTURES.find((v) => v.id === id) ?? null;

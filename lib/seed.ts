@@ -1180,7 +1180,7 @@ type SeededJourney = {
 const FUNNEL_JOURNEYS: SeededJourney[] = [
   // — Launchpad Cohort (mentorship) —
   {
-    id: 'fc-jake-moreau', name: 'Jake Moreau', venture: 'clientos',
+    id: 'fc-jake-moreau', name: 'Jake Moreau', venture: 'unassigned',
     relationship: 'hot', likelihood: 100,
     product: 'Launchpad Cohort — mentorship (PIF)', amountUsd: 6800,
     touches: [
@@ -1192,7 +1192,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
     ],
   },
   {
-    id: 'fc-priya-shah', name: 'Priya Shah', venture: 'clientos',
+    id: 'fc-priya-shah', name: 'Priya Shah', venture: 'unassigned',
     relationship: 'warm', likelihood: 95,
     product: 'Launchpad Cohort — mentorship (3-pay)', amountUsd: 2600,
     touches: [
@@ -1203,7 +1203,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
     ],
   },
   {
-    id: 'fc-danny-okafor', name: 'Danny Okafor', venture: 'clientos',
+    id: 'fc-danny-okafor', name: 'Danny Okafor', venture: 'unassigned',
     relationship: 'hot', likelihood: 100,
     product: 'Launchpad Cohort — mentorship (PIF)', amountUsd: 6800,
     touches: [
@@ -1215,7 +1215,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
     ],
   },
   {
-    id: 'fc-sofia-reyes', name: 'Sofia Reyes', venture: 'clientos',
+    id: 'fc-sofia-reyes', name: 'Sofia Reyes', venture: 'unassigned',
     relationship: 'warm', likelihood: 95,
     product: 'Launchpad Cohort — mentorship (3-pay)', amountUsd: 2600,
     touches: [
@@ -1228,7 +1228,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
   },
   {
     // Ads ghost — three engaged touches, quiet for 3 weeks: the red node.
-    id: 'fc-liam-carter', name: 'Liam Carter', venture: 'clientos',
+    id: 'fc-liam-carter', name: 'Liam Carter', venture: 'unassigned',
     relationship: 'cold', likelihood: 15,
     touches: [
       ['first_touch', 'ads', 'Meta ad: "stop selling hours" (cold traffic)', 'meta-ads', 27],
@@ -1239,7 +1239,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
   },
   {
     // Warm but drifting — 10 quiet days in nurture: also red until re-touched.
-    id: 'fc-marcus-webb', name: 'Marcus Webb', venture: 'clientos',
+    id: 'fc-marcus-webb', name: 'Marcus Webb', venture: 'unassigned',
     relationship: 'warm', likelihood: 42,
     touches: [
       ['first_touch', 'organic', 'IG carousel: "agency niches that print in 2026"', 'trakyo', 24],
@@ -1249,7 +1249,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
     ],
   },
   {
-    id: 'fc-tayla-nguyen', name: 'Tayla Nguyen', venture: 'clientos',
+    id: 'fc-tayla-nguyen', name: 'Tayla Nguyen', venture: 'unassigned',
     relationship: 'hot', likelihood: 84,
     email: 'tayla.nguyen@example.com', phone: '+15550100841',
     touches: [
@@ -1261,7 +1261,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
   },
   {
     // Mid-decay: 70 quiet days — visibly fading toward red, 20 days from the archive.
-    id: 'fc-remy-cole', name: 'Remy Cole', venture: 'clientos',
+    id: 'fc-remy-cole', name: 'Remy Cole', venture: 'unassigned',
     relationship: 'cold', likelihood: 25,
     touches: [
       ['first_touch', 'organic', 'IG reel: "fire your lead-gen agency"', 'trakyo', 84],
@@ -1272,7 +1272,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
   },
   {
     // Went quiet in March — decayed past 90 days into the archive tab.
-    id: 'fc-jordan-blake', name: 'Jordan Blake', venture: 'clientos',
+    id: 'fc-jordan-blake', name: 'Jordan Blake', venture: 'unassigned',
     relationship: 'cold', likelihood: 20,
     touches: [
       ['first_touch', 'ads', 'Meta ad: "quit your 9-5 with one client" (old campaign)', 'meta-ads', 118],
@@ -1283,7 +1283,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
   },
   // — Vantage (AI agency clients) —
   {
-    id: 'fc-ava-stone', name: 'Ava Stone — Northwind Legal', venture: 'agency',
+    id: 'fc-ava-stone', name: 'Ava Stone — Northwind Legal', venture: 'unassigned',
     relationship: 'hot', likelihood: 100,
     product: 'Vantage — AI intake build (sprint)', amountUsd: 12000,
     touches: [
@@ -1295,7 +1295,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
     ],
   },
   {
-    id: 'fc-omar-haddad', name: 'Omar Haddad — Pulse Fitness Group', venture: 'agency',
+    id: 'fc-omar-haddad', name: 'Omar Haddad — Pulse Fitness Group', venture: 'unassigned',
     relationship: 'warm', likelihood: 95,
     product: 'Vantage — AI ops retainer (monthly)', amountUsd: 4500,
     touches: [
@@ -1307,7 +1307,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
     ],
   },
   {
-    id: 'fc-elena-brooks', name: 'Elena Brooks — Harbor Dental', venture: 'agency',
+    id: 'fc-elena-brooks', name: 'Elena Brooks — Harbor Dental', venture: 'unassigned',
     relationship: 'hot', likelihood: 100,
     product: 'Vantage — AI intake build (sprint)', amountUsd: 9500,
     touches: [
@@ -1318,7 +1318,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
     ],
   },
   {
-    id: 'fc-noah-fields', name: 'Noah Fields — Fields Roofing', venture: 'agency',
+    id: 'fc-noah-fields', name: 'Noah Fields — Fields Roofing', venture: 'unassigned',
     relationship: 'warm', likelihood: 66,
     touches: [
       ['first_touch', 'ads', 'Meta ad: "book 20 estimates/mo on autopilot"', 'meta-ads', 8],
@@ -1328,7 +1328,7 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
     ],
   },
   {
-    id: 'fc-grace-lin', name: 'Grace Lin — Lin & Co Accounting', venture: 'agency',
+    id: 'fc-grace-lin', name: 'Grace Lin — Lin & Co Accounting', venture: 'unassigned',
     relationship: 'warm', likelihood: 74,
     email: 'grace@linandco.example.com', phone: '+15550100742',
     person: 'Grace Lin', company: 'Lin & Co Accounting', role: 'Managing Partner',

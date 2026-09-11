@@ -104,25 +104,15 @@ describe('mapAttioDeals', () => {
 });
 
 describe('classifyVenture', () => {
-  test('product names route to the product line', () => {
-    expect(classifyVenture('Acme · ClientOS rollout')).toBe('clientos');
-    expect(classifyVenture('LeadGenOS for AB6')).toBe('leadgenos');
-    expect(classifyVenture('leadgen os pilot')).toBe('leadgenos');
+  test('every deal is unassigned until the lines of business exist', () => {
+    expect(classifyVenture('Harbor Dental')).toBe('unassigned');
+    expect(classifyVenture('ClientOS for Orbit Labs')).toBe('unassigned');
+    expect(classifyVenture('')).toBe('unassigned');
   });
 
-  test('everything else is agency work', () => {
-    expect(classifyVenture('Harbor Dental')).toBe('agency');
-    expect(classifyVenture('Reese Calder')).toBe('agency');
-    expect(classifyVenture('Fields Roofing LLC')).toBe('agency');
-  });
-
-  test('mapAttioDeals stamps the classified venture on every journey', () => {
-    const { journeys } = mapAttioDeals([
-      rawDeal({ id: 'rec-p', name: 'Reese Calder', stage: 'Contacted' }),
-      rawDeal({ id: 'rec-c', name: 'ClientOS for Orbit Labs', stage: 'Contacted' }),
-    ], NOW);
-    expect(journeys.find((j) => j.id === 'attio-rec-p')?.venture).toBe('agency');
-    expect(journeys.find((j) => j.id === 'attio-rec-c')?.venture).toBe('clientos');
+  test('mapAttioDeals stamps the venture on every journey', () => {
+    const { journeys } = mapAttioDeals([rawDeal({ id: 'rec-p', name: 'Reese Calder', stage: 'Contacted' })], NOW);
+    expect(journeys.find((j) => j.id === 'attio-rec-p')?.venture).toBe('unassigned');
   });
 });
 

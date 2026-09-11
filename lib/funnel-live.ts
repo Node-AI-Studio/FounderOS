@@ -67,14 +67,12 @@ export const ATTIO_STAGE_MAP: Record<string, FunnelStage> = {
 };
 
 /**
- * Venture for live deals (Attio deals carry no venture attribute yet): a
- * product name in the deal title routes to that product line; everything
- * else is agency work. Add a venture attribute in Attio for the exact split.
+ * Venture for live deals. Node AI's lines of business are not decided yet, so
+ * every deal is unassigned; when lib/ventures.ts gains entries, route deal
+ * names (or an Attio venture attribute) to them here.
  */
-export function classifyVenture(dealName: string): FunnelVenture {
-  if (/client\s*os/i.test(dealName)) return 'clientos';
-  if (/lead\s*gen\s*os/i.test(dealName)) return 'leadgenos';
-  return 'agency';
+export function classifyVenture(_dealName: string): FunnelVenture {
+  return 'unassigned';
 }
 
 /**
