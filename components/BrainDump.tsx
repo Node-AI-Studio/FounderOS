@@ -293,6 +293,7 @@ export function BrainDump({ compact = false }: { compact?: boolean }) {
           )}
         </div>
 
+        {VENTURES.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[10px] uppercase tracking-widest text-os-dim">tag venture</span>
           {VENTURES.map((v) => {
@@ -319,6 +320,7 @@ export function BrainDump({ compact = false }: { compact?: boolean }) {
             {status.kind === 'saving' ? 'Saving…' : 'Save to brain'}
           </button>
         </div>
+        )}
 
         {status.kind === 'saved' && (
           <p className="font-mono text-[11px] text-os-muted">

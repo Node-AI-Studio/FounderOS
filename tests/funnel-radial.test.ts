@@ -17,7 +17,7 @@ const touch = (over: Partial<FunnelTouch> = {}): FunnelTouch => ({
 const journey = (over: Partial<FunnelContact> = {}, touches: FunnelTouch[] = [touch()]): FunnelJourney => ({
   id: 'fc-test',
   name: 'Test Client',
-  venture: 'agency',
+  venture: 'unassigned',
   status: 'engaged',
   product: null,
   amountUsd: null,

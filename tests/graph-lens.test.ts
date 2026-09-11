@@ -24,8 +24,7 @@ describe('graph lenses, 2026-07-12 taxonomy', () => {
     ]);
     expect(FUNCTION_LENSES.map((l) => l.label)).toContain('Core');
     expect(FUNCTION_LENSES.map((l) => l.label)).toContain('Enabling');
-    expect(FUNCTION_LENSES.map((l) => l.label)).toContain('Agency team');
-    expect(FUNCTION_LENSES.map((l) => l.label)).toContain('ClientOS team');
+    expect(FUNCTION_LENSES.map((l) => l.label)).toEqual(['Core', 'Enabling']); // venture team lenses return with lib/ventures.ts
     expect(ACTION_LENSES).toHaveLength(11);
     expect(new Set(ALL_LENSES.map((l) => l.id)).size).toBe(ALL_LENSES.length);
   });
@@ -54,12 +53,8 @@ describe('graph lenses, 2026-07-12 taxonomy', () => {
     expect(core.has('emp:sales-agent')).toBe(true);
   });
 
-  test('venture team lenses light their rosters', () => {
-    const mer = lensNodeSet('fn-agency', ctx);
-    expect(mer.has('emp:vantage-sales')).toBe(true);
-    expect(mer.has('emp:vantage-fanbasis')).toBe(true);
-    const aa = lensNodeSet('fn-clientos', ctx);
-    expect(aa.has('emp:launchpad-cohort-sales')).toBe(true);
+  test('the Teams lens is honestly empty while no ventures are registered', () => {
+    expect(lensNodeSet('ent-teams', ctx).size).toBe(0);
   });
 
   test('every action lens resolves to real seeded agents', () => {

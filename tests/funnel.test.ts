@@ -30,7 +30,7 @@ afterEach(() => {
 const contact = (over: Partial<FunnelContact> = {}): FunnelContact => ({
   id: 'fc-test',
   name: 'Test Client',
-  venture: 'agency',
+  venture: 'unassigned',
   status: 'engaged',
   product: null,
   amountUsd: null,
@@ -94,18 +94,17 @@ describe('funnel repo', () => {
     expect(j.linkedin).toBe('https://linkedin.com/in/gracelin-example');
   });
 
-  test('venture filter narrows journeys', () => {
+  test('venture filter narrows journeys (one placeholder venture for now)', () => {
     db = openDb(':memory:');
-    db.funnel.insertContact(contact({ id: 'fc-m', venture: 'agency' }));
-    db.funnel.insertContact(contact({ id: 'fc-aa', venture: 'clientos' }));
-    expect(db.funnel.journeys('agency').map((j) => j.id)).toEqual(['fc-m']);
-    expect(db.funnel.journeys('clientos').map((j) => j.id)).toEqual(['fc-aa']);
+    db.funnel.insertContact(contact({ id: 'fc-m', venture: 'unassigned' }));
+    db.funnel.insertContact(contact({ id: 'fc-aa', venture: 'unassigned' }));
+    expect(db.funnel.journeys('unassigned').map((j) => j.id).sort()).toEqual(['fc-aa', 'fc-m']);
     expect(db.funnel.journeys()).toHaveLength(2);
   });
 });
 
 describe('funnel seed', () => {
-  test('seeds 4–5 touch journeys for both ventures, converted rows carry product + amount', () => {
+  test('seeds 4 to 5 touch journeys, converted rows carry product + amount', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     const all = db.funnel.journeys();
@@ -121,7 +120,7 @@ describe('funnel seed', () => {
     }
 
     // both ventures represented
-    expect(new Set(all.map((j) => j.venture))).toEqual(new Set(['agency', 'clientos']));
+    expect(new Set(all.map((j) => j.venture))).toEqual(new Set(['unassigned']));
 
     // both acquisition lanes represented, with honest intended sources
     const firsts = all.map((j) => j.touches[0]);
@@ -181,7 +180,7 @@ describe('funnelSummary', () => {
   ): FunnelJourney => ({
     id,
     name: id,
-    venture: 'agency',
+    venture: 'unassigned',
     status,
     product: amountUsd ? 'Offer' : null,
     amountUsd,
@@ -253,7 +252,7 @@ describe('journeyMeta', () => {
   ): FunnelJourney => ({
     id: 'jm',
     name: 'jm',
-    venture: 'agency',
+    venture: 'unassigned',
     status,
     product: null,
     amountUsd: null,
@@ -361,7 +360,7 @@ describe('funnelSpaceModel', () => {
   ): FunnelJourney => ({
     id,
     name: id,
-    venture: 'clientos',
+    venture: 'unassigned',
     status,
     product: null,
     amountUsd: null,
@@ -456,7 +455,7 @@ describe('attentionQueue — what to act on today (AC55)', () => {
   ): FunnelJourney => ({
     id,
     name: id,
-    venture: 'agency',
+    venture: 'unassigned',
     status: 'engaged',
     product: null,
     amountUsd: null,

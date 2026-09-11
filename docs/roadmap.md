@@ -102,7 +102,7 @@ most.
   will wire in the next quarter, delete the rest. Same for the `SQUARE` and
   `WHOP` key slots. Done when every tile with a Connect button has a
   `connectorId`. Verify: a test asserting that invariant.
-- [x] **2.4 Rename the ventures.** Done 2026-09-11, PR #30, under the assumption `agency` / `clientos` / `leadgenos` (see decisions). FanBasis processor slots removed. `vantage` and `launchpad-cohort` are
+- [x] **2.4 Rename the ventures.** Bennett's names removed 2026-09-11 (PR #30); the assumed Node AI names were taken out again the same day (PR #34) at Cristoforo's request. The registry in `lib/ventures.ts` is empty, every journey is `unassigned`, and the funnel tabs, org switcher, brain-dump tags and graph team lenses hide themselves until real lines of business are added. FanBasis processor slots removed. `vantage` and `launchpad-cohort` are
   Bennett's businesses baked into `FunnelVentureSchema`, the FanBasis keys, and
   the funnel classifier. Replace with Node AI's lines of business (agency
   retainers, products such as ClientOS and LeadGenOS). Done when the funnel
@@ -267,7 +267,7 @@ Only after phase 3 exists, because the folder is what would be sold.
 | 2026-09-11 | `nodeagencyai` is left exactly as it is: still an org owner, still owns its profile repo. Nothing on this Mac or the box authenticates as it any more. Its two stray repos moved into the org; `nespola-osint-old` is a strict subset of `nespola-osint` and can be deleted. |
 | 2026-09-11 | Production URL on the tailnet: `https://cristoforos-macbook-pro.tail75c26d.ts.net`, Tailscale Serve on 443 proxying 127.0.0.1:4100, certificates enabled on the tailnet the same day. |
 | 2026-09-11 | Fine-grained tokens on the org need owner approval (Org settings, Third-party Access, Personal access tokens, Pending requests). The API for that list returns 404 on this org; approve in the browser. |
-| 2026-09-11 | Venture ids are `agency`, `clientos`, `leadgenos` (task 2.4). Cristoforo's call to confirm or rename; the rename is one enum, one registry, one classifier. FanBasis processor slots removed; Node AI takes payment through Stripe. |
+| 2026-09-11 | Ventures are empty for now (PR #34): Node AI's lines of business are added in a second moment, by Cristoforo. Adding one is one entry in `lib/ventures.ts`, its id in `FunnelVentureSchema`, and a rule in `classifyVenture`. FanBasis processor slots removed; Node AI takes payment through Stripe. |
 | 2026-09-10 | No em dashes, no emojis, dark monochrome artifacts (house style). |
 | 2026-09-10 | Slack bot channel membership and the Obsidian vault switch are Cristoforo's manual actions, not code. |
 
