@@ -13,15 +13,10 @@ import {
 import { funnelSpaceModel } from '@/lib/funnel';
 import { funnelRadialModel } from '@/lib/funnel-radial';
 import { attioFunnelJourneys } from '@/lib/funnel-live';
-import { ghlFunnelJourneys } from '@/lib/funnel-ghl';
-import { mergeTrakyoTouches, trakyoTouches } from '@/lib/funnel-trakyo';
 import { lastMessageFor } from '@/lib/funnel-contact';
 import { cachedCommsFeed } from '@/lib/comms-feed-cache';
 import type { CommsItem } from '@/lib/comms';
 import { attioStatus } from '@/lib/connectors/attio';
-import { ghlStatus } from '@/lib/connectors/ghl';
-import { trakyoStatus } from '@/lib/connectors/trakyo';
-import { metaAdsStatus } from '@/lib/connectors/meta-ads';
 import { getVenture } from '@/lib/ventures';
 import { FunnelRadialLazy, FunnelSpaceLazy } from '@/components/FunnelGraphsLazy';
 import { Badge, SectionHead } from '@/components/terminal';
@@ -312,20 +307,14 @@ export default async function FunnelPage({
   };
 
   const now = new Date();
-  // Live-first: Attio ∪ GHL when keys resolve (either alone works); seed
-  // otherwise. Trakyo's attributed touches merge in the moment its API exists.
-  const [attioLive, ghlLive] = await Promise.all([attioFunnelJourneys(now), ghlFunnelJourneys(now)]);
-  const liveJourneys = [...(attioLive?.journeys ?? []), ...(ghlLive?.journeys ?? [])];
+  // Live-first: Attio when its key resolves; the local table otherwise.
+  const attioLive = await attioFunnelJourneys(now);
+  const liveJourneys = attioLive?.journeys ?? [];
   const isLive = liveJourneys.length > 0;
-  const excludedCount = (attioLive?.closedLost ?? 0) + (ghlLive?.excluded ?? 0);
-  const liveLabel = [
-    attioLive && attioLive.journeys.length > 0 ? `Attio ${attioLive.total}` : null,
-    ghlLive && ghlLive.journeys.length > 0 ? `GHL ${ghlLive.total}` : null,
-  ]
-    .filter(Boolean)
-    .join(' + ');
+  const excludedCount = attioLive?.closedLost ?? 0;
+  const liveLabel = isLive ? `Attio ${attioLive?.total ?? liveJourneys.length}` : '';
   const allJourneys = isLive
-    ? mergeTrakyoTouches(liveJourneys, await trakyoTouches()).filter((j) => !venture || j.venture === venture)
+    ? liveJourneys.filter((j) => !venture || j.venture === venture)
     : getDb().funnel.journeys(venture);
   // Quiet past DECAY_DAYS → out of the space, into the archive tab.
   const { active: journeys, archived } = splitFunnelJourneys(allJourneys, now);
@@ -345,12 +334,7 @@ export default async function FunnelPage({
   if (stage && tableJourneys.length > 0) {
     commsFeed = await cachedCommsFeed(200).catch(() => null);
   }
-  const [attio, ghl, trakyo, metaAds] = await Promise.all([
-    attioStatus(),
-    ghlStatus(),
-    trakyoStatus(),
-    metaAdsStatus(),
-  ]);
+  const attio = await attioStatus();
 
   return (
     <div>
@@ -401,9 +385,6 @@ export default async function FunnelPage({
         <span className="h-3 w-px bg-os-border" />
         <span className="flex items-center gap-2.5" title={isLive ? `${excludedCount} lost/closed-lost excluded` : undefined}>
           <SourceCheck status={attio} live={Boolean(attioLive?.journeys.length)} count={attioLive?.total} />
-          <SourceCheck status={ghl} live={Boolean(ghlLive?.journeys.length)} count={ghlLive?.total} />
-          <SourceCheck status={trakyo} />
-          <SourceCheck status={metaAds} />
         </span>
         <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide">
           <Link

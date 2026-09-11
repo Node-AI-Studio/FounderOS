@@ -101,14 +101,17 @@ describe('connect flow (paste a key on the board)', () => {
     expect(connectKeysFor(whatsapp)).toEqual([]);
   });
 
-  test("Alex's real stack is listed and tied to its connectors", () => {
-    const bySlug = new Map(INTEGRATIONS.map((i) => [i.slug, i]));
-    expect(bySlug.get('manychat')?.connectorId).toBe('manychat');
-    expect(bySlug.get('gohighlevel')?.connectorId).toBe('ghl');
-    expect(bySlug.get('webinarjam')?.connectorId).toBe('webinarjam');
-    expect(bySlug.get('trakyo')?.connectorId).toBe('trakyo');
-    expect(bySlug.get('zernio')?.connectorId).toBe('zernio');
-    expect(bySlug.get('arcads')?.connectorId).toBe('arcads');
+  test('no tile points at a connector that is not registered', async () => {
+    const { CONNECTOR_IDS } = await import('@/lib/connectors');
+    const registered = new Set(CONNECTOR_IDS);
+    for (const i of INTEGRATIONS) {
+      if (i.connectorId) expect(registered.has(i.connectorId), `${i.slug} -> ${i.connectorId}`).toBe(true);
+    }
+  });
+
+  test('the tiles that reported connected without a network call are gone', () => {
+    const slugs = new Set(INTEGRATIONS.map((i) => i.slug));
+    for (const gone of ['gohighlevel', 'meta', 'trakyo', 'skool']) expect(slugs.has(gone), gone).toBe(false);
   });
 
   test('keySaved reflects env.local coverage of the entry keys, never fakes connected', () => {

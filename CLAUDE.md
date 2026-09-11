@@ -78,9 +78,8 @@ do not restructure) · `/brain` G-Brain knowledge core (signature `BrainViz`
 rings + live `gbrain ›` query card + doctor warnings, with the original
 capture / life-map / pipeline / graph / query-path sections kept underneath) ·
 `/roadmap` phases + quarters · `/analytics` real connector numbers ·
-`/funnel` living client-journey flow (Vantage + Launchpad Cohort: stage
-columns left→right, one node per client, 4–5 touch markers per path; seeded
-dummy, real-ready for Trakyo organic + Meta Ads MCP paid attribution) ·
+`/funnel` living client-journey flow (stage columns left to right, one
+node per client, touch markers per path; Attio live, local table otherwise) ·
 `/reference` reference model · `/integrations` live connections board. Chrome:
 fixed `Sidebar` (Operate/System groups) + sticky `Topbar` (breadcrumb + ⌘K) +
 `CommandPalette` (⌘K, digit-key view jumps). API routes mirror these under

@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, test } from 'vitest';
 import { webinarjamStatus, listRegistrants } from '@/lib/connectors/webinarjam';
-import { trakyoStatus } from '@/lib/connectors/trakyo';
 
 const WJ = 'WEBINARJAM_API_KEY';
 const TK = 'TRAKYO_API_KEY';
@@ -54,21 +53,5 @@ describe('webinarjamStatus', () => {
     expect(regs).toHaveLength(1);
     expect(sentBody).toContain('123'); // webinar_id in the form body
     expect(sentBody).toContain('456'); // schedule_id
-  });
-});
-
-describe('trakyoStatus', () => {
-  test('honest not_configured: no public API / no key yet', async () => {
-    delete process.env[TK];
-    const status = await trakyoStatus();
-    expect(status.state).toBe('not_configured');
-    expect(status.id).toBe('trakyo');
-    expect(status.kind).toBe('crm');
-  });
-
-  test('connected once a key is provided', async () => {
-    process.env[TK] = 'tk_test';
-    const status = await trakyoStatus();
-    expect(status.state).toBe('connected');
   });
 });

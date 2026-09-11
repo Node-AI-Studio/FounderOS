@@ -8,7 +8,6 @@ import { recentPages } from '@/lib/connectors/notion';
 import { zernioStatus } from '@/lib/connectors/zernio';
 import { attioClients, attioStatus } from '@/lib/connectors/attio';
 import { webinarjamStatus, listRegistrants } from '@/lib/connectors/webinarjam';
-import { trakyoStatus } from '@/lib/connectors/trakyo';
 import { arcadsStatus } from '@/lib/connectors/arcads';
 import { whatsappStatus } from '@/lib/connectors/whatsapp';
 import { wisprStatus } from '@/lib/connectors/wispr';
@@ -223,17 +222,16 @@ export const realAgents: RuntimeAgent[] = [
     id: 'launchpad-cohort-sales',
     name: 'Launchpad Cohort',
     description:
-      'Launchpad Cohort sales lane: WebinarJam funnel (registrants/attendees → leads), Trakyo revenue attribution, plus offer/call/payment context.',
+      'Launchpad Cohort sales lane: WebinarJam funnel (registrants/attendees → leads), plus offer/call/payment context.',
     departmentId: 'dept-sales',
     async run() {
-      const [webinar, trakyo] = await Promise.all([webinarjamStatus(), trakyoStatus()]);
-      const live = [webinar, trakyo].filter((s) => s.state === 'connected').length;
+      const webinar = await webinarjamStatus();
       return {
-        ok: live > 0,
-        summary: `Launchpad Cohort · WebinarJam ${webinar.state} · Trakyo ${trakyo.state}${
-          live === 0 ? ' — set WEBINARJAM_API_KEY to pull webinar leads' : ''
+        ok: webinar.state === 'connected',
+        summary: `Launchpad Cohort · WebinarJam ${webinar.state}${
+          webinar.state === 'connected' ? '' : ' (set WEBINARJAM_API_KEY to pull webinar leads)'
         }`,
-        data: { webinar, trakyo },
+        data: { webinar },
       };
     },
     chatTools(): LlmToolSpec[] {

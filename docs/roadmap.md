@@ -92,7 +92,7 @@ most.
   empty. That list is the real backlog. Done when the local DB holds no row
   with an id starting `seed-` and no name from `lib/seed.ts`. Verify:
   `sqlite3 data/founder-os.db "select count(*) from agent_runs where id like 'seed-%'"` is 0.
-- [ ] **2.2 Delete the four lying tiles.** Meta Ads, Trakyo, GoHighLevel report
+- [x] **2.2 Delete the four lying tiles.** Done 2026-09-11, PR #25. Six more tiles whose connectors were never registered (ManyChat, Beehiiv, Zernio, WebinarJam, Miro, Arcads) lost their `connectorId`. Meta Ads, Trakyo, GoHighLevel report
   connected without a network call; Skool is seeded connected with no
   connector. Remove the tiles, the seed rows, and the two venture-specific
   connectors. Done when `/integrations` shows only connectors with a real
