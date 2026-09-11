@@ -82,10 +82,12 @@ Exit: one branch, one always-on server, one URL, chat on the right model. Reache
 
 ## Phase 2: make the data ours (next two weeks)
 
+Detailed plan: `docs/superpowers/plans/2026-09-11-phase-2-make-the-data-ours.md`
+
 Mostly deletion. Each task is small and independent; order by what you look at
 most.
 
-- [ ] **2.1 Turn the seed off.** `FOUNDER_OS_DEMO_SEED` unset in `.env.local`.
+- [x] **2.1 Turn the seed off.** Done 2026-09-11, PR #23. The seed stays in `lib/seed.ts` as the test fixture; the local DB was wiped (backup `data/founder-os.db-seeded-2026-09-11`) and every page walked, see the table below. `FOUNDER_OS_DEMO_SEED` unset in `.env.local`.
   Then, table by table, delete the fictional rows and watch which page goes
   empty. That list is the real backlog. Done when the local DB holds no row
   with an id starting `seed-` and no name from `lib/seed.ts`. Verify:
@@ -122,6 +124,31 @@ most.
   gateway usage, so the cost panel is seeded fiction. Persist `usage` from
   the gateway on chat and on any run that calls the model. Done when a real
   chat produces a non-null `costUsd` row.
+
+- [ ] **2.9 Remove the sample data that lives in code.** The page walk after
+  2.1 found dummy data the seed never owned: `/social` falls back to five
+  sample posts with invented views and likes when Zernio has no history,
+  `/finances` charges a $3,946 sample expense ledger (`lib/finances.ts`), and
+  `/org` tells the operator to run `npm run seed`. Replace each with an empty
+  state. Done when `grep -rn "sample" app lib components` returns only the
+  statement-upload copy.
+
+Pages walked on the production server after the seed came off (2026-09-11).
+Every page returned 200 with no demo mark. What is blank, and what fills it:
+
+| Page | State with an empty database | Fills in |
+|---|---|---|
+| /agents | roster empty state; runtime agents still answer on the API | 3.4 |
+| /roadmap | two empty states (phases, quarters) | 3.x when the roadmap moves into the OS |
+| /reference | empty state | 3.1 |
+| /org | conductor card says "run npm run seed"; venture switcher still Vantage / LC / Personal Brand | 2.9, 2.4, 3.4 |
+| /brain | knowledge graph has one node (self); memory constellation renders from the store walk; gbrain shows UNREACHABLE under launchd although it answers from a shell | 3.4, and check GBRAIN_BIN in the plist in 2.7 |
+| /social | 0 accounts, 0 DMs, and five sample posts with invented numbers | 2.9, live Zernio |
+| /finances | sample expenses ledger, FanBasis rows | 2.9, 2.4 |
+| /funnel | 0 journeys, "demo data" label, lying source checks | 2.2 |
+| /analytics | 0 runs, cost panel empty | 2.8 |
+| / | 0/0 roster, 0 runs, audience chart blank | as above |
+| /comms | live; WhatsApp reports a read timeout (Full Disk Access for the launchd process) | Cristoforo, System Settings |
 
 Exit: every page shows our data or an honest empty state.
 
