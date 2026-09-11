@@ -43,6 +43,7 @@ data on any page.
 | Connectors | 12 live on `founder-os`; `main` still registers Bennett's nine |
 | Seed | Local DB holds 1,814 seeded rows from August. Seed flag undocumented. |
 | Server | Dies with the terminal session. No stable URL. Cookie breaks over http on `main`. |
+| Agents | Paperclip on the Hetzner box pushes as `nodeai-agents`, write on FounderOS only |
 | LLM | Gateway on the free-tier model until credits are topped up |
 | Scheduler | None. Cron rows are stored and never run. |
 | Knowledge | gbrain reader against the shared Node AI brain. Knowledge graph on `/brain` still renders seeded rows. |
@@ -184,7 +185,10 @@ Only after phase 3 exists, because the folder is what would be sold.
 |---|---|
 | 2026-09-10 | Keep the 44 unwired catalog tiles for now (Cristoforo). Revisit in 2.3. |
 | 2026-09-10 | Persistent URL via launchd and Tailscale, not a container host yet. |
-| 2026-09-10 | `main` is protected: PR with green `verify` and one review. Admin enforcement is off, so founders merge their own PRs with `gh pr merge --admin` under personal accounts; `nodeagencyai` is a plain member whose PRs need the check and a human approval. |
+| 2026-09-10 | `main` is protected: PR with green `verify` and one review. Admin enforcement is off, so founders merge their own PRs with `gh pr merge --admin` under personal accounts; agent PRs need the check and a human approval. |
+| 2026-09-11 | Agents act on GitHub as `nodeai-agents` (display name Node AI Agents, mail `agents@nodeagency.ai` on the admin inbox): org member, write on FounderOS only, read elsewhere. Its fine-grained token `paperclip` (Contents and Pull requests, FounderOS only, expires 2027-09-12) is Paperclip secret `github-founderos` v2 and the box's only GitHub login. Fence proven 2026-09-11: branch push accepted, push to `main` refused. |
+| 2026-09-11 | `nodeagencyai` is left exactly as it is: still an org owner, still owns its profile repo. Nothing on this Mac or the box authenticates as it any more. Its two stray repos moved into the org; `nespola-osint-old` is a strict subset of `nespola-osint` and can be deleted. |
+| 2026-09-11 | Fine-grained tokens on the org need owner approval (Org settings, Third-party Access, Personal access tokens, Pending requests). The API for that list returns 404 on this org; approve in the browser. |
 | 2026-09-10 | No em dashes, no emojis, dark monochrome artifacts (house style). |
 | 2026-09-10 | Slack bot channel membership and the Obsidian vault switch are Cristoforo's manual actions, not code. |
 
@@ -194,6 +198,7 @@ Only after phase 3 exists, because the folder is what would be sold.
   in task 1.2.
 - Do we keep Paperclip dispatching onto this repo after phase 1, or pause it
   until phase 3 gives it something to build?
+- Rotate the `nodeai-agents` token before 2027-09-12, or sooner if the box is ever rebuilt.
 - Does the encoded company live inside `~/code/node-ai/brain` or as its own
   repo that the brain links to? Decide in 3.1.
 

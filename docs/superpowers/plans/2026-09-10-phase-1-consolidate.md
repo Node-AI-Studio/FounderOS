@@ -15,7 +15,7 @@
 - No em dashes or en dashes in code, comments, docs, or commit messages.
 - Conventional commits, subject 72 characters or fewer, no `Co-Authored-By` lines, end the body with `Claude-Session: https://claude.ai/code/session_013KTG3L5B9ggrbbKG8RiZWe`.
 - Stage explicit paths. Never `git add -A` or `git add .`.
-- `main` is protected on GitHub: a pull request with a green `verify` check (tests, typecheck, production build) and one approving review. Admin enforcement is off, so the two founders bypass the review with `gh pr merge <n> --merge --delete-branch --admin` under their personal accounts, never the retired `nodeagencyai` account and never the web UI, or the Vercel deploy stays blocked. Agent PRs (the `nodeagencyai` token is a plain member) still need the check and a human approval.
+- `main` is protected on GitHub: a pull request with a green `verify` check (tests, typecheck, production build) and one approving review. Admin enforcement is off, so the two founders bypass the review with `gh pr merge <n> --merge --delete-branch --admin` under their personal accounts, never the retired `nodeagencyai` account and never the web UI, or the Vercel deploy stays blocked. Agent PRs come from `nodeai-agents`, an org member with write on FounderOS only, and still need the check and a human approval.
 - Never force-push. Never bypass the pre-commit secret scanner.
 - `npm test` and `npm run typecheck` must be green before every commit that touches code.
 - Never write a secret value into a tracked file. Keys live in `.env.local` only.
