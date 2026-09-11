@@ -9,7 +9,7 @@ import {
  * The connections marketplace catalog. `connectorId` ties an entry to a
  * connector in the registry (lib/connectors/index.ts) so its live "connected"
  * state is never faked. A tile without one is not wired: it reads as
- * "not connected" and, once task 2.3 lands, offers no Connect button. Logos resolve from `slug` via lib/brand-logos
+ * "not connected" and offers no Connect button. Logos resolve from `slug` via lib/brand-logos
  * (simple-icons + a few hand-authored marks + intentional lettermarks).
  */
 export const INTEGRATIONS: Integration[] = [
@@ -97,10 +97,13 @@ export const INTEGRATIONS: Integration[] = [
 
 export type CatalogEntry = Integration & { connected: boolean; keySaved: boolean };
 
-/** The env var names the connect flow may write for an entry. Explicit
- *  envKeys win; no envKeys = a generic <SLUG>_API_KEY; [] = guidance only
- *  (the tool connects through something other than a pasted key). */
+/** The env var names the connect flow may write for an entry. A tile with no
+ *  connectorId is not wired, so it gets no keys and no Connect button: a key
+ *  nothing reads is not a connection. For wired tiles explicit envKeys win;
+ *  no envKeys means a generic <SLUG>_API_KEY; [] means guidance only (the tool
+ *  connects through something other than a pasted key). */
 export function connectKeysFor(entry: Integration): string[] {
+  if (!entry.connectorId) return [];
   if (entry.envKeys) return entry.envKeys;
   return [`${entry.slug.toUpperCase().replace(/[^A-Z0-9]/g, '_')}_API_KEY`];
 }

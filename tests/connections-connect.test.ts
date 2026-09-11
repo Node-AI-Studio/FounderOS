@@ -6,13 +6,13 @@ import { POST, DELETE } from '@/app/api/connections/connect/route';
 import { readEnvLocal } from '@/lib/creds';
 
 /** The connect flow writes ONLY to .env.local (gitignored) — never to
- *  Alex's canonical machine files, never into the repo. */
+ *  the operator's canonical machine files, never into the repo. */
 describe('POST /api/connections/connect', () => {
   let tmp: string;
   const prevOverride = process.env.FOUNDER_OS_ENV_LOCAL;
 
   beforeEach(() => {
-    tmp = path.join(os.tmpdir(), `alex-connect-${process.pid}-${Math.random().toString(36).slice(2)}`);
+    tmp = path.join(os.tmpdir(), `founder-os-connect-${process.pid}-${Math.random().toString(36).slice(2)}`);
     process.env.FOUNDER_OS_ENV_LOCAL = tmp;
   });
   afterEach(() => {
@@ -25,19 +25,19 @@ describe('POST /api/connections/connect', () => {
     POST(new Request('http://test/api/connections/connect', { method: 'POST', body: JSON.stringify(body) }));
 
   test('saves allowed keys for a listed integration and reports keySaved without echoing values', async () => {
-    const res = await post({ slug: 'notion', values: { NOTION_API_KEY: 'ntn_secret_123' } });
+    const res = await post({ slug: 'notion', values: { NOTION_API_KEY: 'fake-ntn-123' } });
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.ok).toBe(true);
     expect(body.keySaved).toBe(true);
-    expect(JSON.stringify(body)).not.toContain('ntn_secret_123');
-    expect(readEnvLocal().NOTION_API_KEY).toBe('ntn_secret_123');
+    expect(JSON.stringify(body)).not.toContain('fake-ntn-123');
+    expect(readEnvLocal().NOTION_API_KEY).toBe('fake-ntn-123');
   });
 
-  test('a no-connector tile saves its generic key', async () => {
-    const res = await post({ slug: 'discord', values: { DISCORD_API_KEY: 'dsc-1' } });
-    expect(res.status).toBe(200);
-    expect(readEnvLocal().DISCORD_API_KEY).toBe('dsc-1');
+  test('a tile with no connector takes no key: nothing would read it', async () => {
+    const res = await post({ slug: 'discord', values: { DISCORD_API_KEY: 'fake-dsc-1' } });
+    expect(res.status).toBe(400);
+    expect(readEnvLocal().DISCORD_API_KEY).toBeUndefined();
   });
 
   test('rejects unknown slugs, foreign keys, and unsafe values', async () => {
@@ -53,13 +53,13 @@ describe('POST /api/connections/connect', () => {
 
   test('DELETE removes exactly the integration keys (disconnect)', async () => {
     await post({ slug: 'notion', values: { NOTION_API_KEY: 'k1' } });
-    await post({ slug: 'discord', values: { DISCORD_API_KEY: 'k2' } });
+    await post({ slug: 'slack', values: { SLACK_BOT_TOKEN: 'fake-k2' } });
     const res = await DELETE(
       new Request('http://test/api/connections/connect', { method: 'DELETE', body: JSON.stringify({ slug: 'notion' }) }),
     );
     expect(res.status).toBe(200);
     expect((await res.json()).keySaved).toBe(false);
     expect(readEnvLocal().NOTION_API_KEY).toBeUndefined();
-    expect(readEnvLocal().DISCORD_API_KEY).toBe('k2');
+    expect(readEnvLocal().SLACK_BOT_TOKEN).toBe('fake-k2');
   });
 });

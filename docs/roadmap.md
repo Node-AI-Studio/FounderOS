@@ -97,7 +97,7 @@ most.
   connector. Remove the tiles, the seed rows, and the two venture-specific
   connectors. Done when `/integrations` shows only connectors with a real
   status function. Verify: `tests/connector-index.test.ts` updated and green.
-- [ ] **2.3 Prune the catalog.** 44 of 62 tiles have no connector and still
+- [x] **2.3 Prune the catalog.** Done 2026-09-11, PR #26: the 44 unwired tiles stay listed but offer no Connect button; Square and Whop slots deleted. 44 of 62 tiles have no connector and still
   offer a Connect button that writes a key nothing reads. Keep the tiles we
   will wire in the next quarter, delete the rest. Same for the `SQUARE` and
   `WHOP` key slots. Done when every tile with a Connect button has a
@@ -251,6 +251,7 @@ Only after phase 3 exists, because the folder is what would be sold.
 | Date | Decision |
 |---|---|
 | 2026-09-10 | Keep the 44 unwired catalog tiles for now (Cristoforo). Revisit in 2.3. |
+| 2026-09-11 | The 44 unwired tiles stay listed but offer no Connect button (task 2.3): a key nothing reads is not a connection. Which of them to wire this quarter is still Cristoforo's call. |
 | 2026-09-10 | Persistent URL via launchd and Tailscale, not a container host yet. |
 | 2026-09-10 | `main` is protected: PR with green `verify` and one review. Admin enforcement is off, so founders merge their own PRs with `gh pr merge --admin` under personal accounts; agent PRs need the check and a human approval. |
 | 2026-09-11 | Agents act on GitHub as `nodeai-agents` (display name Node AI Agents, mail `agents@nodeagency.ai` on the admin inbox): org member, write on FounderOS only, read elsewhere. Its fine-grained token `paperclip` (Contents and Pull requests, FounderOS only, expires 2027-09-12) is Paperclip secret `github-founderos` v2 and the box's only GitHub login. Fence proven 2026-09-11: branch push accepted, push to `main` refused. |

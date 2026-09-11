@@ -27,13 +27,21 @@ describe('KEY_SLOTS', () => {
 
 describe('listKeyStatuses', () => {
   test('reports presence with masked values only — never the raw secret', () => {
-    const env = { SLACK_BOT_TOKEN: 'xoxb-very-secret-9876', STRIPE_SECRET_KEY: '' };
+    const env = { SLACK_BOT_TOKEN: 'fake-xoxb-very-secret-9876', STRIPE_SECRET_KEY: '' };
     const statuses = listKeyStatuses(env);
     const slack = statuses.find((s) => s.envVar === 'SLACK_BOT_TOKEN')!;
     expect(slack.present).toBe(true);
     expect(slack.masked).toBe('••••9876');
-    expect(JSON.stringify(statuses)).not.toContain('xoxb-very-secret-9876');
+    expect(JSON.stringify(statuses)).not.toContain('fake-xoxb-very-secret-9876');
     expect(statuses.find((s) => s.envVar === 'STRIPE_SECRET_KEY')!.present).toBe(false);
+  });
+});
+
+describe('KEY_SLOTS', () => {
+  test('the Square and Whop slots are gone: nothing read them', () => {
+    const vars = KEY_SLOTS.map((s) => s.envVar);
+    expect(vars).not.toContain('SQUARE_ACCESS_TOKEN');
+    expect(vars).not.toContain('WHOP_API_KEY');
   });
 });
 
@@ -42,13 +50,13 @@ describe('upsertEnvLocal', () => {
     const file = path.join(mkdtempSync(path.join(tmpdir(), 'keys-')), '.env.local');
     writeFileSync(file, '# comment\nSLACK_BOT_TOKEN=old\nNOTION_API_KEY=keep\n');
     upsertEnvLocal(file, 'SLACK_BOT_TOKEN', 'xoxb-new');
-    upsertEnvLocal(file, 'WHOP_API_KEY', 'whop-123');
+    upsertEnvLocal(file, 'PAYPAL_CLIENT_ID', 'fake-pp-123');
     const content = readFileSync(file, 'utf8');
     expect(content).toContain('SLACK_BOT_TOKEN=xoxb-new');
     expect(content).not.toContain('SLACK_BOT_TOKEN=old');
     expect(content).toContain('NOTION_API_KEY=keep');
     expect(content).toContain('# comment');
-    expect(content.trim().endsWith('WHOP_API_KEY=whop-123')).toBe(true);
+    expect(content.trim().endsWith('PAYPAL_CLIENT_ID=fake-pp-123')).toBe(true);
   });
 
   test('creates the file when missing and rejects bad names', () => {

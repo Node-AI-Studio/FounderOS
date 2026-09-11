@@ -96,7 +96,7 @@ describe('connect flow (paste a key on the board)', () => {
     const notion = INTEGRATIONS.find((i) => i.slug === 'notion')!;
     expect(connectKeysFor(notion)).toEqual(['NOTION_API_KEY']);
     const discord = INTEGRATIONS.find((i) => i.slug === 'discord')!;
-    expect(connectKeysFor(discord)).toEqual(['DISCORD_API_KEY']);
+    expect(connectKeysFor(discord)).toEqual([]); // no connector, so no key to paste
     const whatsapp = INTEGRATIONS.find((i) => i.slug === 'whatsapp')!;
     expect(connectKeysFor(whatsapp)).toEqual([]);
   });
@@ -106,6 +106,12 @@ describe('connect flow (paste a key on the board)', () => {
     const registered = new Set(CONNECTOR_IDS);
     for (const i of INTEGRATIONS) {
       if (i.connectorId) expect(registered.has(i.connectorId), `${i.slug} -> ${i.connectorId}`).toBe(true);
+    }
+  });
+
+  test('every tile that offers a Connect key has a connector behind it', () => {
+    for (const i of INTEGRATIONS) {
+      if (connectKeysFor(i).length > 0) expect(i.connectorId, `${i.slug} offers keys with no connectorId`).toBeTruthy();
     }
   });
 
