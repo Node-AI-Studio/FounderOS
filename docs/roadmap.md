@@ -120,7 +120,7 @@ most.
 - [x] **2.7 Brain page honesty.** Done 2026-09-11, PR #28. Also fixed: the launchd PATH lacked `~/.bun/bin`, so production could not run the gbrain CLI at all. Remove the hardcoded "918 pages / 11k chunks"
   and "v0.41", and stop the embeddings row defaulting to LIVE. Done when every
   number on `/brain` comes from `gbrain stats` or the store walk.
-- [ ] **2.8 Real costs.** Agent runs never record tokens and chat discards the
+- [x] **2.8 Real costs.** Done 2026-09-11, PR #29. Every chat turn and conductor routing call writes an `agent_runs` row priced from the gateway usage. Agent runs never record tokens and chat discards the
   gateway usage, so the cost panel is seeded fiction. Persist `usage` from
   the gateway on chat and on any run that calls the model. Done when a real
   chat produces a non-null `costUsd` row.

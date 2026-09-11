@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -24,6 +24,13 @@ describe('chatWithAgent (stub provider)', () => {
     expect(rows.map((m) => m.role)).toEqual(['user', 'assistant']);
     expect(rows[0].content).toBe('what is our revenue split?');
     expect(rows[1].content).toBe(res.reply);
+    // every chat is a run; the stub reports no usage, so the row is unpriced (null, not 0)
+    const runs = db.agentRuns.byAgent('data-agent');
+    expect(runs).toHaveLength(1);
+    expect(runs[0].ok).toBe(true);
+    expect(runs[0].tokensIn).toBeNull();
+    expect(runs[0].costUsd).toBeNull();
+    expect(res.run.id).toBe(runs[0].id);
   });
 
   test('throws on an unknown agent', async () => {
@@ -70,5 +77,29 @@ describe('POST /api/agents/[id]/chat', () => {
       { params: { id: 'data-agent' } },
     );
     expect(res.status).toBe(400);
+  });
+});
+
+describe('chatWithAgent records cost from gateway usage', () => {
+  test('writes an agent_runs row with tokens and a non-null costUsd', async () => {
+    vi.resetModules();
+    vi.doMock('@/lib/connectors/llm', () => ({
+      chat: async () => ({ text: 'priced reply', toolCalls: [], usage: { inputTokens: 1000, outputTokens: 500 } }),
+    }));
+    const { chatWithAgent: chatMocked } = await import('@/lib/agents/chat');
+    const { realAgents: agents } = await import('@/lib/agents/real');
+    const { openDb: open } = await import('@/lib/db');
+    const db = open(':memory:');
+    const res = await chatMocked(db, agents, 'data-agent', 'how many pages?');
+    expect(res.run.agentId).toBe('data-agent');
+    expect(res.run.tokensIn).toBe(1000);
+    expect(res.run.tokensOut).toBe(500);
+    expect(res.run.costUsd).toBeGreaterThan(0);
+    expect(res.run.costUsd).toBeCloseTo(0.0105, 6); // 1000 in at $3/M + 500 out at $15/M on Sonnet
+    const stored = db.agentRuns.byAgent('data-agent');
+    expect(stored).toHaveLength(1);
+    expect(stored[0].costUsd).toBe(res.run.costUsd);
+    expect(stored[0].summary).toBe('chat: how many pages?');
+    vi.doUnmock('@/lib/connectors/llm');
   });
 });
