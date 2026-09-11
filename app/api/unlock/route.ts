@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { ACCESS_TOKEN_ENV, safeEqual, SESSION_COOKIE } from '@/lib/auth';
+import { ACCESS_TOKEN_ENV, publicOrigin, safeEqual, SESSION_COOKIE } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +37,9 @@ function setSession(response: NextResponse, token: string, requestUrl: string): 
  */
 export async function POST(request: Request) {
   const isForm = (request.headers.get('content-type') ?? '').includes('form');
+  // Redirects and the cookie's Secure flag follow the origin the visitor used,
+  // which behind Tailscale Serve is not the one Next bound to.
+  const origin = publicOrigin(request.headers, request.url);
 
   const raw = isForm
     ? Object.fromEntries(await request.formData().catch(() => new FormData()))
@@ -57,7 +60,7 @@ export async function POST(request: Request) {
 
   if (!parsed.success) {
     return isForm
-      ? NextResponse.redirect(new URL('/unlock?error=1', request.url), 303)
+      ? NextResponse.redirect(new URL('/unlock?error=1', origin), 303)
       : NextResponse.json({ error: 'expected { token }' }, { status: 400 });
   }
 
@@ -65,7 +68,7 @@ export async function POST(request: Request) {
 
   if (!safeEqual(token, configured)) {
     if (!isForm) return NextResponse.json({ error: 'incorrect token' }, { status: 401 });
-    const back = new URL('/unlock', request.url);
+    const back = new URL('/unlock', origin);
     back.searchParams.set('error', '1');
     if (next) back.searchParams.set('next', safeNext(next));
     return NextResponse.redirect(back, 303);
@@ -74,10 +77,10 @@ export async function POST(request: Request) {
   // 303 so the browser follows with GET rather than re-posting the token.
   return setSession(
     isForm
-      ? NextResponse.redirect(new URL(safeNext(next), request.url), 303)
+      ? NextResponse.redirect(new URL(safeNext(next), origin), 303)
       : NextResponse.json({ ok: true }),
     configured,
-    request.url,
+    origin,
   );
 }
 

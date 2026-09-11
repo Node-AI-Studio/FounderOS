@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { bearerFrom, decideAccess, isPublicPath, safeEqual } from '@/lib/auth';
+import { bearerFrom, decideAccess, isPublicPath, safeEqual, publicOrigin } from '@/lib/auth';
 
 const TOKEN = 'a'.repeat(32);
 
@@ -109,5 +109,21 @@ describe('isPublicPath', () => {
   test('does not let a lookalike prefix escape the gate', () => {
     expect(isPublicPath('/unlocked-secrets')).toBe(false);
     expect(isPublicPath('/api/unlockable')).toBe(false);
+  });
+});
+
+describe('publicOrigin', () => {
+  test('falls back to the request origin when no proxy header is present', () => {
+    expect(publicOrigin(new Headers(), 'http://localhost:4100/comms')).toBe('http://localhost:4100');
+  });
+
+  test('uses X-Forwarded-Host and defaults the scheme to http', () => {
+    const h = new Headers({ 'x-forwarded-host': 'mac.tail75c26d.ts.net' });
+    expect(publicOrigin(h, 'http://localhost:4100/')).toBe('http://mac.tail75c26d.ts.net');
+  });
+
+  test('honours X-Forwarded-Proto and takes the first value of a list', () => {
+    const h = new Headers({ 'x-forwarded-host': 'mac.tail75c26d.ts.net, inner', 'x-forwarded-proto': 'https, http' });
+    expect(publicOrigin(h, 'http://localhost:4100/')).toBe('https://mac.tail75c26d.ts.net');
   });
 });
