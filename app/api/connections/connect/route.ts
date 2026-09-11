@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { INTEGRATIONS, connectKeysFor } from '@/lib/integrations-catalog';
 import { readEnvLocal, upsertEnvLocal, removeEnvLocal } from '@/lib/creds';
 import { invalidateConnectorStatuses } from '@/lib/connectors';
+import { invalidateCommsFeed } from '@/lib/comms-feed-cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +56,7 @@ export async function POST(req: Request) {
 
   upsertEnvLocal(Object.fromEntries(names.map((k) => [k, body.values[k].trim()])));
   invalidateConnectorStatuses();
+  invalidateCommsFeed();
   const saved = readEnvLocal();
   const keySaved = [...allowed].every((k) => Boolean(saved[k]));
   return NextResponse.json({ ok: true, keySaved, partial: !keySaved });
@@ -71,5 +73,6 @@ export async function DELETE(req: Request) {
   if (!entry) return NextResponse.json({ ok: false, error: 'unknown integration' }, { status: 400 });
   removeEnvLocal(connectKeysFor(entry));
   invalidateConnectorStatuses();
+  invalidateCommsFeed();
   return NextResponse.json({ ok: true, keySaved: false });
 }

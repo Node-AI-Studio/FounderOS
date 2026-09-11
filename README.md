@@ -20,19 +20,22 @@ you explore and run it yourself.
 
 ## Quick start
 
-Requires **Node 18+**.
+Requires **Node 20, 22, or 24** (CI runs 22; 18 fails on a regex this app uses).
+`better-sqlite3` compiles a native addon, so Xcode Command Line Tools on macOS
+or `build-essential` on Linux must be present.
 
 ```bash
 npm install
-cp .env.example .env.local   # optional; only needed to wire live integrations
-npm run dev                  # http://localhost:4100
+cp .env.example .env.local   # FOUNDER_OS_DEMO_SEED=1 is already set in the example
+npm run dev                  # http://127.0.0.1:4100
 ```
 
-A local SQLite database is **seeded with demo data on first run**, so every page
-is populated immediately. No credentials are required to browse. Navigate with
-the sidebar or the Command Palette (Cmd/Ctrl + K). Five themes ship, including
-the Monolith default (white on black, color means status only); pick it from the
-palette icon in the top bar.
+With `FOUNDER_OS_DEMO_SEED=1` the local SQLite database is seeded with demo data
+on first run, so every page is populated immediately and carries a DEMO DATA
+badge. Unset it once you have live data; `npm run seed` re-seeds on demand.
+Navigate with the sidebar or the Command Palette (Cmd/Ctrl + K). Five themes
+ship, including the Monolith default (white on black, color means status only);
+pick it from the palette icon in the top bar.
 
 ```bash
 npm run build && npm start   # production build
