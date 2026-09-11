@@ -9,11 +9,44 @@ import { randomUUID } from 'node:crypto';
 import { chat as llmChat, type LlmMessage } from '@/lib/connectors/llm';
 import type { FounderDb } from '@/lib/db';
 import type { RuntimeAgent } from '@/lib/agents/runtime';
-import type { AgentMessage } from '@/lib/schemas';
+import type { AgentMessage, AgentRun } from '@/lib/schemas';
+import { runCostUsd } from '@/lib/agent-costs';
 
-export type ChatResult = { reply: string; messages: AgentMessage[] };
+export type ChatResult = { reply: string; messages: AgentMessage[]; run: AgentRun };
 
 const SCREEN_CONTEXT_CAP = 4000;
+const SUMMARY_CAP = 126;
+
+const chatModel = (): string => process.env.LLM_MODEL ?? 'anthropic/claude-sonnet-5';
+
+/**
+ * Persist one model call as an agent run so the cost panel sees real usage.
+ * Tokens stay null when the provider reported none (the stub); a run with no
+ * usage is not a free run, it is an unpriced one.
+ */
+export function recordModelRun(
+  db: FounderDb,
+  agentId: string,
+  summary: string,
+  startedAt: string,
+  usage: { inputTokens: number; outputTokens: number } | undefined,
+): AgentRun {
+  const model = chatModel();
+  const run: AgentRun = {
+    id: `chat-${randomUUID()}`,
+    agentId,
+    startedAt,
+    finishedAt: new Date().toISOString(),
+    ok: true,
+    summary: summary.slice(0, SUMMARY_CAP),
+    model,
+    tokensIn: usage ? usage.inputTokens : null,
+    tokensOut: usage ? usage.outputTokens : null,
+    costUsd: usage ? runCostUsd(usage.inputTokens, usage.outputTokens, model) : null,
+  };
+  db.agentRuns.insert(run);
+  return run;
+}
 
 export function systemPromptFor(agent: RuntimeAgent, screenContext?: string): string {
   const lines = [
@@ -53,6 +86,7 @@ export async function chatWithAgent(
   const llmMessages: LlmMessage[] = history.map((m) => ({ role: m.role, content: m.content }));
   const tools = agent.chatTools?.();
 
+  const startedAt = now();
   const result = await llmChat({ system: systemPromptFor(agent, opts.screenContext), messages: llmMessages, tools });
 
   if (result.toolCalls.length) {
@@ -68,5 +102,6 @@ export async function chatWithAgent(
 
   db.agentMessages.insert({ id: randomUUID(), agentId, role: 'assistant', content: result.text, toolCalls: [], createdAt: now() });
 
-  return { reply: result.text, messages: db.agentMessages.byAgent(agentId) };
+  const run = recordModelRun(db, agentId, `chat: ${message}`, startedAt, result.usage);
+  return { reply: result.text, messages: db.agentMessages.byAgent(agentId), run };
 }

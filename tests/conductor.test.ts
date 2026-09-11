@@ -42,6 +42,10 @@ describe('routeConductorMessage (stub)', () => {
     expect(routableIds()).toContain(res.routedTo);
     expect(res.routedTo).not.toBe('conductor');
     expect(res.reply.length).toBeGreaterThan(0);
+    // the routing call is a model call too: recorded as a conductor run
+    const routing = db.agentRuns.byAgent('conductor');
+    expect(routing).toHaveLength(1);
+    expect(routing[0].summary).toMatch(/^route: /);
   });
 
   test('an unknown @name never throws — falls back to routing', async () => {
