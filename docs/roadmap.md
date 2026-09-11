@@ -164,6 +164,46 @@ existing Node AI brain, not a new store.
 Exit: the OS runs on the encoded company, one department works without being
 asked, and nothing external goes out unapproved.
 
+## Phase 3b: host it on Railway (when the laptop stops being enough)
+
+Bennett's advice in the webinar: the Mac mini route or the Railway route, and
+for anyone without a machine that stays on, Railway. He moved off Hetzner
+because a bare box needs Node, a process manager, a proxy, TLS, and backups
+kept by hand; Railway builds from the GitHub repo on every push, gives the app
+a TLS URL, holds the env vars, and adds a managed database next to it.
+
+Trigger: the first time the OS must be reachable while this Mac is asleep, or
+Niek uses it daily. Not before the encoded company exists, because the folder
+and its agents are the thing worth hosting.
+
+- [ ] **3b.1 Decide the database.** The app writes a local SQLite file. On
+  Railway that file lives on a mounted volume or it resets on every deploy.
+  Either mount a volume at `/app/data`, or move the repo layer to the managed
+  Postgres the README promises. The volume is the honest first step.
+- [ ] **3b.2 Decide the knowledge companion.** The README says G-Brain runs as
+  a companion service referenced by URL, but nothing in the repo defines it.
+  Options: run gbrain in a second Railway service against the shared brain
+  repo, or keep the brain on the Mac and let the hosted app degrade to grep.
+  Decide with Niek, since the brain's sync writer is his machine.
+- [ ] **3b.3 Deploy the app.** New Railway project from `Node-AI-Studio/FounderOS`,
+  Dockerfile build (already in the repo, non-root, healthcheck on `/`),
+  `FOUNDER_OS_ACCESS_TOKEN` and every connector key from `.env.local` as
+  service variables, `FOUNDER_OS_DEMO_SEED` unset, volume at `/app/data`.
+  Verify: the Railway URL redirects to `/unlock`, the token opens the console,
+  `/integrations` shows the same connectors green as the Mac.
+- [ ] **3b.4 Local-only connectors.** WhatsApp, Wispr, Obsidian, the local stack
+  probes, and the skills reader read files on this Mac. On Railway they report
+  not configured. Either accept that or unregister them for the hosted build.
+- [ ] **3b.5 Custom domain and the phone.** Point a Node AI subdomain at the
+  Railway service; retire the tailnet URL for the app, keep Tailscale for the
+  Paperclip box.
+- [ ] **3b.6 Costs and rollback.** Record the monthly Railway cost in the
+  decisions table. Rollback is `railway redeploy` of the previous deployment;
+  the Mac launchd job stays installed as the fallback host.
+
+Exit: the OS answers at a Node AI domain with the laptop closed, the data
+survives deploys, and the Mac remains a one-command fallback.
+
 ## Phase 4: decide the offer
 
 Only after phase 3 exists, because the folder is what would be sold.
@@ -200,6 +240,7 @@ Only after phase 3 exists, because the folder is what would be sold.
 - Do we keep Paperclip dispatching onto this repo after phase 1, or pause it
   until phase 3 gives it something to build?
 - Rotate the `nodeai-agents` token before 2027-09-12, or sooner if the box is ever rebuilt.
+- Railway or a second Mac mini for the always-on host? Bennett runs a Mac mini on Tailscale and recommends Railway for everyone else. Decide at phase 3b.
 - Does the encoded company live inside `~/code/node-ai/brain` or as its own
   repo that the brain links to? Decide in 3.1.
 
