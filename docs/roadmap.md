@@ -42,9 +42,9 @@ data on any page.
 | Tests | 959 passing, typecheck clean, on both branches |
 | Connectors | 12 live on `founder-os`; `main` still registers Bennett's nine |
 | Seed | Local DB holds 1,814 seeded rows from August. Seed flag undocumented. |
-| Server | Dies with the terminal session. No stable URL. Cookie breaks over http on `main`. |
+| Server | launchd job on 127.0.0.1:4100 from `.next-prod`; survives closed terminals. Tailnet https URL pending the certificate toggle. |
 | Agents | Paperclip on the Hetzner box pushes as `nodeai-agents`, write on FounderOS only |
-| LLM | Gateway on the free-tier model until credits are topped up |
+| LLM | Vercel AI Gateway, `anthropic/claude-sonnet-5`, $15 credit as of 2026-09-11 |
 | Scheduler | None. Cron rows are stored and never run. |
 | Knowledge | gbrain reader against the shared Node AI brain. Knowledge graph on `/brain` still renders seeded rows. |
 
@@ -56,24 +56,24 @@ Detailed plan: `docs/superpowers/plans/2026-09-10-phase-1-consolidate.md`
   the wrong branch, and Paperclip workers branch from `main`. Done when
   `git log --oneline main` shows the merge, both conflict files keep both
   sides, and the gate is green. Verify: `npm test && npm run typecheck`.
-- [ ] **1.2 Document the seed flag and pin Node.** Why: a fresh clone that
+- [x] **1.2 Document the seed flag and pin Node.** Done 2026-09-11, PR #18. Why: a fresh clone that
   follows the README boots to empty pages, and CI pins Node 22 while the README
   says 18. Done when `.env.example` and the README name
   `FOUNDER_OS_DEMO_SEED` and `package.json` engines matches CI. Verify: new
   test `tests/env-example.test.ts` passes.
-- [ ] **1.3 Comms feed cache.** Why: home and `/comms` still take 4 to 5 s
+- [x] **1.3 Comms feed cache.** Done 2026-09-11, PR #19: warm `/comms` 20 ms, was 5 s. Why: home and `/comms` still take 4 to 5 s
   because IMAP, WhatsApp, and Slack are fetched on every render. Same
   stale-while-revalidate pattern as the connector status cache. Done when a
   warm `/comms` renders under one second. Verify: `curl -w '%{time_total}'`
   twice, second under 1.0.
-- [ ] **1.4 Persistent server.** Why: the production server dies with the
+- [x] **1.4 Persistent server.** Done 2026-09-11, PR #20: launchd job `ai.nodeagency.founderos`, `.next-prod`, unlock verified over http. Reboot test still owed. Why: the production server dies with the
   session that started it. Done when a launchd job runs `next start` at login
   from its own build directory and survives closing every terminal. Verify:
   `launchctl list | grep founderos` and a curl after a reboot.
 - [ ] **1.5 Stable https URL.** Why: phone access, and https removes the cookie
   problem for good. Done when `tailscale serve status` shows 4100 and the
   unlock flow works from the phone. Verify: open the ts.net URL on the phone.
-- [ ] **1.6 Real model.** Why: agent chat runs on `google/gemini-2.5-flash-lite`
+- [x] **1.6 Real model.** Done 2026-09-11: $15 credit on the gateway, `LLM_MODEL=anthropic/claude-sonnet-5`, Conductor answered. Why: agent chat runs on `google/gemini-2.5-flash-lite`
   because the gateway had no credit. Done when credits show on the gateway,
   `LLM_MODEL=anthropic/claude-sonnet-5`, and the Conductor answers. Verify:
   `POST /api/agents/conductor/chat` returns text, not 500.
@@ -188,6 +188,7 @@ Only after phase 3 exists, because the folder is what would be sold.
 | 2026-09-10 | `main` is protected: PR with green `verify` and one review. Admin enforcement is off, so founders merge their own PRs with `gh pr merge --admin` under personal accounts; agent PRs need the check and a human approval. |
 | 2026-09-11 | Agents act on GitHub as `nodeai-agents` (display name Node AI Agents, mail `agents@nodeagency.ai` on the admin inbox): org member, write on FounderOS only, read elsewhere. Its fine-grained token `paperclip` (Contents and Pull requests, FounderOS only, expires 2027-09-12) is Paperclip secret `github-founderos` v2 and the box's only GitHub login. Fence proven 2026-09-11: branch push accepted, push to `main` refused. |
 | 2026-09-11 | `nodeagencyai` is left exactly as it is: still an org owner, still owns its profile repo. Nothing on this Mac or the box authenticates as it any more. Its two stray repos moved into the org; `nespola-osint-old` is a strict subset of `nespola-osint` and can be deleted. |
+| 2026-09-11 | Tailscale Serve needs HTTPS certificates enabled on the tailnet (admin console, DNS, HTTPS Certificates) before it can front 4100 over https. Until then the tailnet URL is http only. |
 | 2026-09-11 | Fine-grained tokens on the org need owner approval (Org settings, Third-party Access, Personal access tokens, Pending requests). The API for that list returns 404 on this org; approve in the browser. |
 | 2026-09-10 | No em dashes, no emojis, dark monochrome artifacts (house style). |
 | 2026-09-10 | Slack bot channel membership and the Obsidian vault switch are Cristoforo's manual actions, not code. |
