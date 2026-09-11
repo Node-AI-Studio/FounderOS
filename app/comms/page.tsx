@@ -1,7 +1,7 @@
 import { CalendarDays, Hash, Mail, MessageSquare, type LucideIcon } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { CommsTabs } from '@/components/CommsTabs';
-import { gatherCommsFeed } from '@/lib/comms-feed';
+import { cachedCommsFeed } from '@/lib/comms-feed-cache';
 import { annotatePriorities } from '@/lib/comms';
 import { DEFAULT_WORK_KEYWORDS, parseWorkKeywords } from '@/lib/comms-gravity';
 import { emailStatus } from '@/lib/connectors/email';
@@ -22,7 +22,7 @@ const SOURCE_ICON: Record<string, LucideIcon> = {
 
 export default async function CommsPage() {
   const [rawFeed, email, slack, whatsapp, calendar, weekEvents] = await Promise.all([
-    gatherCommsFeed(),
+    cachedCommsFeed(),
     emailStatus(),
     slackStatus(),
     whatsappStatus(),

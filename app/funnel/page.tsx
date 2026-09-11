@@ -16,7 +16,7 @@ import { attioFunnelJourneys } from '@/lib/funnel-live';
 import { ghlFunnelJourneys } from '@/lib/funnel-ghl';
 import { mergeTrakyoTouches, trakyoTouches } from '@/lib/funnel-trakyo';
 import { lastMessageFor } from '@/lib/funnel-contact';
-import { gatherCommsFeed } from '@/lib/comms-feed';
+import { cachedCommsFeed } from '@/lib/comms-feed-cache';
 import type { CommsItem } from '@/lib/comms';
 import { attioStatus } from '@/lib/connectors/attio';
 import { ghlStatus } from '@/lib/connectors/ghl';
@@ -343,7 +343,7 @@ export default async function FunnelPage({
   for (const j of journeys) stageCounts.set(j.status, (stageCounts.get(j.status) ?? 0) + 1);
   let commsFeed: CommsItem[] | null = null;
   if (stage && tableJourneys.length > 0) {
-    commsFeed = await gatherCommsFeed(200).catch(() => null);
+    commsFeed = await cachedCommsFeed(200).catch(() => null);
   }
   const [attio, ghl, trakyo, metaAds] = await Promise.all([
     attioStatus(),

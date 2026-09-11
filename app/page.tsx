@@ -9,7 +9,7 @@ import { syncFromZernioLive } from '@/lib/social-live';
 import { zernioPostDays } from '@/lib/connectors/zernio';
 import { postSeriesFromDays } from '@/lib/posting-activity';
 import type { SocialPlatform } from '@/lib/schemas';
-import { gatherCommsFeed } from '@/lib/comms-feed';
+import { cachedCommsFeed } from '@/lib/comms-feed-cache';
 import { inboundLast24h } from '@/lib/comms';
 import { groupRoadmapByQuarter } from '@/lib/roadmap';
 import { PageHeader } from '@/components/PageHeader';
@@ -130,7 +130,7 @@ export default async function HomePage() {
   const [connections, overview, feed, postDays] = await Promise.all([
     allConnectorStatuses(),
     createGBrainProvider().overview(),
-    gatherCommsFeed(),
+    cachedCommsFeed(),
     zernioPostDays(),
     syncFromZernioLive(db),
   ]).then(([c, o, f, p]) => [c, o, f, p] as const);

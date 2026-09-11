@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { gatherCommsFeed } from '@/lib/comms-feed';
+import { cachedCommsFeed } from '@/lib/comms-feed-cache';
 import { lastMessageFor } from '@/lib/funnel-contact';
 
 export const dynamic = 'force-dynamic';
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'name is required' }, { status: 400 });
   }
   const feed = await Promise.race([
-    gatherCommsFeed(200).catch(() => null),
+    cachedCommsFeed(200).catch(() => null),
     new Promise<null>((resolve) => setTimeout(() => resolve(null), FEED_BUDGET_MS)),
   ]);
   if (!feed) {
