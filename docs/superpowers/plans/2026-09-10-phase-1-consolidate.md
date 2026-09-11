@@ -35,7 +35,7 @@
 - Consumes: nothing.
 - Produces: `main` containing `lib/identity.ts` (`IDENTITY.workspace`), `lib/connectors/status-cache.ts` (`createStatusCache`), `allConnectorStatuses(opts?: { fresh?: boolean })`, `invalidateConnectorStatuses()`, and the `paperclip` connector registered in `CHECKS`.
 
-- [ ] **Step 1: Confirm a clean tree on `main` and fetch**
+- [x] **Step 1: Confirm a clean tree on `main` and fetch** (Task 1 completed 2026-09-11 as PR #17; the commit hook only accepts conventional types, so the merge commit is `chore:`)
 
 Run:
 ```bash
@@ -132,7 +132,7 @@ Run:
 ```bash
 git add components/Topbar.tsx lib/connectors/index.ts lib/identity.ts
 git add tests/connector-index.test.ts   # only if Step 5 changed it
-git commit -m "merge: bring founder-os work onto main
+git commit -m "chore: merge founder-os work onto main
 
 Keeps IDENTITY.workspace in the topbar, the connector status cache, the
 twelve Node AI connectors, and the Paperclip health check together.

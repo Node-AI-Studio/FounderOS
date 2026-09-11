@@ -52,7 +52,7 @@ data on any page.
 
 Detailed plan: `docs/superpowers/plans/2026-09-10-phase-1-consolidate.md`
 
-- [ ] **1.1 Merge `founder-os` into `main`.** Why: every fix we rely on is on
+- [x] **1.1 Merge `founder-os` into `main`.** Done 2026-09-11, PR #17. Why: every fix we rely on is on
   the wrong branch, and Paperclip workers branch from `main`. Done when
   `git log --oneline main` shows the merge, both conflict files keep both
   sides, and the gate is green. Verify: `npm test && npm run typecheck`.
