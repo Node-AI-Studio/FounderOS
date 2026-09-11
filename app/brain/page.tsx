@@ -114,7 +114,7 @@ async function clientRoster(db: ReturnType<typeof getDb>): Promise<RosterClient[
 // The memory constellation distills the whole brain-store (parse + local PCA
 // over ~900 notes) — too heavy to redo per request on a force-dynamic page, so
 // cache per server process with a short TTL. Never throws: an unreadable
-// store yields undefined and the graph falls back to the plain Alex dot.
+// store yields undefined and the graph falls back to the plain operator dot.
 let memoryCache: { at: number; value: MemoryGraph | undefined } | null = null;
 const MEMORY_TTL_MS = 5 * 60_000;
 
@@ -122,7 +122,7 @@ function memoryConstellation(): MemoryGraph | undefined {
   if (memoryCache && Date.now() - memoryCache.at < MEMORY_TTL_MS) return memoryCache.value;
   let value: MemoryGraph | undefined;
   try {
-    // Alex's memory = the brain-store PLUS the Notes vault (the Claude
+    // The operator's memory = the brain-store PLUS the Notes vault (the Claude
     // Archive is the bulk of it). Store notes win path collisions; each source
     // keeps its own folders so the constellation clusters by real structure.
     const store = readStoreNotes();

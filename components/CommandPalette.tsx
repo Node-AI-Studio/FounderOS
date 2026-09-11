@@ -45,10 +45,10 @@ export function CommandPalette({ commands }: { commands: Command[] }) {
       setOpen(true);
     }
     window.addEventListener('keydown', onKey);
-    window.addEventListener('alex:palette', onOpen);
+    window.addEventListener('founder-os:palette', onOpen);
     return () => {
       window.removeEventListener('keydown', onKey);
-      window.removeEventListener('alex:palette', onOpen);
+      window.removeEventListener('founder-os:palette', onOpen);
     };
   }, [close, open, router]);
 

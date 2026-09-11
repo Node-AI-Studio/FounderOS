@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 /**
  * The Connections board's connect flow. Writes ONLY to .env.local (gitignored)
  * and only key names the catalog declares for that integration — never to
- * Alex's canonical machine files, and never arbitrary env vars. Values are
+ * The operator's canonical machine files, and never arbitrary env vars. Values are
  * accepted, stored, and NEVER echoed back. Credential resolution reads
  * .env.local fresh at call time, so a saved key takes effect without a
  * server restart.
