@@ -31,7 +31,7 @@ export type OutgoingTransfer = {
 /**
  * Every processor the operator runs money through. Stripe carries its real
  * month-to-date income when connected; the rest are multi-account-ready slots
- * (two FanBasis for Vantage / Launchpad Cohort, two Wise). `configured` flags
+ * (PayPal, two Wise). `configured` flags
  * which accounts have keys in the env (from `configuredProcessors`); `live`
  * means a real pull is actually happening — true only for Stripe today, so a
  * key-set-but-not-yet-integrated account reads "key set", never a faked number.
@@ -58,14 +58,12 @@ export function incomeAccounts(
     {
       id: 'stripe',
       processor: 'Stripe',
-      label: 'Stripe · Launchpad Cohort',
+      label: 'Stripe',
       configured: configured.stripe ?? stripe.connected,
       live: stripe.connected,
       income: stripe.connected ? stripe.mtdUsd : null,
     },
     account('paypal', 'PayPal', 'PayPal'),
-    account('fanbasis-vantage', 'FanBasis', 'FanBasis · Vantage'),
-    account('fanbasis-lc', 'FanBasis', 'FanBasis · Launchpad Cohort'),
     account('wise-1', 'Wise', 'Wise · Account 1'),
     account('wise-2', 'Wise', 'Wise · Account 2'),
   ];

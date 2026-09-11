@@ -102,7 +102,7 @@ most.
   will wire in the next quarter, delete the rest. Same for the `SQUARE` and
   `WHOP` key slots. Done when every tile with a Connect button has a
   `connectorId`. Verify: a test asserting that invariant.
-- [ ] **2.4 Rename the ventures.** `vantage` and `launchpad-cohort` are
+- [x] **2.4 Rename the ventures.** Done 2026-09-11, PR #30, under the assumption `agency` / `clientos` / `leadgenos` (see decisions). FanBasis processor slots removed. `vantage` and `launchpad-cohort` are
   Bennett's businesses baked into `FunnelVentureSchema`, the FanBasis keys, and
   the funnel classifier. Replace with Node AI's lines of business (agency
   retainers, products such as ClientOS and LeadGenOS). Done when the funnel
@@ -258,6 +258,7 @@ Only after phase 3 exists, because the folder is what would be sold.
 | 2026-09-11 | `nodeagencyai` is left exactly as it is: still an org owner, still owns its profile repo. Nothing on this Mac or the box authenticates as it any more. Its two stray repos moved into the org; `nespola-osint-old` is a strict subset of `nespola-osint` and can be deleted. |
 | 2026-09-11 | Production URL on the tailnet: `https://cristoforos-macbook-pro.tail75c26d.ts.net`, Tailscale Serve on 443 proxying 127.0.0.1:4100, certificates enabled on the tailnet the same day. |
 | 2026-09-11 | Fine-grained tokens on the org need owner approval (Org settings, Third-party Access, Personal access tokens, Pending requests). The API for that list returns 404 on this org; approve in the browser. |
+| 2026-09-11 | Venture ids are `agency`, `clientos`, `leadgenos` (task 2.4). Cristoforo's call to confirm or rename; the rename is one enum, one registry, one classifier. FanBasis processor slots removed; Node AI takes payment through Stripe. |
 | 2026-09-10 | No em dashes, no emojis, dark monochrome artifacts (house style). |
 | 2026-09-10 | Slack bot channel membership and the Obsidian vault switch are Cristoforo's manual actions, not code. |
 
@@ -269,6 +270,7 @@ Only after phase 3 exists, because the folder is what would be sold.
   until phase 3 gives it something to build?
 - Rotate the `nodeai-agents` token before 2027-09-12, or sooner if the box is ever rebuilt.
 - Railway or a second Mac mini for the always-on host? Bennett runs a Mac mini on Tailscale and recommends Railway for everyone else. Decide at phase 3b.
+- `components/SparkIcon.tsx` still masks the previous owner's emblem (`public/vantage-emblem.png`) and `app/content/page.tsx` links `intel.vantage.ai`. Both are design-pass items for phase 3, not data.
 - Does the encoded company live inside `~/code/node-ai/brain` or as its own
   repo that the brain links to? Decide in 3.1.
 

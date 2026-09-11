@@ -33,8 +33,8 @@ export const ENTITY_LENSES: Lens[] = [
 export const FUNCTION_LENSES: Lens[] = [
   { id: 'fn-core', group: 'function', label: 'Core' },
   { id: 'fn-enabling', group: 'function', label: 'Enabling' },
-  { id: 'fn-vantage', group: 'function', label: 'Vantage team' },
-  { id: 'fn-launchpad-cohort', group: 'function', label: 'Launchpad Cohort team' },
+  { id: 'fn-agency', group: 'function', label: 'Agency team' },
+  { id: 'fn-clientos', group: 'function', label: 'ClientOS team' },
 ];
 
 export const ACTION_LENSES: Lens[] = [
@@ -59,8 +59,8 @@ const ENABLING_DEPTS = new Set(['team:dept-tech', 'team:dept-finance', 'team:dep
 
 /** Venture team rosters — seeded agent ids (graph nodes are `emp:<id>`). */
 const VENTURE_TEAMS: Record<string, string[]> = {
-  'fn-vantage': ['vantage-sales', 'vantage-fanbasis', 'fanbasis-sales'],
-  'fn-launchpad-cohort': ['launchpad-cohort-sales'],
+  'fn-agency': ['vantage-sales', 'vantage-fanbasis', 'fanbasis-sales'],
+  'fn-clientos': ['launchpad-cohort-sales'],
 };
 
 /** What each action actually runs on — seeded agent ids, honest best-fit. */
@@ -107,7 +107,7 @@ export function lensNodeSet(lensId: string, ctx: LensContext): Set<string> {
       byKind('team');
       break;
     case 'ent-teams': {
-      const members = idSet([...VENTURE_TEAMS['fn-vantage'], ...VENTURE_TEAMS['fn-launchpad-cohort']]);
+      const members = idSet([...VENTURE_TEAMS['fn-agency'], ...VENTURE_TEAMS['fn-clientos']]);
       for (const n of ctx.nodes) if (members.has(n.id)) out.add(n.id);
       break;
     }
@@ -123,8 +123,8 @@ export function lensNodeSet(lensId: string, ctx: LensContext): Set<string> {
       }
       break;
     }
-    case 'fn-vantage':
-    case 'fn-launchpad-cohort': {
+    case 'fn-agency':
+    case 'fn-clientos': {
       const members = idSet(VENTURE_TEAMS[lensId]);
       for (const n of ctx.nodes) if (members.has(n.id)) out.add(n.id);
       break;

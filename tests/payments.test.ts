@@ -7,27 +7,17 @@ import {
 } from '@/lib/connectors/payments';
 
 describe('configuredProcessors', () => {
-  it('lists the 6 real processors; configured derives from env keys', () => {
+  it('lists the 4 processors; configured derives from env keys', () => {
     const procs = configuredProcessors({
       STRIPE_SECRET_KEY: 'sk_x',
       PAYPAL_CLIENT_ID: 'a',
       PAYPAL_CLIENT_SECRET: 'b',
-      FANBASIS_VANTAGE_KEY: 'm',
       WISE_1_TOKEN: 'w1',
     });
-    expect(procs.map((p) => p.id)).toEqual([
-      'stripe',
-      'paypal',
-      'fanbasis-vantage',
-      'fanbasis-lc',
-      'wise-1',
-      'wise-2',
-    ]);
+    expect(procs.map((p) => p.id)).toEqual(['stripe', 'paypal', 'wise-1', 'wise-2']);
     const byId = Object.fromEntries(procs.map((p) => [p.id, p.configured]));
     expect(byId.stripe).toBe(true);
     expect(byId.paypal).toBe(true);
-    expect(byId['fanbasis-vantage']).toBe(true);
-    expect(byId['fanbasis-lc']).toBe(false);
     expect(byId['wise-1']).toBe(true);
     expect(byId['wise-2']).toBe(false);
   });
