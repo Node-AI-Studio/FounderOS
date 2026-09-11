@@ -12,28 +12,15 @@ import { realAgents } from '@/lib/agents/real';
 const KNOWN_AGENTS = new Set(realAgents.map((a) => a.id));
 
 describe('VENTURES', () => {
-  test("Alex's three income sources, each with a distinct color and brain tag", () => {
-    expect(VENTURES.map((v) => v.id)).toEqual(['vantage', 'launchpad-cohort', 'brand-deals']);
+  test("Node AI's three lines of business, each with a distinct color and brain tag", () => {
+    expect(VENTURES.map((v) => v.id)).toEqual(['agency', 'clientos', 'leadgenos']);
+    expect(VENTURES.map((v) => v.label)).toEqual(['Agency', 'ClientOS', 'LeadGenOS']);
     expect(new Set(VENTURES.map((v) => v.color)).size).toBe(3);
     expect(new Set(VENTURES.map((v) => v.brainTag)).size).toBe(3);
     for (const v of VENTURES) {
       expect(v.focus.length).toBeGreaterThan(0); // executive task list
       expect(v.detail.length).toBeGreaterThan(0);
     }
-  });
-
-  test('venture colors match each real brand source', () => {
-    const byId = new Map(VENTURES.map((v) => [v.id, v]));
-    // Vantage — sampled from VANTAGE LOGO (spring green)
-    expect(byId.get('vantage')?.color).toBe('#00ffaa');
-    // Launchpad Cohort — hsl(355 70% 50%) from the live site theme + brand guide
-    expect(byId.get('launchpad-cohort')?.color).toBe('#d9263f');
-  });
-
-  test('the brand-deals venture is presented as Personal Brand, keeping its color', () => {
-    const pb = getVenture('brand-deals');
-    expect(pb?.label).toBe('Personal Brand');
-    expect(pb?.color).toBe('#a3e635');
   });
 
   test('venture colors do not collide with life-area colors', () => {
@@ -67,25 +54,23 @@ describe('VENTURES', () => {
 
 describe('lookups', () => {
   test('getVenture resolves by id and returns null for unknowns', () => {
-    expect(getVenture('vantage')?.label).toBe('Vantage');
+    expect(getVenture('agency')?.label).toBe('Agency');
     expect(getVenture('nope')).toBeNull();
   });
 
   test('ventureAgentSet unions all areas for a venture', () => {
-    const set = ventureAgentSet('vantage');
-    const vantage = getVenture('vantage')!;
-    for (const agents of Object.values(vantage.areaAgents)) {
+    const set = ventureAgentSet('agency');
+    const agency = getVenture('agency')!;
+    for (const agents of Object.values(agency.areaAgents)) {
       for (const id of agents) expect(set.has(id)).toBe(true);
     }
   });
 
   test('venturesForAgent reverse lookup: shared infra agents serve all three', () => {
-    expect(venturesForAgent('conductor').map((v) => v.id)).toEqual([
-      'vantage', 'launchpad-cohort', 'brand-deals',
-    ]);
+    expect(venturesForAgent('conductor').map((v) => v.id)).toEqual(['agency', 'clientos', 'leadgenos']);
   });
 
-  test('whatsapp-worker serves launchpad-cohort (students live on WhatsApp)', () => {
-    expect(venturesForAgent('whatsapp-worker').some((v) => v.id === 'launchpad-cohort')).toBe(true);
+  test('whatsapp-worker serves the agency (client teams live on WhatsApp)', () => {
+    expect(venturesForAgent('whatsapp-worker').some((v) => v.id === 'agency')).toBe(true);
   });
 });

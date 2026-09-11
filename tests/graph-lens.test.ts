@@ -17,15 +17,15 @@ function contextFromSeed(): LensContext {
 
 const ctx = contextFromSeed();
 
-describe('graph lenses — Alex taxonomy (2026-07-12)', () => {
+describe('graph lenses, 2026-07-12 taxonomy', () => {
   test('the requested categories all exist', () => {
     expect(ENTITY_LENSES.map((l) => l.label)).toEqual([
       'All people', 'Sub-agents', 'Tools', 'Workflows', 'SOPs', 'Projects', 'Teams', 'Departments',
     ]);
     expect(FUNCTION_LENSES.map((l) => l.label)).toContain('Core');
     expect(FUNCTION_LENSES.map((l) => l.label)).toContain('Enabling');
-    expect(FUNCTION_LENSES.map((l) => l.label)).toContain('Vantage team');
-    expect(FUNCTION_LENSES.map((l) => l.label)).toContain('Launchpad Cohort team');
+    expect(FUNCTION_LENSES.map((l) => l.label)).toContain('Agency team');
+    expect(FUNCTION_LENSES.map((l) => l.label)).toContain('ClientOS team');
     expect(ACTION_LENSES).toHaveLength(11);
     expect(new Set(ALL_LENSES.map((l) => l.id)).size).toBe(ALL_LENSES.length);
   });
@@ -55,10 +55,10 @@ describe('graph lenses — Alex taxonomy (2026-07-12)', () => {
   });
 
   test('venture team lenses light their rosters', () => {
-    const mer = lensNodeSet('fn-vantage', ctx);
+    const mer = lensNodeSet('fn-agency', ctx);
     expect(mer.has('emp:vantage-sales')).toBe(true);
     expect(mer.has('emp:vantage-fanbasis')).toBe(true);
-    const aa = lensNodeSet('fn-launchpad-cohort', ctx);
+    const aa = lensNodeSet('fn-clientos', ctx);
     expect(aa.has('emp:launchpad-cohort-sales')).toBe(true);
   });
 

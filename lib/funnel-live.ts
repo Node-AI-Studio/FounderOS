@@ -17,6 +17,7 @@ import {
   type FunnelJourney,
   type FunnelStage,
   type FunnelTouch,
+  type FunnelVenture,
 } from '@/lib/schemas';
 
 /** The slice of Attio's /records/query deal shape we read. */
@@ -66,16 +67,14 @@ export const ATTIO_STAGE_MAP: Record<string, FunnelStage> = {
 };
 
 /**
- * Venture heuristic for live deals (they carry no venture attribute yet):
- * company-flavored names read as Vantage client builds, bare person names as
- * Launchpad Cohort mentorship leads. Legible and wrong-at-the-edges by
- * design — add a venture attribute in Attio for the exact split.
+ * Venture for live deals (Attio deals carry no venture attribute yet): a
+ * product name in the deal title routes to that product line; everything
+ * else is agency work. Add a venture attribute in Attio for the exact split.
  */
-const COMPANY_HINTS =
-  /\b(llc|inc|ltd|co|corp|company|solutions?|group|agency|tech|labs?|media|studio|consult\w*|clinic|dental|legal|law|realty|roofing|fitness|accounting|capital|ventures?|partners?|systems?|services?)\b|&/i;
-
-export function classifyVenture(dealName: string): 'vantage' | 'launchpad-cohort' {
-  return COMPANY_HINTS.test(dealName) ? 'vantage' : 'launchpad-cohort';
+export function classifyVenture(dealName: string): FunnelVenture {
+  if (/client\s*os/i.test(dealName)) return 'clientos';
+  if (/lead\s*gen\s*os/i.test(dealName)) return 'leadgenos';
+  return 'agency';
 }
 
 /**

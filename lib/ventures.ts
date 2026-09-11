@@ -1,5 +1,5 @@
 /**
- * The operator's three income sources, the venture lens over the OS.
+ * Node AI's three lines of business, the venture lens over the OS.
  *
  * One database, one G-Brain, one agent roster: ventures never partition the
  * data. They are saved filters — each one names the agents that serve it per
@@ -29,64 +29,61 @@ const SHARED_KNOWLEDGE = ['data-agent', 'markdown-auditor', 'vector-auditor'];
 
 export const VENTURES: Venture[] = [
   {
-    id: 'vantage',
-    label: 'Vantage',
-    kind: 'AI agency',
-    // Brand green sampled from VANTAGE LOGO (~/vantage/VANTAGE LOGO).
+    id: 'agency',
+    label: 'Agency',
+    kind: 'AI software agency',
     color: '#00ffaa',
-    detail: 'Client AI builds and delivery — the agency arm.',
-    brainTag: 'vantage',
+    detail: 'Client builds and retainers, delivered by Node AI.',
+    brainTag: 'agency',
     focus: [
       'Active client builds shipped on schedule',
       'Pipeline: proposals out, deals advanced in Attio',
-      'Delivery quality — every handoff documented in G-Brain',
+      'Every handoff documented in the brain',
     ],
     areaAgents: {
       marketing: ['social-agent', 'zernio-publisher', 'remotion-editor', 'higgsfield-creative'],
       sales: ['vantage-sales', 'vantage-fanbasis', 'sales-agent', 'sales-calls-data'],
-      communication: ['comms-agent', 'gmail-worker', 'slack-worker', 'crm-pulse'],
+      communication: ['comms-agent', 'gmail-worker', 'slack-worker', 'whatsapp-worker', 'crm-pulse'],
       finances: ['payments-pulse', 'stripe-sales', 'processor-confirmation'],
       knowledge: [...SHARED_KNOWLEDGE, 'notion-sync'],
       operations: SHARED_OPS,
     },
   },
   {
-    id: 'launchpad-cohort',
-    label: 'Launchpad Cohort',
-    kind: 'Mentorship program',
-    // Brand crimson — hsl(355 70% 50%) from the live LC site theme + brand guide.
+    id: 'clientos',
+    label: 'ClientOS',
+    kind: 'Product',
     color: '#d9263f',
-    detail: 'The mentorship — students, curriculum, community.',
-    brainTag: 'launchpad-cohort',
+    detail: 'The client portal: discovery, proposals, signing, onboarding.',
+    brainTag: 'clientos',
     focus: [
-      'Student results — track wins, unblock stuck students fast',
-      'Content + newsletter cadence for enrollment',
-      'Community pulse on WhatsApp; T1 response times hold',
+      'Proposals signed through the portal',
+      'Onboarding completed without manual steps',
+      'Portal uptime and support response',
     ],
     areaAgents: {
-      marketing: ['social-agent', 'arcads-creative', 'zernio-publisher', 'manychat-mcp', 'remotion-editor'],
-      sales: ['launchpad-cohort-sales', 'fanbasis-sales', 'sales-agent', 'sales-calls-data'],
-      communication: ['whatsapp-worker', 'gmail-worker', 'comms-agent', 'crm-pulse'],
-      finances: ['payments-pulse', 'stripe-sales', 'pava-financing', 'processor-confirmation'],
+      marketing: ['social-agent', 'zernio-publisher', 'remotion-editor'],
+      sales: ['launchpad-cohort-sales', 'sales-agent', 'sales-calls-data'],
+      communication: ['gmail-worker', 'comms-agent', 'crm-pulse'],
+      finances: ['payments-pulse', 'stripe-sales', 'processor-confirmation'],
       knowledge: SHARED_KNOWLEDGE,
       operations: SHARED_OPS,
     },
   },
   {
-    // Internal id/brainTag stay 'brand-deals'; presented as Personal Brand.
-    id: 'brand-deals',
-    label: 'Personal Brand',
-    kind: 'Paid collaborations',
+    id: 'leadgenos',
+    label: 'LeadGenOS',
+    kind: 'Product',
     color: '#a3e635',
-    detail: 'Sponsored collabs with AI companies — personally managed.',
-    brainTag: 'brand-deals',
+    detail: 'Lead scraping, enrichment and outbound campaigns for clients.',
+    brainTag: 'leadgenos',
     focus: [
-      'Inbound collab offers triaged and answered',
-      'Deliverables calendar — no missed posting windows',
-      'Invoices out and chased; rates documented per brand',
+      'Tenant campaigns sending on schedule',
+      'Enrichment cost per lead within budget',
+      'Replies routed to the client CRM',
     ],
     areaAgents: {
-      marketing: ['arcads-creative', 'social-agent', 'zernio-publisher', 'higgsfield-creative', 'remotion-editor'],
+      marketing: ['social-agent', 'zernio-publisher'],
       sales: ['sales-agent', 'crm-pulse'],
       communication: ['gmail-worker', 'crm-pulse', 'comms-agent'],
       finances: ['payments-pulse', 'stripe-sales'],

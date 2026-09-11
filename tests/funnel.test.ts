@@ -30,7 +30,7 @@ afterEach(() => {
 const contact = (over: Partial<FunnelContact> = {}): FunnelContact => ({
   id: 'fc-test',
   name: 'Test Client',
-  venture: 'vantage',
+  venture: 'agency',
   status: 'engaged',
   product: null,
   amountUsd: null,
@@ -96,10 +96,10 @@ describe('funnel repo', () => {
 
   test('venture filter narrows journeys', () => {
     db = openDb(':memory:');
-    db.funnel.insertContact(contact({ id: 'fc-m', venture: 'vantage' }));
-    db.funnel.insertContact(contact({ id: 'fc-aa', venture: 'launchpad-cohort' }));
-    expect(db.funnel.journeys('vantage').map((j) => j.id)).toEqual(['fc-m']);
-    expect(db.funnel.journeys('launchpad-cohort').map((j) => j.id)).toEqual(['fc-aa']);
+    db.funnel.insertContact(contact({ id: 'fc-m', venture: 'agency' }));
+    db.funnel.insertContact(contact({ id: 'fc-aa', venture: 'clientos' }));
+    expect(db.funnel.journeys('agency').map((j) => j.id)).toEqual(['fc-m']);
+    expect(db.funnel.journeys('clientos').map((j) => j.id)).toEqual(['fc-aa']);
     expect(db.funnel.journeys()).toHaveLength(2);
   });
 });
@@ -121,7 +121,7 @@ describe('funnel seed', () => {
     }
 
     // both ventures represented
-    expect(new Set(all.map((j) => j.venture))).toEqual(new Set(['vantage', 'launchpad-cohort']));
+    expect(new Set(all.map((j) => j.venture))).toEqual(new Set(['agency', 'clientos']));
 
     // both acquisition lanes represented, with honest intended sources
     const firsts = all.map((j) => j.touches[0]);
@@ -181,7 +181,7 @@ describe('funnelSummary', () => {
   ): FunnelJourney => ({
     id,
     name: id,
-    venture: 'vantage',
+    venture: 'agency',
     status,
     product: amountUsd ? 'Offer' : null,
     amountUsd,
@@ -253,7 +253,7 @@ describe('journeyMeta', () => {
   ): FunnelJourney => ({
     id: 'jm',
     name: 'jm',
-    venture: 'vantage',
+    venture: 'agency',
     status,
     product: null,
     amountUsd: null,
@@ -361,7 +361,7 @@ describe('funnelSpaceModel', () => {
   ): FunnelJourney => ({
     id,
     name: id,
-    venture: 'launchpad-cohort',
+    venture: 'clientos',
     status,
     product: null,
     amountUsd: null,
@@ -456,7 +456,7 @@ describe('attentionQueue — what to act on today (AC55)', () => {
   ): FunnelJourney => ({
     id,
     name: id,
-    venture: 'vantage',
+    venture: 'agency',
     status: 'engaged',
     product: null,
     amountUsd: null,

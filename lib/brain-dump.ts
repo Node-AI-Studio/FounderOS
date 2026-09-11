@@ -14,7 +14,7 @@ export type BrainDumpInput = {
   text: string;
   title?: string;
   folder: string; // top-level brain-store folder, e.g. 'inbox' | 'ideas'
-  tags: string[]; // venture tags etc. — #vantage, #launchpad-cohort …
+  tags: string[]; // venture tags etc.: #agency, #clientos, #leadgenos
 };
 
 export type BrainDumpResult = { relPath: string; title: string };

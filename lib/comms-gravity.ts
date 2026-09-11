@@ -20,7 +20,7 @@ export const COMMS_LANES: { id: CommsLane; label: string }[] = [
 const PERSONAL_INBOX_RE = /\b(personal|gmail|icloud|proton|outlook|private|me)\b/i;
 
 // Generic work signals shipped with the app. The operator's real work brands
-// (Vantage, Launchpad Cohort, specific people, …) live in COMMS_WORK_KEYWORDS
+// (Node AI, ClientOS, specific people, ...) live in COMMS_WORK_KEYWORDS
 // in .env.local, NOT here — the committed default must stay brand-free so it is
 // safe for the public FounderOS demo.
 export const DEFAULT_WORK_KEYWORDS = [

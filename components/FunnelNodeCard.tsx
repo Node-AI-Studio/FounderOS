@@ -8,6 +8,7 @@
  * just icons). Status strip + touch trail keep the pipeline context, and the
  * last message exchanged is fetched live the moment the card pins.
  */
+import { getVenture } from '@/lib/ventures';
 import { useEffect, useState } from 'react';
 import { CHANNEL_GLYPHS, FUNNEL_STAGES, STALL_DAYS, type FunnelSpaceNode } from '@/lib/funnel';
 import { originOf } from '@/lib/funnel-radial';
@@ -102,7 +103,7 @@ export function FunnelNodeCard({ node, onClose }: { node: FunnelSpaceNode; onClo
             </div>
           )}
           <div className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-wide text-os-dim">
-            {node.venture === 'vantage' ? 'Vantage' : 'Launchpad Cohort'} · {stageLabel}
+            {getVenture(node.venture)?.label ?? node.venture} · {stageLabel}
             {dealDiffers ? ` · deal: ${node.name}` : ''}
           </div>
         </div>

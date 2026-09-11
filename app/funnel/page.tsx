@@ -17,7 +17,7 @@ import { lastMessageFor } from '@/lib/funnel-contact';
 import { cachedCommsFeed } from '@/lib/comms-feed-cache';
 import type { CommsItem } from '@/lib/comms';
 import { attioStatus } from '@/lib/connectors/attio';
-import { getVenture } from '@/lib/ventures';
+import { VENTURES, getVenture } from '@/lib/ventures';
 import { FunnelRadialLazy, FunnelSpaceLazy } from '@/components/FunnelGraphsLazy';
 import { Badge, SectionHead } from '@/components/terminal';
 import {
@@ -34,8 +34,7 @@ export const dynamic = 'force-dynamic';
 
 const VENTURE_TABS: { id: FunnelVenture | 'all'; label: string }[] = [
   { id: 'all', label: 'All clients' },
-  { id: 'vantage', label: 'Vantage' },
-  { id: 'launchpad-cohort', label: 'Launchpad Cohort' },
+  ...VENTURES.map((v) => ({ id: v.id as FunnelVenture, label: v.label })),
 ];
 
 function usd(amount: number): string {

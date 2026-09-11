@@ -11,17 +11,10 @@ import {
 } from '@/lib/finances';
 
 describe('incomeAccounts', () => {
-  test('lists every processor Alex runs (Stripe, PayPal, FanBasis×2, Wise×2)', () => {
+  test('lists every processor Node AI runs (Stripe, PayPal, Wise x2)', () => {
     const accounts = incomeAccounts({ connected: false, mtdUsd: null });
-    expect(accounts).toHaveLength(6);
-    expect(accounts.map((a) => a.id)).toEqual([
-      'stripe',
-      'paypal',
-      'fanbasis-vantage',
-      'fanbasis-lc',
-      'wise-1',
-      'wise-2',
-    ]);
+    expect(accounts).toHaveLength(4);
+    expect(accounts.map((a) => a.id)).toEqual(['stripe', 'paypal', 'wise-1', 'wise-2']);
   });
 
   test('Stripe goes live with its real month-to-date income when connected', () => {
@@ -50,7 +43,7 @@ describe('incomeAccounts', () => {
     expect(paypal.live).toBe(false); // but no real pull implemented yet
     expect(paypal.income).toBeNull(); // so never a faked number
     expect(accounts.find((a) => a.id === 'wise-1')!.configured).toBe(true);
-    expect(accounts.find((a) => a.id === 'fanbasis-lc')!.configured).toBe(false);
+    expect(accounts.find((a) => a.id === 'wise-2')!.configured).toBe(false);
   });
 
   test('stripe.configured defaults to its connection state', () => {
@@ -59,8 +52,8 @@ describe('incomeAccounts', () => {
   });
 
   test('a non-Stripe account goes live with real income when passed in liveIncomeUsd', () => {
-    const accounts = incomeAccounts({ connected: false, mtdUsd: null }, { 'fanbasis-lc': true }, { 'fanbasis-lc': 3400 });
-    const aa = accounts.find((a) => a.id === 'fanbasis-lc')!;
+    const accounts = incomeAccounts({ connected: false, mtdUsd: null }, { 'wise-2': true }, { 'wise-2': 3400 });
+    const aa = accounts.find((a) => a.id === 'wise-2')!;
     expect(aa.configured).toBe(true);
     expect(aa.live).toBe(true);
     expect(aa.income).toBe(3400);

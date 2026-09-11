@@ -1,5 +1,5 @@
 import { ArrowDownLeft, ArrowUpRight, Scale, Landmark, Send } from 'lucide-react';
-import { configuredProcessors, monthToDateIncome, stripeSnapshot, wiseOutgoing, fanbasisMonthToDateIncome } from '@/lib/connectors/payments';
+import { configuredProcessors, monthToDateIncome, stripeSnapshot, wiseOutgoing } from '@/lib/connectors/payments';
 import {
   incomeAccounts,
   totalIncome,
@@ -57,14 +57,8 @@ export default async function FinancesPage() {
   // Which processors have keys (honest config), so non-Stripe cards show
   // "key set · pull pending" vs "connect →" rather than a misleading live badge.
   const configuredMap = Object.fromEntries(configuredProcessors(process.env).map((p) => [p.id, p.configured]));
-  // Live FanBasis month-to-date income per account (null when unkeyed).
-  const [fbAa, fbMer] = await Promise.all([
-    fanbasisMonthToDateIncome(process.env.FANBASIS_LC_KEY).catch(() => null),
-    fanbasisMonthToDateIncome(process.env.FANBASIS_VANTAGE_KEY).catch(() => null),
-  ]);
+  // Non-Stripe accounts light up only when a real month-to-date pull exists.
   const liveIncomeUsd: Record<string, number> = {};
-  if (fbAa != null) liveIncomeUsd['fanbasis-lc'] = fbAa;
-  if (fbMer != null) liveIncomeUsd['fanbasis-vantage'] = fbMer;
   const accounts = incomeAccounts({ connected: stripeLive, mtdUsd }, configuredMap, liveIncomeUsd);
   // Outgoing Wise transfers — null (no Wise key) hides the section entirely.
   const wiseOut = await wiseOutgoing(process.env).catch(() => null);
