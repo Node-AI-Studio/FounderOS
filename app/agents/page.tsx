@@ -1,5 +1,6 @@
 import { getDb } from '@/lib/data';
 import { PageHeader } from '@/components/PageHeader';
+import { EmptyState } from '@/components/EmptyState';
 import { AgentChat } from '@/components/AgentChat';
 import { AgentsTabs } from '@/components/AgentsTabs';
 import { ConductorChat } from '@/components/ConductorChat';
@@ -160,6 +161,13 @@ export default function AgentsPage() {
       </div>
 
       <div className="space-y-8">
+        {agents.length === 0 ? (
+          <EmptyState
+            title="No agents in the roster"
+            detail="The agents table is empty; the demo seed is off. The runtime still has its agents and answers on /api/agents/<id>/run and /chat."
+            next="Phase 3.4 reads the roster from the encoded company folder."
+          />
+        ) : null}
         {departments.map((dept) => {
           const deptAgents = agents.filter((a) => a.departmentId === dept.id);
           if (deptAgents.length === 0) return null;

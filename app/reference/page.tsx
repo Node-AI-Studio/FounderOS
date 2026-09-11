@@ -1,5 +1,6 @@
 import { getDb } from '@/lib/data';
 import { PageHeader } from '@/components/PageHeader';
+import { EmptyState } from '@/components/EmptyState';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,13 @@ export default function ReferencePage() {
         eyebrow="operating domains"
         title="Reference Model"
       />
+      {domains.length === 0 ? (
+        <EmptyState
+          title="No operating domains"
+          detail="The domains table is empty; the demo seed is off."
+          next="Phase 3.1 decides the reference model for Node AI."
+        />
+      ) : (
       <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-4 ultra:grid-cols-6">
         {domains.map((domain) => (
           <div key={domain.id} className="hoverable rounded-lg-t border border-os-border bg-os-surface px-[17px] py-[15px]">
@@ -33,6 +41,7 @@ export default function ReferencePage() {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { getDb } from '@/lib/data';
 import { groupRoadmapByQuarter } from '@/lib/roadmap';
 import { PageHeader } from '@/components/PageHeader';
+import { EmptyState } from '@/components/EmptyState';
 import { Badge, SectionHead, type BadgeTone } from '@/components/terminal';
 import type { RoadmapStatus } from '@/lib/schemas';
 
@@ -29,6 +30,13 @@ export default function RoadmapPage() {
       {/* High-level functionality phases */}
       <section className="mb-9">
         <SectionHead label="Phases" count={phases.length} />
+        {phases.length === 0 ? (
+          <EmptyState
+            title="No phases"
+            detail="The phases table is empty; the demo seed is off."
+            next="Phase 3 writes real phases from the encoded company."
+          />
+        ) : (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 ultra:grid-cols-6">
           {phases.map((phase) => (
             <div key={phase.id} className="rounded-lg-t border border-os-border bg-os-surface px-[17px] py-[15px]">
@@ -47,10 +55,18 @@ export default function RoadmapPage() {
             </div>
           ))}
         </div>
+        )}
       </section>
 
       {/* Quarterly columns */}
       <SectionHead label="Quarter by quarter" />
+      {quarters.length === 0 ? (
+        <EmptyState
+          title="No roadmap items"
+          detail="The roadmap table is empty; the demo seed is off."
+          next="docs/roadmap.md is the plan until phase 3 loads it here."
+        />
+      ) : (
       <div className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-4 ultra:grid-cols-6">
         {quarters.map(({ quarter, items }) => {
           const doneN = items.filter((r) => r.status === 'done').length;
@@ -100,6 +116,7 @@ export default function RoadmapPage() {
           );
         })}
       </div>
+      )}
     </div>
   );
 }
