@@ -1,13 +1,12 @@
 import { CalendarDays, Hash, Mail, MessageSquare, type LucideIcon } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { CommsTabs } from '@/components/CommsTabs';
-import { gatherCommsFeed } from '@/lib/comms-feed';
+import { cachedCommsFeed, cachedWeekEvents } from '@/lib/comms-feed-cache';
+import { allConnectorStatuses } from '@/lib/connectors';
+import type { ConnectorStatus } from '@/lib/connectors/types';
 import { annotatePriorities } from '@/lib/comms';
 import { DEFAULT_WORK_KEYWORDS, parseWorkKeywords } from '@/lib/comms-gravity';
-import { emailStatus } from '@/lib/connectors/email';
-import { slackStatus } from '@/lib/connectors/slack';
-import { whatsappStatus } from '@/lib/connectors/whatsapp';
-import { calendarStatus, caldavAccounts, upcomingEvents } from '@/lib/connectors/gcal';
+import { caldavAccounts } from '@/lib/connectors/gcal';
 import { getDb } from '@/lib/data';
 import { Badge, Dot, SectionHead } from '@/components/terminal';
 
@@ -21,14 +20,19 @@ const SOURCE_ICON: Record<string, LucideIcon> = {
 };
 
 export default async function CommsPage() {
-  const [rawFeed, email, slack, whatsapp, calendar, weekEvents] = await Promise.all([
-    gatherCommsFeed(),
-    emailStatus(),
-    slackStatus(),
-    whatsappStatus(),
-    calendarStatus(),
-    upcomingEvents(undefined, { days: 7, limit: 200 }),
+  // Statuses come from the shared connector snapshot and the week strip from
+  // its own snapshot, so a warm render never logs into IMAP, Slack, or CalDAV.
+  const [rawFeed, statuses, weekEvents] = await Promise.all([
+    cachedCommsFeed(),
+    allConnectorStatuses(),
+    cachedWeekEvents(),
   ]);
+  const byId = new Map(statuses.map((s) => [s.id, s]));
+  const missing = (id: string): ConnectorStatus => ({ id, name: id, kind: 'email', state: 'not_configured', detail: 'not registered' });
+  const email = byId.get('email') ?? missing('email');
+  const slack = byId.get('slack') ?? missing('slack');
+  const whatsapp = byId.get('whatsapp') ?? missing('whatsapp');
+  const calendar = byId.get('calendar') ?? missing('calendar');
   const tags = getDb().contactTags.all();
   const feed = annotatePriorities(rawFeed, tags);
   // Generic defaults ship in code; Alex's real work brands live in
