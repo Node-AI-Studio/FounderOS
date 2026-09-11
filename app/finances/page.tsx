@@ -1,13 +1,7 @@
 import { ArrowDownLeft, ArrowUpRight, Scale, Landmark, Send } from 'lucide-react';
 import { configuredProcessors, monthToDateIncome, stripeSnapshot, wiseOutgoing } from '@/lib/connectors/payments';
-import {
-  incomeAccounts,
-  totalIncome,
-  totalExpenses,
-  expensesByCategory,
-  net,
-  SAMPLE_EXPENSES,
-} from '@/lib/finances';
+import { incomeAccounts, totalIncome, net } from '@/lib/finances';
+import { EmptyState } from '@/components/EmptyState';
 import { openLedger } from '@/lib/ledger';
 import { openBankStore } from '@/lib/bank';
 import { businessSeries } from '@/lib/bank-statements';
@@ -63,8 +57,8 @@ export default async function FinancesPage() {
   // Outgoing Wise transfers — null (no Wise key) hides the section entirely.
   const wiseOut = await wiseOutgoing(process.env).catch(() => null);
   const incomeMtd = totalIncome(accounts);
-  // Expenses from the uploaded statement ledger when present; seeded SAMPLE
-  // otherwise (honest "sample" vs "uploaded" label below).
+  // Expenses come from the uploaded statement ledger only; with no upload the
+  // cards read as unknown, never a placeholder figure.
   let ledgerSpend: { category: string; total: number }[] = [];
   let ledgerMonth: string | null = null;
   try {
@@ -89,9 +83,9 @@ export default async function FinancesPage() {
   const monthLabel = ledgerMonth
     ? new Date(`${ledgerMonth}-01T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' })
     : null;
-  const byCategory = expensesLive ? ledgerSpend : expensesByCategory(SAMPLE_EXPENSES);
-  const expenses = expensesLive ? ledgerSpend.reduce((s, c) => s + c.total, 0) : totalExpenses(SAMPLE_EXPENSES);
-  const netMonthly = net(incomeMtd, expenses);
+  const byCategory = expensesLive ? ledgerSpend : [];
+  const expenses = expensesLive ? ledgerSpend.reduce((s, c) => s + c.total, 0) : null;
+  const netMonthly = expenses == null ? null : net(incomeMtd, expenses);
   const liveCount = accounts.filter((a) => a.live).length;
   const maxAccount = Math.max(...accounts.map((a) => a.income ?? 0), 1);
   const maxCategory = Math.max(...byCategory.map((c) => c.total), 1);
@@ -102,9 +96,8 @@ export default async function FinancesPage() {
         eyebrow="every processor, one view"
         title="Finances"
         right={
-          <Badge tone={netMonthly >= 0 ? 'ok' : 'err'}>
-            {netMonthly >= 0 ? '+' : '−'}
-            {usd(Math.abs(netMonthly))} net /mo
+          <Badge tone={netMonthly == null ? 'default' : netMonthly >= 0 ? 'ok' : 'err'}>
+            {netMonthly == null ? 'net unknown · no statement' : `${netMonthly >= 0 ? '+' : '−'}${usd(Math.abs(netMonthly))} net /mo`}
           </Badge>
         }
       />
@@ -132,11 +125,11 @@ export default async function FinancesPage() {
             <ArrowUpRight className="h-3 w-3 text-os-err" strokeWidth={1.8} />
           </div>
           <div className="flex items-baseline justify-between gap-2">
-            <span className="font-mono text-[16px] font-semibold leading-none tracking-[-0.02em]">{usd(expenses)}</span>
+            <span className="font-mono text-[16px] font-semibold leading-none tracking-[-0.02em]">{expenses == null ? '—' : usd(expenses)}</span>
             <span
-              className={`min-w-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] ${expensesLive ? 'text-os-ok' : 'text-os-warn'}`}
+              className={`min-w-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] ${expensesLive ? 'text-os-ok' : 'text-os-dim'}`}
             >
-              {expensesLive ? `uploaded · ${monthLabel}` : 'sample'}
+              {expensesLive ? `uploaded · ${monthLabel}` : 'upload a statement'}
             </span>
           </div>
         </div>
@@ -148,10 +141,9 @@ export default async function FinancesPage() {
           </div>
           <div className="flex items-baseline justify-between gap-2">
             <span
-              className={`font-mono text-[16px] font-semibold leading-none tracking-[-0.02em] ${netMonthly >= 0 ? 'text-os-ok' : 'text-os-err'}`}
+              className={`font-mono text-[16px] font-semibold leading-none tracking-[-0.02em] ${netMonthly == null ? 'text-os-dim' : netMonthly >= 0 ? 'text-os-ok' : 'text-os-err'}`}
             >
-              {netMonthly >= 0 ? '' : '−'}
-              {usd(Math.abs(netMonthly))}
+              {netMonthly == null ? '—' : `${netMonthly >= 0 ? '' : '−'}${usd(Math.abs(netMonthly))}`}
             </span>
             <span className="min-w-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-os-dim">in − out</span>
           </div>
@@ -190,19 +182,29 @@ export default async function FinancesPage() {
       <section className="mb-5">
         <SectionHead
           label="Monthly expenses · by category"
-          count={expensesLive && monthLabel ? `${usd(expenses)} · ${monthLabel}` : `${usd(expenses)} /mo`}
+          count={expensesLive && monthLabel && expenses != null ? `${usd(expenses)} · ${monthLabel}` : 'no statement uploaded'}
         />
         <div className="grid items-stretch gap-3.5 lg:grid-cols-[1.15fr_1fr_0.85fr]">
-          {/* where the money goes — share per category */}
+          {expensesLive ? (
           <SharePie
             items={byCategory.map((c) => ({ key: c.category, label: c.category, value: Math.round(c.total * 100) }))}
-            total={Math.round(expenses * 100)}
+            total={Math.round((expenses ?? 0) * 100)}
             centerLabel={expensesLive && monthLabel ? monthLabel : 'per month'}
             format={(cents) => usd(cents / 100)}
             donutPx={190}
             ariaLabel="Monthly expenses by category"
           />
+          ) : (
+            <div className="lg:col-span-2">
+              <EmptyState
+                title="No expenses recorded"
+                detail="Nothing has been uploaded; there is no placeholder ledger."
+                next="Drop a credit-card CSV or bank statement PDF on the right."
+              />
+            </div>
+          )}
 
+          {expensesLive ? (
           <div className="rounded-lg-t border border-os-border bg-os-surface p-4">
             <div className="flex flex-col gap-2.5">
               {byCategory.map((c) => (
@@ -218,8 +220,9 @@ export default async function FinancesPage() {
               ))}
             </div>
           </div>
+          ) : null}
 
-          {/* Statement ingestion — upload a CSV to replace the sample figures */}
+          {/* Statement ingestion: upload a CSV or PDF to fill the ledger */}
           <StatementUploader />
         </div>
       </section>

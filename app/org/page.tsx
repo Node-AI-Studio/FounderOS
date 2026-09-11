@@ -188,7 +188,7 @@ export default function OrgChartPage({ searchParams }: { searchParams?: { ventur
           <ConductorCard conductor={conductor} agentNames={agentNames} initialBroadcast={lastBroadcast} />
         ) : (
           <div className="rounded-xl border border-dashed border-os-border px-6 py-4 text-xs text-os-dim">
-            conductor missing — run npm run seed
+            no conductor row in the agents table (the roster loads in phase 3.4)
           </div>
         )}
         <div className="hidden h-px w-10 bg-os-border-bright md:block" />

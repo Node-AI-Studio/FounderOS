@@ -7,7 +7,6 @@ import {
   net,
   monthStartUnix,
   sumChargeIncome,
-  SAMPLE_EXPENSES,
 } from '@/lib/finances';
 
 describe('incomeAccounts', () => {
@@ -85,11 +84,6 @@ describe('expenses', () => {
       { category: 'Advertising', total: 100 },
       { category: 'Software', total: 50 },
     ]);
-  });
-
-  test('SAMPLE_EXPENSES is a non-empty set of positive recurring costs', () => {
-    expect(SAMPLE_EXPENSES.length).toBeGreaterThan(0);
-    expect(SAMPLE_EXPENSES.every((e) => e.monthly > 0)).toBe(true);
   });
 });
 
