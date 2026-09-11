@@ -108,7 +108,7 @@ most.
   retainers, products such as ClientOS and LeadGenOS). Done when the funnel
   page filter shows our names. Verify: `tests/funnel*.test.ts` green after the
   rename.
-- [ ] **2.5 Close the webhook.** `/api/webhooks/manychat` is outside the auth
+- [x] **2.5 Close the webhook.** Done 2026-09-11, PR #24. `/api/webhooks/manychat` is outside the auth
   gate and accepts anything when the secret is blank. Make a blank secret a
   503, use `safeEqual`, and drop the unauthenticated GET. Done when the new
   test for the blank-secret case passes.
