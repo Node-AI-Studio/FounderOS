@@ -19,7 +19,10 @@ NEXT_DIST_DIR=.next-prod NEXT_TELEMETRY_DISABLED=1 npm run build
 mkdir -p "$HOME/Library/LaunchAgents"
 cp "$PLIST_SRC" "$PLIST_DST"
 launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
-launchctl bootstrap "gui/$(id -u)" "$PLIST_DST"
+# bootout returns before the old job is fully gone; an immediate bootstrap then
+# fails with "Input/output error" (seen 2026-09-11). Wait, and retry once.
+sleep 3
+launchctl bootstrap "gui/$(id -u)" "$PLIST_DST" || { sleep 3; launchctl bootstrap "gui/$(id -u)" "$PLIST_DST"; }
 launchctl kickstart -k "gui/$(id -u)/$LABEL"
 
 for i in $(seq 1 30); do
