@@ -125,13 +125,13 @@ most.
   the gateway on chat and on any run that calls the model. Done when a real
   chat produces a non-null `costUsd` row.
 
-- [ ] **2.9 Remove the sample data that lives in code.** The page walk after
+- [x] **2.9 Remove the sample data that lives in code.** Done 2026-09-11, PR #31. The page walk after
   2.1 found dummy data the seed never owned: `/social` falls back to five
   sample posts with invented views and likes when Zernio has no history,
   `/finances` charges a $3,946 sample expense ledger (`lib/finances.ts`), and
   `/org` tells the operator to run `npm run seed`. Replace each with an empty
-  state. Done when `grep -rn "sample" app lib components` returns only the
-  statement-upload copy.
+  state. Done when `grep -rniw sample app lib components` returns nothing
+  (guarded by `tests/no-sample-data.test.ts`).
 
 Pages walked on the production server after the seed came off (2026-09-11).
 Every page returned 200 with no demo mark. What is blank, and what fills it:

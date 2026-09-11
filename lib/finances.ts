@@ -1,7 +1,7 @@
 /**
  * Finances domain — pure, real-ready. Income flows through a processor/account
  * registry (Stripe wired today; PayPal, FanBasis ×2, Wise ×2 are honest pending
- * slots until their keys land). Expenses are seeded SAMPLE data until the
+ * slots until their keys land). Expenses come from uploaded statements; until the
  * statement-ingestion engine (Phase 2) replaces them with parsed bank/CC rows.
  *
  * No faked money: an unwired account reports null income, never a zero that
@@ -74,33 +74,10 @@ export function totalIncome(accounts: IncomeAccount[]): number {
   return accounts.reduce((sum, a) => sum + (a.income ?? 0), 0);
 }
 
-// ── Expenses: seeded sample until statement ingestion lands (Phase 2) ────────
+// Expenses come from the uploaded statement ledger (lib/ledger.ts); there is
+// no placeholder set. An empty ledger renders as an empty state.
 
 export type ExpenseItem = { id: string; label: string; category: string; monthly: number };
-
-/**
- * Placeholder recurring spend for an AI-operator / agency stack. Clearly a
- * SAMPLE in the UI — gets replaced by real parsed transactions once monthly
- * bank + credit-card statement uploads are wired.
- */
-export const SAMPLE_EXPENSES: ExpenseItem[] = [
-  { id: 'claude', label: 'Anthropic · Claude Max', category: 'Software', monthly: 200 },
-  { id: 'openai', label: 'OpenAI · ChatGPT', category: 'Software', monthly: 20 },
-  { id: 'cursor', label: 'Cursor', category: 'Software', monthly: 20 },
-  { id: 'higgsfield', label: 'Higgsfield', category: 'Software', monthly: 39 },
-  { id: 'elevenlabs', label: 'ElevenLabs', category: 'Software', monthly: 22 },
-  { id: 'figma', label: 'Figma', category: 'Software', monthly: 15 },
-  { id: 'notion', label: 'Notion', category: 'Software', monthly: 10 },
-  { id: 'wispr', label: 'Wispr Flow', category: 'Software', monthly: 15 },
-  { id: 'vercel', label: 'Vercel Pro', category: 'Infrastructure', monthly: 20 },
-  { id: 'supabase', label: 'Supabase', category: 'Infrastructure', monthly: 25 },
-  { id: 'domains', label: 'Domains & DNS', category: 'Infrastructure', monthly: 12 },
-  { id: 'attio', label: 'Attio', category: 'CRM & Revenue', monthly: 29 },
-  { id: 'fathom', label: 'Fathom', category: 'CRM & Revenue', monthly: 19 },
-  { id: 'meta-ads', label: 'Meta Ads', category: 'Advertising', monthly: 1500 },
-  { id: 'editor', label: 'Video editor (contract)', category: 'Contractors', monthly: 1200 },
-  { id: 'va', label: 'Virtual assistant', category: 'Contractors', monthly: 800 },
-];
 
 /** Sum of every recurring monthly cost. */
 export function totalExpenses(items: ExpenseItem[]): number {
