@@ -47,10 +47,6 @@ const CHECKS: [string, ConnectorStatus['kind'], () => Promise<ConnectorStatus>][
   ['notion', 'notion', () => notionStatus(runtimeEnv())],
 ];
 
-/** Every connector id the board can report on. A catalog tile may only point
- *  at one of these (tests/integrations-catalog.test.ts enforces it). */
-export const CONNECTOR_IDS: readonly string[] = CHECKS.map(([id]) => id);
-
 async function runAllChecks(): Promise<ConnectorStatus[]> {
   return Promise.all(
     CHECKS.map(([id, kind, check]) =>

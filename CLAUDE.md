@@ -79,7 +79,8 @@ rings + live `gbrain ›` query card + doctor warnings, with the original
 capture / life-map / pipeline / graph / query-path sections kept underneath) ·
 `/roadmap` phases + quarters · `/analytics` real connector numbers ·
 `/funnel` living client-journey flow (stage columns left to right, one
-node per client, touch markers per path; Attio live, local table otherwise) ·
+node per client, touch markers per path; Attio and GHL live, local table
+otherwise; Trakyo and Meta Ads status-only until their APIs are wired) ·
 `/reference` reference model · `/integrations` live connections board. Chrome:
 fixed `Sidebar` (Operate/System groups) + sticky `Topbar` (breadcrumb + ⌘K) +
 `CommandPalette` (⌘K, digit-key view jumps). API routes mirror these under

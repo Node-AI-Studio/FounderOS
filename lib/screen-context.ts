@@ -10,6 +10,7 @@ import { NAV_AGENTS, NAV_INTELLIGENCE, NAV_LIBRARY, NAV_OPERATE, NAV_SYSTEM } fr
 import { getDb } from '@/lib/data';
 import { funnelSummary, journeyMeta, splitFunnelJourneys, FUNNEL_STAGES } from '@/lib/funnel';
 import { attioFunnelJourneys } from '@/lib/funnel-live';
+import { ghlFunnelJourneys } from '@/lib/funnel-ghl';
 
 const ALL_NAV = [...NAV_OPERATE, ...NAV_AGENTS, ...NAV_INTELLIGENCE, ...NAV_SYSTEM, ...NAV_LIBRARY];
 
@@ -46,8 +47,8 @@ export function describeFunnelContext(d: FunnelContextInput): string {
 
 async function funnelContext(): Promise<string> {
   const now = new Date();
-  const attioLive = await attioFunnelJourneys(now);
-  const live = attioLive?.journeys ?? [];
+  const [attioLive, ghlLive] = await Promise.all([attioFunnelJourneys(now), ghlFunnelJourneys(now)]);
+  const live = [...(attioLive?.journeys ?? []), ...(ghlLive?.journeys ?? [])];
   const all = live.length > 0 ? live : getDb().funnel.journeys();
   const { active, archived } = splitFunnelJourneys(all, now);
   const summary = funnelSummary(active);
@@ -63,7 +64,15 @@ async function funnelContext(): Promise<string> {
     const label = FUNNEL_STAGES.find((s) => s.id === j.status)?.label ?? j.status;
     stageCounts.set(label, (stageCounts.get(label) ?? 0) + 1);
   }
-  const sources = live.length > 0 ? `Attio ${attioLive?.total ?? live.length} (live)` : 'local table';
+  const sources =
+    live.length > 0
+      ? [
+          attioLive?.journeys.length ? `Attio ${attioLive.total}` : null,
+          ghlLive?.journeys.length ? `GHL ${ghlLive.total}` : null,
+        ]
+          .filter(Boolean)
+          .join(' + ') + ' (live)'
+      : 'seeded demo data';
   return describeFunnelContext({
     clients: summary.clients,
     converted: summary.converted,

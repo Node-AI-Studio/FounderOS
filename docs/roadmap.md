@@ -92,7 +92,7 @@ most.
   empty. That list is the real backlog. Done when the local DB holds no row
   with an id starting `seed-` and no name from `lib/seed.ts`. Verify:
   `sqlite3 data/founder-os.db "select count(*) from agent_runs where id like 'seed-%'"` is 0.
-- [x] **2.2 Delete the four lying tiles.** Done 2026-09-11, PR #25. Six more tiles whose connectors were never registered (ManyChat, Beehiiv, Zernio, WebinarJam, Miro, Arcads) lost their `connectorId`. Meta Ads, Trakyo, GoHighLevel report
+- [ ] **2.2 Delete the four lying tiles.** Shipped as PR #25 and reverted the same day in PR #33 at Cristoforo's request: those integrations will probably be built later, so the modules, tiles and seed rows stay. Revisit when they are wired for real. Meta Ads, Trakyo, GoHighLevel report
   connected without a network call; Skool is seeded connected with no
   connector. Remove the tiles, the seed rows, and the two venture-specific
   connectors. Done when `/integrations` shows only connectors with a real
@@ -259,6 +259,7 @@ Only after phase 3 exists, because the folder is what would be sold.
 | Date | Decision |
 |---|---|
 | 2026-09-10 | Keep the 44 unwired catalog tiles for now (Cristoforo). Revisit in 2.3. |
+| 2026-09-11 | PR #25 (delete Meta Ads, Trakyo, GoHighLevel, Skool) reverted in PR #33: Cristoforo wants those integrations kept because they will probably be built later. Their status functions still report connected on a key alone; that is the known cost until they are wired. |
 | 2026-09-11 | The 44 unwired tiles stay listed but offer no Connect button (task 2.3): a key nothing reads is not a connection. Which of them to wire this quarter is still Cristoforo's call. |
 | 2026-09-10 | Persistent URL via launchd and Tailscale, not a container host yet. |
 | 2026-09-10 | `main` is protected: PR with green `verify` and one review. Admin enforcement is off, so founders merge their own PRs with `gh pr merge --admin` under personal accounts; agent PRs need the check and a human approval. |
