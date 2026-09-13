@@ -1,5 +1,6 @@
 import type { Department, Person } from '@/lib/schemas';
 import type { RosterEntry } from './types';
+import { GROWTH } from './growth';
 
 export { DEPT } from './types';
 export { toAgent } from './types';
@@ -30,7 +31,7 @@ export const PEOPLE: Person[] = [
 ];
 
 // Filled by Tasks 2 to 8: one import per pillar, concatenated in pillar order.
-export const ROSTER: RosterEntry[] = [];
+export const ROSTER: RosterEntry[] = [...GROWTH];
 
 export function rosterById(id: string): RosterEntry | undefined {
   return ROSTER.find((e) => e.id === id);
