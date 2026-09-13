@@ -47,18 +47,17 @@ function ventureColor(id: FunnelVenture): string {
   return getVenture(id)?.color ?? 'var(--accent)';
 }
 
-/** Compact source check: ✓ when connected, ○ when pending — detail on hover. */
-function SourceCheck({ status, live, count }: { status: ConnectorStatus; live?: boolean; count?: number }) {
+/** Compact source check: connected or pending, detail on hover. */
+function SourceCheck({ status }: { status: ConnectorStatus }) {
   const ok = status.state === 'connected';
   return (
     <span
       title={status.detail}
       className={`inline-flex items-center gap-1 font-mono text-[9.5px] uppercase tracking-[0.12em] ${
-        ok ? (live ? 'text-os-ok' : 'text-os-muted') : 'text-os-dim'
+        ok ? 'text-os-muted' : 'text-os-dim'
       }`}
     >
       {ok ? '✓' : '○'} {status.name}
-      {live && count != null ? ` ${count}` : ''}
     </span>
   );
 }

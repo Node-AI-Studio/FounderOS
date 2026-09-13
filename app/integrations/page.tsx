@@ -1,6 +1,6 @@
 import { allConnectorStatuses } from '@/lib/connectors';
 import { readEnvLocal } from '@/lib/creds';
-import { connectionCatalog, integrationsByCategory, type CatalogEntry } from '@/lib/integrations-catalog';
+import { connectionCatalog, integrationsByCategory, visibleIntegrations, type CatalogEntry } from '@/lib/integrations-catalog';
 import { PageHeader } from '@/components/PageHeader';
 import { ApiKeys } from '@/components/ApiKeys';
 import { SectionHead } from '@/components/terminal';
@@ -13,7 +13,7 @@ const GRID = 'grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4';
 
 export default async function ConnectionsPage() {
   const statuses = await allConnectorStatuses();
-  const catalog = connectionCatalog(statuses, readEnvLocal());
+  const catalog = connectionCatalog(statuses, readEnvLocal(), visibleIntegrations());
   const detailByConnector = new Map(statuses.map((s) => [s.id, s.detail]));
   const guidanceFor = (entry: CatalogEntry) =>
     entry.connectorId ? detailByConnector.get(entry.connectorId) : undefined;
@@ -21,7 +21,7 @@ export default async function ConnectionsPage() {
   const byId = new Map(catalog.map((c) => [c.slug, c]));
   const connected = catalog.filter((c) => c.connected);
   const popular = catalog.filter((c) => c.popular);
-  const categories = [...integrationsByCategory().entries()];
+  const categories = [...integrationsByCategory(visibleIntegrations()).entries()];
 
   return (
     <div>

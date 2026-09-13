@@ -4,10 +4,7 @@ import { getDb } from '@/lib/data';
 import { buildSocialDashboard, syncFromZernioConfig, audienceGrowthPct, PLATFORM_LABELS } from '@/lib/social';
 import { agentRunVolume, runsWithin } from '@/lib/analytics';
 import { splitMetrics, type MetricInput, type MetricTile } from '@/lib/operating-metrics';
-import { attioStatus } from '@/lib/connectors/attio';
-import { wisprStatus } from '@/lib/connectors/wispr';
 import { readStoreNotes } from '@/lib/connectors/gbrain';
-import { stripeSnapshot } from '@/lib/connectors/payments';
 import { unreadCounts } from '@/lib/connectors/email';
 import { beehiivSubscribers } from '@/lib/connectors/beehiiv';
 import type { SocialPlatform } from '@/lib/schemas';
@@ -167,18 +164,18 @@ export default async function AnalyticsPage() {
   const audience7d = audienceGrowthPct(db, 7);
 
   // Live reads from the wired connectors (parallel; each degrades to pending).
-  const [attio, wispr, stripe, emailUnread, subs] = await Promise.all([
-    attioStatus().catch(() => null),
-    wisprStatus().catch(() => null),
-    stripeSnapshot().catch(() => null),
+  const [emailUnread, subs] = await Promise.all([
     unreadCounts()
       .then((cs) => cs.reduce((sum, c) => sum + c.unread, 0))
       .catch(() => null),
     beehiivSubscribers().catch(() => null),
   ]);
-  const pipelineDeals = attio?.state === 'connected' ? Number(attio.meta?.deals ?? 0) : null;
-  const dictations = wispr?.state === 'connected' ? Number(wispr.meta?.dictations ?? 0) : null;
-  const stripeAvail = stripe ? Math.round((stripe.available[0]?.amount ?? 0) / 100) : null;
+  // Shopify orders, Meta Ads spend, and Amazon units have no keys wired for
+  // this demo board. Honest pending, never a number borrowed from another
+  // connector.
+  const orders7d: number | null = null;
+  const adSpend7d: number | null = null;
+  const amazonUnits7d: number | null = null;
   let brainPages = 0;
   try {
     brainPages = readStoreNotes().length;
@@ -198,12 +195,12 @@ export default async function AnalyticsPage() {
       deltaPct: audience7d != null,
     },
     { id: 'subscribers', label: 'Subscribers', unit: 'subs', source: 'Klaviyo', value: subs },
-    { id: 'pipeline', label: 'Open Pipeline', unit: 'deals', source: 'Attio', value: pipelineDeals },
-    { id: 'stripe', label: 'Stripe Available', unit: 'usd', source: 'Stripe', value: stripeAvail },
+    { id: 'orders', label: 'Orders (7d)', unit: 'orders', source: 'Shopify', value: orders7d },
+    { id: 'ad-spend', label: 'Ad spend (7d)', unit: 'usd', source: 'Meta Ads', value: adSpend7d },
     { id: 'agent-runs', label: 'Agent Runs', unit: 'runs', source: 'all time', value: runs.length || null, delta: runs7d },
     { id: 'unread', label: 'Unread · all inboxes', unit: 'emails', source: 'Email', value: emailUnread },
     { id: 'brain', label: 'Brain-store Pages', unit: 'pages', source: 'GBrain', value: brainPages },
-    { id: 'dictations', label: 'Dictations', unit: 'dictations', source: 'Wispr Flow', value: dictations },
+    { id: 'amazon-units', label: 'Amazon units (7d)', unit: 'units', source: 'Amazon Seller Central', value: amazonUnits7d },
   ];
   const { live, pending } = splitMetrics(inputs);
 

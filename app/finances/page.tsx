@@ -1,5 +1,5 @@
-import { ArrowDownLeft, ArrowUpRight, Scale, Landmark, Send } from 'lucide-react';
-import { configuredProcessors, monthToDateIncome, stripeSnapshot, wiseOutgoing, fanbasisMonthToDateIncome } from '@/lib/connectors/payments';
+import { ArrowDownLeft, ArrowUpRight, Scale, Landmark } from 'lucide-react';
+import { configuredProcessors } from '@/lib/connectors/payments';
 import {
   incomeAccounts,
   totalIncome,
@@ -31,43 +31,14 @@ function ago(unix: number): string {
 }
 
 export default async function FinancesPage() {
-  const stripeKeyed = configuredProcessors(process.env).some((p) => p.id === 'stripe' && p.configured);
+  // Shopify Payments has no key wired for this demo board. Honest pending,
+  // never a borrowed number from an inherited connector that isn't Helight's.
+  const recent: { amount: number; currency: string; description: string; created: number }[] = [];
 
-  // Stripe is only "live" when the API actually answers — a present-but-invalid
-  // key (or a server env missing it) stays honest pending, never a fake live.
-  let stripeLive = false;
-  let mtdUsd: number | null = null;
-  let available = 0;
-  let pending = 0;
-  let recent: { amount: number; currency: string; description: string; created: number }[] = [];
-  if (stripeKeyed) {
-    const [mtd, snap] = await Promise.all([
-      monthToDateIncome().catch(() => null),
-      stripeSnapshot().catch(() => null),
-    ]);
-    if (snap) {
-      stripeLive = true;
-      available = (snap.available[0]?.amount ?? 0) / 100;
-      pending = (snap.pending[0]?.amount ?? 0) / 100;
-      recent = snap.recentCharges;
-    }
-    mtdUsd = mtd ? mtd.amountCents / 100 : null;
-  }
-
-  // Which processors have keys (honest config), so non-Stripe cards show
+  // Which processors have keys (honest config), so non-Shopify cards show
   // "key set · pull pending" vs "connect →" rather than a misleading live badge.
   const configuredMap = Object.fromEntries(configuredProcessors(process.env).map((p) => [p.id, p.configured]));
-  // Live FanBasis month-to-date income per account (null when unkeyed).
-  const [fbAa, fbMer] = await Promise.all([
-    fanbasisMonthToDateIncome(process.env.FANBASIS_LC_KEY).catch(() => null),
-    fanbasisMonthToDateIncome(process.env.FANBASIS_VANTAGE_KEY).catch(() => null),
-  ]);
-  const liveIncomeUsd: Record<string, number> = {};
-  if (fbAa != null) liveIncomeUsd['fanbasis-lc'] = fbAa;
-  if (fbMer != null) liveIncomeUsd['fanbasis-vantage'] = fbMer;
-  const accounts = incomeAccounts({ connected: stripeLive, mtdUsd }, configuredMap, liveIncomeUsd);
-  // Outgoing Wise transfers — null (no Wise key) hides the section entirely.
-  const wiseOut = await wiseOutgoing(process.env).catch(() => null);
+  const accounts = incomeAccounts({ connected: false, mtdUsd: null }, configuredMap);
   const incomeMtd = totalIncome(accounts);
   // Expenses from the uploaded statement ledger when present; seeded SAMPLE
   // otherwise (honest "sample" vs "uploaded" label below).
@@ -169,11 +140,9 @@ export default async function FinancesPage() {
             <Landmark className="h-3 w-3 text-os-accent" strokeWidth={1.8} />
           </div>
           <div className="flex items-baseline justify-between gap-2">
-            <span className="font-mono text-[16px] font-semibold leading-none tracking-[-0.02em]">
-              {stripeLive ? usd(available, true) : '—'}
-            </span>
+            <span className="font-mono text-[16px] font-semibold leading-none tracking-[-0.02em]">—</span>
             <span className="min-w-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-os-dim">
-              {stripeLive ? `${usd(pending, true)} pending` : 'connect Shopify Payments'}
+              connect Shopify Payments
             </span>
           </div>
         </div>
@@ -269,38 +238,11 @@ export default async function FinancesPage() {
         </div>
       </section>
 
-      {/* Outgoing transfers — Wise (hidden entirely until a Wise key lands) */}
-      {wiseOut && (
-        <section className="mb-5">
-          <SectionHead label="Outgoing · Wise" count={`${wiseOut.length} transfer${wiseOut.length === 1 ? '' : 's'}`} />
-          {wiseOut.length === 0 ? (
-            <div className="rounded-lg-t border border-os-border bg-os-surface px-4 py-3 font-mono text-[11px] text-os-dim">
-              Wise connected · no recent outgoing transfers
-            </div>
-          ) : (
-            <ul className="space-y-1.5">
-              {wiseOut.map((t, i) => (
-                <li
-                  key={`${t.created}-${i}`}
-                  className="hoverable flex items-center gap-3.5 rounded-lg-t border border-os-border bg-os-surface px-4 py-3"
-                >
-                  <Send className="h-[15px] w-[15px] shrink-0 text-os-err" strokeWidth={1.8} />
-                  <span className="font-mono text-[15px] font-semibold text-os-err">
-                    −{(t.amountCents / 100).toLocaleString('en-US', { style: 'currency', currency: t.currency })}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-os-muted">{t.reference ?? t.status}</span>
-                  <span className="shrink-0 font-mono text-[11px] text-os-dim">{t.status}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
-
-      {/* Recent income — real Stripe charges */}
-      {stripeLive && recent.length > 0 && (
+      {/* Recent income: no live processor wired for this demo, stays honest
+          pending (empty) rather than borrowing a number from another connector. */}
+      {recent.length > 0 && (
         <section>
-          <SectionHead label="Recent income" count="Stripe · live" />
+          <SectionHead label="Recent income" count="seeded" />
           <ul className="space-y-1.5">
             {recent.map((c, i) => (
               <li

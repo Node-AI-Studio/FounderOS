@@ -42,7 +42,6 @@ const NAV_COMMANDS: Command[] = [
   { id: 'ext-tiktok-ads', label: 'TikTok Ads Manager', keywords: 'tiktok ads campaigns shop', href: 'https://ads.tiktok.com', hint: 'web' },
   { id: 'ext-google-ads', label: 'Google Ads', keywords: 'search shopping pmax', href: 'https://ads.google.com', hint: 'web' },
   { id: 'ext-amazon', label: 'Amazon Seller Central', keywords: 'amazon listing reviews payouts', href: 'https://sellercentral.amazon.com', hint: 'web' },
-  { id: 'ext-remotion', label: 'Remotion Studio', keywords: 'video render pipeline port 3789', href: 'http://localhost:3789', hint: 'localhost' },
 ];
 
 function buildCommands(): Command[] {

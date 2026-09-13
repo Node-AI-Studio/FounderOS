@@ -1,4 +1,4 @@
-import { CalendarDays, Hash, Mail, MessageSquare, type LucideIcon } from 'lucide-react';
+import { CalendarDays, Hash, Mail, type LucideIcon } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { CommsTabs } from '@/components/CommsTabs';
 import { cachedCommsFeed, cachedWeekEvents } from '@/lib/comms-feed-cache';
@@ -13,7 +13,6 @@ import { Badge, Dot, SectionHead } from '@/components/terminal';
 export const dynamic = 'force-dynamic';
 
 const SOURCE_ICON: Record<string, LucideIcon> = {
-  whatsapp: MessageSquare,
   email: Mail,
   slack: Hash,
   calendar: CalendarDays,
@@ -31,7 +30,6 @@ export default async function CommsPage() {
   const missing = (id: string): ConnectorStatus => ({ id, name: id, kind: 'email', state: 'not_configured', detail: 'not registered' });
   const email = byId.get('email') ?? missing('email');
   const slack = byId.get('slack') ?? missing('slack');
-  const whatsapp = byId.get('whatsapp') ?? missing('whatsapp');
   const calendar = byId.get('calendar') ?? missing('calendar');
   const tags = getDb().contactTags.all();
   const feed = annotatePriorities(rawFeed, tags);
@@ -40,7 +38,7 @@ export default async function CommsPage() {
   const workKeywords = [...DEFAULT_WORK_KEYWORDS, ...parseWorkKeywords(process.env.COMMS_WORK_KEYWORDS)];
   const calLegend = caldavAccounts().map((a) => ({ name: a.name, color: a.color }));
   const nowISO = new Date().toISOString();
-  const sources = [whatsapp, email, slack, calendar];
+  const sources = [email, slack, calendar];
   const connectedSources = sources.filter((s) => s.state === 'connected').length;
   const totalUnread = feed.reduce((sum, item) => sum + (item.unread ?? 0), 0);
 
@@ -85,7 +83,7 @@ export default async function CommsPage() {
       <CommsTabs feed={feed} tags={tags} events={weekEvents} accounts={calLegend} nowISO={nowISO} workKeywords={workKeywords} />
 
       <p className="mt-4 rounded-md-t border border-dashed border-os-border-strong px-3 py-3 text-center font-mono text-[10.5px] text-os-dim">
-        WhatsApp · 4 inboxes · Slack live · calendar via CalDAV — one operator feed
+        Contact form and inbox, Slack, calendar: one operator feed
       </p>
     </div>
   );
