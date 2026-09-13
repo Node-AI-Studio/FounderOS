@@ -67,7 +67,7 @@ async function runAllChecks(): Promise<ConnectorStatus[]> {
 // Ads, TikTok Ads, Google Ads, Amazon Seller Central; Zernio, Arcads,
 // Remotion, Higgsfield, Claude Code). Hidden from the Helight board — never
 // deleted, the connector modules and their checks stay in the repo.
-const HIDDEN_CONNECTORS = new Set(['whatsapp', 'attio', 'wispr', 'obsidian', 'paperclip', 'payments']);
+const HIDDEN_CONNECTORS = new Set(['whatsapp', 'attio', 'wispr', 'obsidian', 'paperclip', 'payments', 'notion']);
 
 // One cache per server process. Pages read it instantly; a background refresh
 // runs once the snapshot is older than the TTL. Tests that want live results

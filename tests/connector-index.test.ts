@@ -46,4 +46,5 @@ test('allConnectorStatuses hides connectors outside Helight\'s stack from the ag
   expect(ids).not.toContain('wispr');
   expect(ids).not.toContain('obsidian');
   expect(ids).not.toContain('payments');
+  expect(ids).not.toContain('notion');
 });
