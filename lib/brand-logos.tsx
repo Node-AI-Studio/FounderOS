@@ -62,9 +62,11 @@ const LETTERMARK: Record<string, string> = {
   manychat: '#0084FF',
   skool: '#E4573D',
   'proposal-gen': '#00764f',
-  apify: '#97D700',
-  klaviyo: '#FA6423',
-  remotion: '#E4364B',
+  // Unverified against each brand's real kit, so these use the neutral
+  // fallback (same as paperclip) rather than an invented color.
+  apify: '#8a8f98',
+  klaviyo: '#8a8f98',
+  remotion: '#8a8f98',
   // G-Brain isn't a third-party brand, so it borrows the violet the brain
   // visualization already uses (--brain-1 in app/globals.css) instead of an
   // arbitrary color.

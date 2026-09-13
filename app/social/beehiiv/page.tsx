@@ -28,20 +28,20 @@ export default async function BeehiivDashboardPage() {
         <div>
           <div className="mb-1 flex items-center gap-2">
             <Mail className="h-4 w-4 text-os-accent" />
-            <span className="font-mono text-[9.5px] uppercase tracking-[0.32em] text-os-dim">Beehiiv</span>
+            <span className="font-mono text-[9.5px] uppercase tracking-[0.32em] text-os-dim">Klaviyo</span>
           </div>
           <h1 className="text-[25px] font-bold uppercase leading-[1.1] tracking-[0.06em]">Newsletter</h1>
           <p className="mt-1 font-mono text-[11px] text-os-dim">
-            {live ? 'live via Beehiiv API' : 'seeded preview · add BEEHIIV_API_KEY for live'}
+            {live ? 'live via Klaviyo API' : 'seeded preview, add KLAVIYO_API_KEY for live'}
           </p>
         </div>
         <a
-          href="https://app.beehiiv.com"
+          href="https://www.klaviyo.com/login"
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-1.5 rounded-lg border border-os-border px-3 py-1.5 text-xs text-os-muted transition-colors hover:border-os-border-strong hover:text-os-text"
         >
-          Open Beehiiv
+          Open Klaviyo
           <ExternalLink className="h-3 w-3" />
         </a>
       </header>

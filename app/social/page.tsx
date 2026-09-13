@@ -161,7 +161,7 @@ export default async function SocialPage() {
         {/* Email list — same cell, Beehiiv-backed; opens the Beehiiv dashboard */}
         <Link
           href="/social/beehiiv"
-          title={`${total > 0 && email.subscribers != null ? ((email.subscribers / total) * 100).toFixed(0) : 0}% of reach · open Beehiiv analytics`}
+          title={`${total > 0 && email.subscribers != null ? ((email.subscribers / total) * 100).toFixed(0) : 0}% of reach, open email list analytics`}
           className="hoverable rounded-lg-t border border-os-border bg-os-surface px-4 py-4"
         >
           <div className="flex items-center gap-2">
