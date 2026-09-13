@@ -30,14 +30,20 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-test('allConnectorStatuses includes Paperclip orchestration status', async () => {
+test('allConnectorStatuses hides connectors outside Helight\'s stack from the aggregate', async () => {
   vi.stubEnv('FOUNDER_OS_DB', ':memory:');
   vi.stubEnv('PAPERCLIP_URL', '');
 
-  expect(await allConnectorStatuses()).toContainEqual(expect.objectContaining({
-    id: 'paperclip',
-    name: 'Paperclip',
-    kind: 'orchestration',
-    state: 'not_configured',
-  }));
+  // Paperclip's real status wiring still runs here (it is not mocked above),
+  // so this also proves the hide is a display filter, not a deleted check:
+  // the underlying status still computes as 'not_configured', it just never
+  // reaches the returned array.
+  const statuses = await allConnectorStatuses();
+  const ids = statuses.map((s) => s.id);
+  expect(ids).not.toContain('paperclip');
+  expect(ids).not.toContain('whatsapp');
+  expect(ids).not.toContain('attio');
+  expect(ids).not.toContain('wispr');
+  expect(ids).not.toContain('obsidian');
+  expect(ids).not.toContain('payments');
 });

@@ -63,6 +63,12 @@ async function runAllChecks(): Promise<ConnectorStatus[]> {
   );
 }
 
+// Inherited modules that are not in Helight's stack (Shopify, Klaviyo, Meta
+// Ads, TikTok Ads, Google Ads, Amazon Seller Central; Zernio, Arcads,
+// Remotion, Higgsfield, Claude Code). Hidden from the Helight board — never
+// deleted, the connector modules and their checks stay in the repo.
+const HIDDEN_CONNECTORS = new Set(['whatsapp', 'attio', 'wispr', 'obsidian', 'paperclip', 'payments']);
+
 // One cache per server process. Pages read it instantly; a background refresh
 // runs once the snapshot is older than the TTL. Tests that want live results
 // pass { fresh: true }; the connect flow calls invalidateConnectorStatuses()
@@ -71,7 +77,8 @@ const STATUS_TTL_MS = 60_000;
 const statusCache = createStatusCache(runAllChecks, { ttlMs: STATUS_TTL_MS });
 
 export async function allConnectorStatuses(opts?: { fresh?: boolean }): Promise<ConnectorStatus[]> {
-  return statusCache.get(opts);
+  const statuses = await statusCache.get(opts);
+  return statuses.filter((c) => !HIDDEN_CONNECTORS.has(c.id));
 }
 
 export function invalidateConnectorStatuses(): void {
