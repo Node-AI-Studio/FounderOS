@@ -18,9 +18,6 @@ import { mergeTrakyoTouches, trakyoTouches } from '@/lib/funnel-trakyo';
 import { lastMessageFor } from '@/lib/funnel-contact';
 import { cachedCommsFeed } from '@/lib/comms-feed-cache';
 import type { CommsItem } from '@/lib/comms';
-import { attioStatus } from '@/lib/connectors/attio';
-import { ghlStatus } from '@/lib/connectors/ghl';
-import { trakyoStatus } from '@/lib/connectors/trakyo';
 import { metaAdsStatus } from '@/lib/connectors/meta-ads';
 import { getVenture } from '@/lib/ventures';
 import { FunnelRadialLazy, FunnelSpaceLazy } from '@/components/FunnelGraphsLazy';
@@ -344,12 +341,7 @@ export default async function FunnelPage({
   if (stage && tableJourneys.length > 0) {
     commsFeed = await cachedCommsFeed(200).catch(() => null);
   }
-  const [attio, ghl, trakyo, metaAds] = await Promise.all([
-    attioStatus(),
-    ghlStatus(),
-    trakyoStatus(),
-    metaAdsStatus(),
-  ]);
+  const metaAds = await metaAdsStatus();
 
   return (
     <div>
@@ -399,9 +391,6 @@ export default async function FunnelPage({
         </span>
         <span className="h-3 w-px bg-os-border" />
         <span className="flex items-center gap-2.5" title={isLive ? `${excludedCount} lost/closed-lost excluded` : undefined}>
-          <SourceCheck status={attio} live={Boolean(attioLive?.journeys.length)} count={attioLive?.total} />
-          <SourceCheck status={ghl} live={Boolean(ghlLive?.journeys.length)} count={ghlLive?.total} />
-          <SourceCheck status={trakyo} />
           <SourceCheck status={metaAds} />
         </span>
         <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide">

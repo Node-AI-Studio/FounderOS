@@ -19,7 +19,7 @@ export async function trakyoStatus(): Promise<ConnectorStatus> {
       ...base,
       state: 'not_configured',
       detail:
-        'Revenue attribution (content → calls → payments) for Launchpad Cohort. Set TRAKYO_API_KEY once Trakyo exposes an API.',
+        'Revenue attribution from content to checkout. Set TRAKYO_API_KEY once Trakyo exposes an API.',
     };
   }
   return {
