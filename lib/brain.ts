@@ -4,7 +4,7 @@
  * with a local brain-store fallback when the database is unreachable.
  * BRAIN_PROVIDER=stub selects the inert provider for tests.
  */
-import { createGBrainProvider } from '@/lib/connectors/gbrain';
+import { createGBrainProvider, createSeededBrainProvider, type GBrainProvider } from '@/lib/connectors/gbrain';
 
 export type BrainStatus = {
   connected: boolean;
@@ -42,5 +42,16 @@ const stubProvider: BrainProvider = {
 export function getBrainProvider(): BrainProvider {
   const name = process.env.BRAIN_PROVIDER ?? 'gbrain';
   if (name === 'stub') return stubProvider;
+  if (name === 'seeded') return createSeededBrainProvider();
   return createGBrainProvider();
+}
+
+/**
+ * Pages that need the richer GBrainProvider surface (overview/stats/etc, not
+ * just status/search) should call this instead of hardcoding
+ * createGBrainProvider() directly, so BRAIN_PROVIDER=seeded swaps them onto
+ * the illustrative demo provider too.
+ */
+export function getBrainOverviewProvider(): GBrainProvider {
+  return process.env.BRAIN_PROVIDER === 'seeded' ? createSeededBrainProvider() : createGBrainProvider();
 }

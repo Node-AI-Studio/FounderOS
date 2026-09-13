@@ -297,3 +297,102 @@ export function createGBrainProvider(opts: { exec?: ExecFn; storePath?: string }
     },
   };
 }
+
+/**
+ * Seeded provider for demo boards with no gbrain database behind them. It
+ * reads the same on-disk markdown folder as the real provider (walkMarkdown,
+ * storeFolders, the local grep search) so the knowledge graph and pipeline
+ * stage render real pages, but the doctor ring and storage-layer numbers are
+ * openly labelled illustrative rather than claiming a live database.
+ */
+export function createSeededBrainProvider(opts: { storePath?: string } = {}): GBrainProvider {
+  const storePath = opts.storePath ?? DEFAULT_STORE;
+
+  return {
+    name: 'seeded',
+
+    async status(): Promise<BrainStatus> {
+      const localFiles = walkMarkdown(storePath).length;
+      return {
+        connected: true,
+        provider: 'seeded',
+        detail: `seeded brain · ${localFiles} pages on disk · doctor and index numbers are illustrative`,
+      };
+    },
+
+    async search(query: string): Promise<BrainSearchResult[]> {
+      return localSearch(storePath, query);
+    },
+
+    async localStats() {
+      return { markdownFiles: walkMarkdown(storePath).length, storePath };
+    },
+
+    async overview(): Promise<BrainOverview> {
+      const folders = storeFolders(storePath);
+      const store = {
+        path: storePath,
+        totalFiles: folders.reduce((sum, f) => sum + f.files, 0),
+        folders,
+      };
+      const n = store.totalFiles;
+      const checks: DoctorCheck[] = [
+        {
+          name: 'resolver_health',
+          status: 'ok',
+          message: `seeded — resolver health is illustrative, not measured against ${n} on-disk pages`,
+        },
+        {
+          name: 'skill_conformance',
+          status: 'ok',
+          message: 'seeded — skill conformance is illustrative, no CLI ran on this board',
+        },
+        {
+          name: 'memory_writeback',
+          status: 'ok',
+          message: 'seeded — memory writeback is illustrative, capture is disabled on this board',
+        },
+        {
+          name: 'connection',
+          status: 'ok',
+          message: 'seeded — no live gbrain CLI or database is wired to this board',
+        },
+        {
+          name: 'nightly_quality_probe_health',
+          status: 'ok',
+          message: 'seeded — nightly quality probe is illustrative, no probe has run on this board',
+        },
+        {
+          name: 'home_dir_in_worktree',
+          status: 'ok',
+          message: 'seeded — home dir check is illustrative on this board',
+        },
+      ];
+      return {
+        store,
+        doctor: {
+          connected: true,
+          status: 'seeded',
+          healthScore: 95,
+          checks,
+          detail: `seeded doctor · ${n} pages · health 95/100 (illustrative)`,
+        },
+      };
+    },
+
+    async stats(): Promise<GBrainStats | null> {
+      const folders = storeFolders(storePath);
+      const pages = folders.reduce((sum, f) => sum + f.files, 0);
+      return {
+        pages,
+        chunks: pages * 3,
+        embedded: pages * 3,
+        byType: folders.map((f) => ({ type: f.name, count: f.files })),
+      };
+    },
+
+    async capture(): Promise<CaptureOutcome> {
+      return { ok: false, error: 'capture is disabled on the seeded brain' };
+    },
+  };
+}
