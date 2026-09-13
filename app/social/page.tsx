@@ -38,11 +38,11 @@ const PLATFORM_ICONS: Record<SocialPlatform, LucideIcon> = {
 // lands (the publish queue below is the real, wired path). views/likes carry
 // the like-to-view (engagement) ratio shown per post + averaged in the header.
 const RECENT_POSTS = [
-  { tag: 'Instagram · Reel', ago: '2h', caption: '3 agents that run my business while I sleep', kind: 'views', views: 12400, likes: 1104 },
-  { tag: 'TikTok · Video', ago: '6h', caption: 'POV: your operating system has a command palette', kind: 'views', views: 8100, likes: 640 },
-  { tag: 'X · Thread', ago: '1d', caption: 'How I wired 7 real connectors into one OS', kind: 'impressions', views: 1200, likes: 74 },
-  { tag: 'YouTube · Long', ago: '2d', caption: 'Founder OS walkthrough — building in public #4', kind: 'views', views: 940, likes: 88 },
-  { tag: 'Instagram · Carousel', ago: '3d', caption: 'The larp-first, real-ready architecture', kind: 'reach', views: 6700, likes: 717 },
+  { tag: 'Instagram · Reel', ago: '2h', caption: 'Night 1 of 21: where the lamp goes and why 28 minutes', kind: 'views', views: 12400, likes: 1104 },
+  { tag: 'TikTok · Video', ago: '6h', caption: 'POV: you stopped taking melatonin and tried red light instead', kind: 'views', views: 8100, likes: 640 },
+  { tag: 'TikTok · Video', ago: '1d', caption: 'Deep sleep on my Oura after three weeks, no app, no account', kind: 'views', views: 5200, likes: 468 },
+  { tag: 'YouTube · Long', ago: '2d', caption: 'Why a lamp that does nothing beats a sleep app: the 630 nm story', kind: 'views', views: 940, likes: 88 },
+  { tag: 'Instagram · Carousel', ago: '3d', caption: 'Safe for a two-year-old? The Kidzzz protocol in five slides', kind: 'reach', views: 6700, likes: 717 },
 ];
 
 // Human label for a raw Zernio platform string (falls back to capitalising it).
