@@ -116,6 +116,34 @@ export const INTEGRATIONS: Integration[] = [
   { slug: 'arcads', name: 'Arcads', tagline: 'AI video ads', category: 'Creative', connectorId: 'arcads', envKeys: ['ARCADS_BASIC_AUTH'] },
 ];
 
+/**
+ * Slugs inherited from the previous owner's stack that are not part of
+ * Helight's tooling. Kept in the catalog (never deleted) but filtered out of
+ * every browse/display surface via `visibleIntegrations()`.
+ */
+export const HIDDEN_INTEGRATIONS = new Set([
+  'manychat',
+  'whatsapp',
+  'notion',
+  'attio',
+  'gohighlevel',
+  'stripe',
+  'paypal',
+  'beehiiv',
+  'webinarjam',
+  'trakyo',
+  'obsidian',
+  'paperclip',
+  'miro',
+  'canva',
+  'figma',
+]);
+
+/** The catalog filtered down to what Helight's board actually shows. */
+export function visibleIntegrations(entries: Integration[] = INTEGRATIONS): Integration[] {
+  return entries.filter((i) => !HIDDEN_INTEGRATIONS.has(i.slug));
+}
+
 export type CatalogEntry = Integration & { connected: boolean; keySaved: boolean };
 
 /** The env var names the connect flow may write for an entry. Explicit
@@ -134,9 +162,10 @@ export function connectKeysFor(entry: Integration): string[] {
 export function connectionCatalog(
   statuses: ConnectorStatus[],
   savedEnv: Record<string, string> = {},
+  entries: Integration[] = INTEGRATIONS,
 ): CatalogEntry[] {
   const byId = new Map(statuses.map((s) => [s.id, s]));
-  return INTEGRATIONS.map((i) => {
+  return entries.map((i) => {
     const keys = connectKeysFor(i);
     return {
       ...i,
