@@ -76,7 +76,7 @@ export const LIFE_AREAS: LifeArea[] = [
     color: '#3b82f6',
     detail: 'Every inbound customer voice.',
     modules: [
-      { id: 'support', label: 'Support', detail: 'Tagged tickets with response tiers — who needs an answer ASAP.' },
+      { id: 'support', label: 'Support', detail: 'Tagged tickets with response tiers, who needs an answer ASAP.' },
       { id: 'dms', label: 'DMs', detail: 'Instagram and TikTok direct messages.' },
       { id: 'reviews', label: 'Reviews', detail: 'Storefront and Amazon review replies.' },
       { id: 'escalations', label: 'Escalations', detail: 'Refunds and cases that need a human call.' },
@@ -143,14 +143,15 @@ export type ContactTier = {
 };
 
 /**
- * The response-priority ladder for people Alex talks to.
- * 1 = red (clients & students), 2 = yellow (brand), 3 = green (personal).
- * Specific people get overrides via the contact_tags table.
+ * The DTC support ladder: response priority for people who reach Helight.
+ * 1 = red (refund and guarantee asks), 2 = yellow (order, shipping, creator
+ * outreach), 3 = green (general, press, community). Specific people get
+ * overrides via the contact_tags table.
  */
 export const CONTACT_TIERS: ContactTier[] = [
-  { tier: 1, label: 'Priority 1', color: '#ef4444', respond: 'ASAP', tags: ['client', 'student'] },
-  { tier: 2, label: 'Priority 2', color: '#eab308', respond: 'same day', tags: ['brand', 'partner', 'lead'] },
-  { tier: 3, label: 'Priority 3', color: '#22c55e', respond: 'when free', tags: ['personal', 'friend', 'community'] },
+  { tier: 1, label: 'Priority 1', color: '#ef4444', respond: 'ASAP', tags: ['refund', 'guarantee'] },
+  { tier: 2, label: 'Priority 2', color: '#eab308', respond: 'same day', tags: ['order', 'shipping', 'creator'] },
+  { tier: 3, label: 'Priority 3', color: '#22c55e', respond: 'when free', tags: ['general', 'press', 'community'] },
 ];
 
 export function lifeAreaForDepartment(departmentId: string): LifeArea | null {
@@ -210,7 +211,7 @@ export function buildLifeMap(): LifeMap {
       label: `T${t.tier} ${t.label}`,
       color: t.color,
       parent: 'communication/support',
-      detail: `${t.tags.join(', ')} — respond ${t.respond}`,
+      detail: `${t.tags.join(', ')}, respond ${t.respond}`,
       agents: [],
       brainFolders: [],
     });

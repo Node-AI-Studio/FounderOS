@@ -8,7 +8,7 @@
  * reads as "earned nothing". The page renders pending honestly.
  */
 
-// -- Income: processor / account registry ------------------------------------
+// ── Income: processor / account registry ────────────────────────────────────
 
 export type IncomeAccount = {
   id: string;
@@ -75,7 +75,7 @@ export function totalIncome(accounts: IncomeAccount[]): number {
   return accounts.reduce((sum, a) => sum + (a.income ?? 0), 0);
 }
 
-// -- Expenses: seeded sample until statement ingestion lands (Phase 2) -------
+// ── Expenses: seeded sample until statement ingestion lands (Phase 2) ───────
 
 export type ExpenseItem = { id: string; label: string; category: string; monthly: number };
 
@@ -122,7 +122,7 @@ export function net(income: number, expenses: number): number {
   return income - expenses;
 }
 
-// -- Stripe month-to-date helpers (pure; the connector feeds in raw charges) --
+// ── Stripe month-to-date helpers (pure; the connector feeds in raw charges) ──
 
 /** Unix seconds for the first instant of `now`'s calendar month (UTC). */
 export function monthStartUnix(now: Date): number {

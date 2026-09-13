@@ -84,7 +84,7 @@ export const workflows: Workflow[] = [
         tools: ['zernio'],
         edgeLabel: 'winner',
         leakUsd: null,
-        automation: { title: 'Take the winner automation', state: 'live', recoveredUsd: 0 },
+        automation: { title: 'Winner handoff to paid', state: 'live', recoveredUsd: 700 },
       },
       {
         id: 'wf-pa-2',
@@ -117,7 +117,7 @@ export const workflows: Workflow[] = [
         tools: ['meta-ads', 'tiktok-ads', 'google-ads'],
         edgeLabel: 'live',
         leakUsd: null,
-        automation: { title: 'Launch per platform automation', state: 'live', recoveredUsd: 0 },
+        automation: { title: 'Per-platform launch', state: 'live', recoveredUsd: 900 },
       },
       {
         id: 'wf-pa-5',
@@ -148,7 +148,7 @@ export const workflows: Workflow[] = [
         tools: ['klaviyo'],
         edgeLabel: 'captured',
         leakUsd: null,
-        automation: { title: 'Capture the email automation', state: 'live', recoveredUsd: 0 },
+        automation: { title: 'Email capture flow', state: 'live', recoveredUsd: 500 },
       },
       {
         id: 'wf-fts-2',
@@ -170,7 +170,7 @@ export const workflows: Workflow[] = [
         tools: ['klaviyo'],
         edgeLabel: 'review',
         leakUsd: null,
-        automation: { title: 'Ask for the review automation', state: 'live', recoveredUsd: 0 },
+        automation: { title: 'Night 21 review request', state: 'live', recoveredUsd: 400 },
       },
       {
         id: 'wf-fts-4',

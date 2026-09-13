@@ -22,7 +22,7 @@ import type { AgentRunResult, RuntimeAgent } from '@/lib/agents/runtime';
 async function gmailRun(): Promise<AgentRunResult> {
   const inboxes = parseInboxConfigs(process.env);
   if (inboxes.length === 0) {
-    return { ok: false, summary: 'No inboxes configured — set INBOX_1..4_HOST/_USER/_PASS in .env.local' };
+    return { ok: false, summary: 'No inboxes configured, set INBOX_1..4_HOST/_USER/_PASS in .env.local' };
   }
   const counts = await unreadCounts(process.env);
   const failed = counts.filter((c) => c.error);
@@ -39,7 +39,7 @@ async function gmailRun(): Promise<AgentRunResult> {
 
 async function slackRun(): Promise<AgentRunResult> {
   if (!process.env.SLACK_BOT_TOKEN) {
-    return { ok: false, summary: 'Slack not configured — set SLACK_BOT_TOKEN in .env.local' };
+    return { ok: false, summary: 'Slack not configured, set SLACK_BOT_TOKEN in .env.local' };
   }
   const messages = await recentMessages(10);
   return {
@@ -85,13 +85,13 @@ async function gbrainRun(): Promise<AgentRunResult> {
   const inbox = store.folders.find((f) => f.name === 'inbox');
 
   const ideas: string[] = [];
-  if (!doctor.connected) ideas.push('gbrain CLI unreachable — check the binary before trusting vector queries');
+  if (!doctor.connected) ideas.push('gbrain CLI unreachable, check the binary before trusting vector queries');
   if (doctor.connected && warnings.length > 0)
     ideas.push(`${warnings.length} doctor check(s) need attention (${warnings.map((w) => w.name).join(', ')})`);
-  if (inbox && inbox.files > 3) ideas.push(`inbox/ holds ${inbox.files} unprocessed pages — file or archive them`);
+  if (inbox && inbox.files > 3) ideas.push(`inbox/ holds ${inbox.files} unprocessed pages, file or archive them`);
   if (store.totalFiles < 50)
-    ideas.push(`only ${store.totalFiles} pages on disk vs ~918 in Supabase — run \`gbrain export\` to restore locally`);
-  if (ideas.length === 0) ideas.push('storage healthy — no action needed');
+    ideas.push(`only ${store.totalFiles} pages on disk vs ~918 in Supabase, run \`gbrain export\` to restore locally`);
+  if (ideas.length === 0) ideas.push('storage healthy, no action needed');
 
   return {
     ok: doctor.connected,
@@ -151,7 +151,7 @@ async function vectorAuditRun(): Promise<AgentRunResult> {
     ok: doctor.connected,
     summary: doctor.connected
       ? `health ${doctor.healthScore ?? '?'}/100 · ${doctor.checks.length} checks, ${warn.length} warning(s)${warn.length ? `: ${warn.map((w) => w.name).join(', ')}` : ''}`
-      : `doctor offline — ${doctor.detail}`,
+      : `doctor offline, ${doctor.detail}`,
     data: doctor,
   };
 }

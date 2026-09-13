@@ -63,10 +63,9 @@ async function runAllChecks(): Promise<ConnectorStatus[]> {
   );
 }
 
-// Inherited modules that are not in Helight's stack (Shopify, Klaviyo, Meta
-// Ads, TikTok Ads, Google Ads, Amazon Seller Central; Zernio, Arcads,
-// Remotion, Higgsfield, Claude Code). Hidden from the Helight board — never
-// deleted, the connector modules and their checks stay in the repo.
+// Inherited connector modules that are not part of Helight's stack. Hidden
+// from the aggregate board and the systems-live count, kept in the repo.
+// Their status functions still exist for any page that calls them directly.
 const HIDDEN_CONNECTORS = new Set(['whatsapp', 'attio', 'wispr', 'obsidian', 'paperclip', 'payments', 'notion']);
 
 // One cache per server process. Pages read it instantly; a background refresh

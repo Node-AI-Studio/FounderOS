@@ -70,7 +70,7 @@ export const socialBaseline: SocialSnapshot[] = FOLLOWER_TARGETS.flatMap((t, ti)
     capturedAt: SERIES_DATES[i],
     followers,
     // the real final capture keeps its honest source; history is seeded dummy
-    source: i === SERIES_DATES.length - 1 ? 'zernio-config' : 'seed-dummy',
+    source: i === SERIES_DATES.length - 1 ? 'seed-zernio' : 'seed-dummy',
   })),
 );
 
@@ -82,7 +82,7 @@ export const emailListBaseline: EmailListSnapshot[] = ramp(EMAIL_TARGET.start, E
   (subscribers, i) => ({
     capturedAt: SERIES_DATES[i],
     subscribers,
-    source: i === SERIES_DATES.length - 1 ? 'klaviyo-config' : 'seed-dummy',
+    source: i === SERIES_DATES.length - 1 ? 'seed-klaviyo' : 'seed-dummy',
   }),
 );
 
@@ -108,11 +108,11 @@ export const socialDms: SocialDm[] = DM_TARGETS.map((t) => ({
 export const socialDmMessages: SocialDmMessage[] = [
   // Mara: parent asking whether it's safe/appropriate for a toddler
   ['ig-mara', 'Mara Lindqvist', 'mara.lindqvist', 'in', 'does the sleep light work for a 2 year old or is it just for adults?', null, '2026-09-03T19:12:00.000Z'],
-  ['ig-mara', 'Mara Lindqvist', 'mara.lindqvist', 'out', 'Sleep is built for adults and older kids. For a 2 year old, Kidzzz is the better fit: same 28-minute wind-down, sized and timed for little ones.', null, '2026-09-03T19:41:00.000Z'],
+  ['ig-mara', 'Mara Lindqvist', 'mara.lindqvist', 'out', 'Kidzzz runs the same 28-minute cycle. The safety details for little ones are on the Kidzzz page, and support can answer anything specific.', null, '2026-09-03T19:41:00.000Z'],
   ['ig-mara', 'Mara Lindqvist', 'mara.lindqvist', 'in', 'perfect, ordering the Kidzzz today', null, '2026-09-03T19:44:00.000Z'],
   // Desmond: traveller asking about voltage and carry-on size
   ['ig-desmond', 'Desmond Cole', 'desmond.cole', 'in', 'traveling to Japan next month, does it work with different plugs and is it small enough for a carry-on?', null, '2026-09-06T09:20:00.000Z'],
-  ['ig-desmond', 'Desmond Cole', 'desmond.cole', 'out', "Yes, it's dual-voltage so a standard adapter is all you need in Japan, and it packs down small enough for a carry-on. No app or account required either.", null, '2026-09-06T09:52:00.000Z'],
+  ['ig-desmond', 'Desmond Cole', 'desmond.cole', 'out', "It is palm-sized and travels well. For plug and voltage details, the product page lists the spec for your region.", null, '2026-09-06T09:52:00.000Z'],
   // Priyanka: night-shift nurse asking about daytime sleep
   ['ig-priyanka', 'Priyanka Rao', 'priyanka.rao', 'in', 'night shift nurse here, trying to sleep during the day. does this actually help or is that just marketing?', null, '2026-09-08T14:07:00.000Z'],
   ['ig-priyanka', 'Priyanka Rao', 'priyanka.rao', 'out', "That's exactly the shift-worker case it's built for. The 28-minute light cycle mimics sunset regardless of the actual time, so daytime sleep gets the same wind-down cue. It's sleep onset support, not a promise about any condition.", null, '2026-09-08T14:30:00.000Z'],

@@ -39,15 +39,15 @@ export const FUNCTION_LENSES: Lens[] = [
 
 export const ACTION_LENSES: Lens[] = [
   { id: 'act-ad-creation', group: 'action', label: 'Ad creation' },
-  { id: 'act-lead-generation', group: 'action', label: 'Lead generation' },
+  { id: 'act-lead-generation', group: 'action', label: 'Acquisition' },
   { id: 'act-content-repurposing', group: 'action', label: 'Content repurposing' },
   { id: 'act-content-ideation', group: 'action', label: 'Content ideation' },
   { id: 'act-content-scripts', group: 'action', label: 'Content script creation' },
-  { id: 'act-social-sentiment', group: 'action', label: 'Social media sentiment analysis' },
+  { id: 'act-social-sentiment', group: 'action', label: 'Customer voice' },
   { id: 'act-social-scheduler', group: 'action', label: 'Social posting & scheduler' },
   { id: 'act-ai-visuals', group: 'action', label: 'AI-generated visual assets' },
   { id: 'act-competitor-intel', group: 'action', label: 'Competitor ad intelligence' },
-  { id: 'act-icp-simulation', group: 'action', label: 'ICP identification & simulation' },
+  { id: 'act-icp-simulation', group: 'action', label: 'Audience lanes' },
   { id: 'act-channel-budget', group: 'action', label: 'Channel & budget allocation' },
 ];
 
