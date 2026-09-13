@@ -17,12 +17,13 @@ export type KGNodeKind = 'self' | 'team' | 'head' | 'task' | 'employee' | 'perso
 
 /** Executive title per department — the head agent each pillar wears. */
 export const DEPT_EXEC_TITLES: Record<string, string> = {
-  'dept-sales': 'CRO',
   'dept-marketing-growth': 'CMO',
-  'dept-tech': 'CTO',
+  'dept-content': 'CCO',
+  'dept-clients': 'CRO',
+  'dept-sales': 'CPO',
+  'dept-comms': 'CXO',
   'dept-finance': 'CFO',
-  'dept-comms': 'CCO',
-  'dept-clients': 'COO',
+  'dept-tech': 'COO',
 };
 
 export type KGNode = {
@@ -48,19 +49,20 @@ const RING: Record<KGNodeKind, number> = { self: 0, team: 1, head: 2, task: 2, e
 export const SELF_ID = 'self';
 
 /**
- * Display order for the graph only (not the sidebar/org/roadmap): Finances rides
- * immediately next to Sales so the revenue + payment-processor story sits together.
+ * Display order for the graph only (not the sidebar/org/roadmap): the seven
+ * Helight pillars, growth-to-operations.
  */
 export const GRAPH_DEPT_ORDER = [
-  'dept-sales',
-  'dept-finance',
-  'dept-clients',
   'dept-marketing-growth',
-  'dept-tech',
+  'dept-content',
+  'dept-clients',
+  'dept-sales',
   'dept-comms',
+  'dept-finance',
+  'dept-tech',
 ] as const;
 
-/** Rank a department id for graph layout; unknown ids sort after the known five. */
+/** Rank a department id for graph layout; unknown ids sort after the known seven. */
 export function graphDeptRank(deptId: string): number {
   const i = (GRAPH_DEPT_ORDER as readonly string[]).indexOf(deptId);
   return i < 0 ? GRAPH_DEPT_ORDER.length + 1 : i;

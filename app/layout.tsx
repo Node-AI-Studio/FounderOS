@@ -36,11 +36,13 @@ const NAV_COMMANDS: Command[] = [
   { id: 'nav-org', label: 'Org Chart', keywords: 'org chart hierarchy departments tree structure leads specialists', href: '/org', hint: 'view' },
   { id: 'nav-brain', label: 'G-Brain', keywords: 'brain knowledge core markdown vector pgvector supabase embeddings zeroentropy graph doctor', href: '/brain', hint: 'view' },
   // Local apps discovered on this machine — open in a new tab
-  { id: 'ext-command-center', label: 'Command Center', keywords: 'command-center kanban missions port 4000', href: 'http://localhost:4000', hint: 'localhost' },
+  { id: 'ext-shopify', label: 'Shopify admin', keywords: 'store orders products shopify', href: 'https://admin.shopify.com', hint: 'web' },
+  { id: 'ext-klaviyo', label: 'Klaviyo', keywords: 'email sms flows campaigns list', href: 'https://www.klaviyo.com/login', hint: 'web' },
+  { id: 'ext-meta-ads', label: 'Meta Ads Manager', keywords: 'facebook instagram ads campaigns', href: 'https://adsmanager.facebook.com', hint: 'web' },
+  { id: 'ext-tiktok-ads', label: 'TikTok Ads Manager', keywords: 'tiktok ads campaigns shop', href: 'https://ads.tiktok.com', hint: 'web' },
+  { id: 'ext-google-ads', label: 'Google Ads', keywords: 'search shopping pmax', href: 'https://ads.google.com', hint: 'web' },
+  { id: 'ext-amazon', label: 'Amazon Seller Central', keywords: 'amazon listing reviews payouts', href: 'https://sellercentral.amazon.com', hint: 'web' },
   { id: 'ext-remotion', label: 'Remotion Studio', keywords: 'video render pipeline port 3789', href: 'http://localhost:3789', hint: 'localhost' },
-  { id: 'ext-skool', label: 'Skool Community', keywords: 'launchpad cohort community posts', href: 'https://www.skool.com/launchpad-cohort', hint: 'web' },
-  { id: 'ext-attio', label: 'Attio CRM', keywords: 'deals pipeline vantage', href: 'https://app.attio.com', hint: 'web' },
-  { id: 'ext-fathom', label: 'Fathom Calls', keywords: 'meetings recordings notes', href: 'https://fathom.video', hint: 'web' },
 ];
 
 function buildCommands(): Command[] {
