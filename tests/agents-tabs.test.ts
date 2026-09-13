@@ -43,3 +43,29 @@ describe('agents Hermes tab', () => {
     }
   });
 });
+
+
+describe('agents Paperclip tab', () => {
+  test('adds Paperclip beside the existing tabs with an independent lazy mount', () => {
+    const src = read('components/AgentsTabs.tsx');
+    expect(src).toContain("['paperclip', 'Paperclip', openPaperclip]");
+    expect(src).toContain("['hermes', 'Hermes Workers', openHermes]");
+    expect(src).toContain('paperclipVisited &&');
+    expect(src).toContain('setPaperclipVisited(true)');
+    expect(src).toContain("tab === 'paperclip' ? '' : 'hidden'");
+    expect(src).toContain('src={paperclipUrl}');
+    expect(src).toContain('title="Paperclip dashboard"');
+  });
+
+  test('offers an external dashboard link and an honest unconfigured state', () => {
+    const src = read('components/AgentsTabs.tsx');
+    expect(src).toContain('href={paperclipUrl}');
+    expect(src).toContain('paperclipConfigured ?');
+    expect(src).toContain('Set PAPERCLIP_DASH_URL');
+  });
+
+  test('passes the dashboard env var from the page and documents it', () => {
+    expect(read('app/agents/page.tsx')).toContain('paperclipUrl={process.env.PAPERCLIP_DASH_URL}');
+    expect(read('.env.example')).toMatch(/# Paperclip[\s\S]*\nPAPERCLIP_DASH_URL=/);
+  });
+});
