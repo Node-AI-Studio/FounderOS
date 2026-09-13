@@ -53,6 +53,8 @@ const DEPTH_FRAC = [0.86, 0.76, 0.5, 0.28, 0.09]; // 0 self · 1 team · 2 tasks
 
 // fan tasks out to the full 45° cone so they're well-spread and readable
 const CONE = 1.0;
+// matches the MIN_GAP spacing guarantee asserted in tests/tree-layout.test.ts
+const MIN_TASK_GAP = 48;
 // spacing of the centralized tool shelf (shrinks evenly when a dept is dense)
 const TOOL_SPACING = 90;
 // fraction of a pillar's half-slice the resting layout gives its agents/tools
@@ -184,27 +186,48 @@ export function treeLayout(input: TreeLayoutInput): TreeLayoutResult {
   const workerY = yOf(3);
   const n = taskIds.length;
   const taskX = new Map<string, number>();
+  const dy = teamY - taskY; // > 0
+  // the fan widens past the 45° cone when a pillar has enough siblings that
+  // even a full-width cone can't hold MIN_TASK_GAP between neighbors
+  const need = n <= 1 ? 0 : (MIN_TASK_GAP * (n - 1)) / 2;
+  const half = Math.min(W / 2 - margin, Math.max(dy * CONE, need));
+  // if the canvas itself is too narrow for MIN_TASK_GAP even at full width,
+  // zigzag alternating siblings onto a second row so the Euclidean gap still
+  // reaches MIN_TASK_GAP; cap the lift so it never pushes a task into the
+  // worker band directly below it.
+  const gapX = n <= 1 ? Infinity : (2 * half) / (n - 1);
+  const liftRaw = gapX >= MIN_TASK_GAP ? 0 : Math.ceil(Math.sqrt(MIN_TASK_GAP * MIN_TASK_GAP - gapX * gapX));
+  const lift = Math.min(liftRaw, (taskY - workerY) / 2);
+  const taskIndex = new Map<string, number>();
   taskIds.forEach((id, i) => {
-    const dy = teamY - taskY; // > 0
-    const half = Math.min(W / 2 - margin, dy * CONE);
     const t = n <= 1 ? 0 : (i / (n - 1)) * 2 - 1; // -1 … 1
-    const x = clampX(cx + t * half);
+    const x = round2(clampX(cx + t * half));
+    const y = round2(taskY - (i % 2 === 1 ? lift : 0));
     taskX.set(id, x);
-    positions.set(id, { x, y: taskY, depth: 2 });
+    taskIndex.set(id, i);
+    positions.set(id, { x, y, depth: 2 });
     branches.push({ source: headId ?? teamId, target: id, depth: 2 });
   });
 
   // workers — monogamous, so each sits DIRECTLY above its one task: a clean
   // vertical hop that keeps the task→worker pairing readable at a glance.
+  // The task fan's own zigzag (above) only buys the *task* band its 48px
+  // clearance — a worker's x is copied straight from its task's x, so a
+  // worker band with the same crowded siblings inherits the same too-tight
+  // horizontal gaps unless it echoes the same alternating offset. Mirror the
+  // task's parity here too, nudging odd-indexed workers toward the task row
+  // by the same `lift` (already capped above to stay clear of a lifted task).
   const workerX = new Map<string, number>();
   const workerIds: string[] = [];
   for (const taskId of taskIds) {
     const w = workerByTask[taskId];
     if (!w) continue;
     const x = taskX.get(taskId) ?? cx;
+    const i = taskIndex.get(taskId) ?? 0;
+    const y = round2(workerY + (i % 2 === 1 ? lift : 0));
     workerX.set(w, x);
     workerIds.push(w);
-    positions.set(w, { x, y: workerY, depth: 3 });
+    positions.set(w, { x, y, depth: 3 });
     branches.push({ source: taskId, target: w, depth: 3 });
   }
 
