@@ -10,8 +10,8 @@ const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 describe('OS mark branding', () => {
   test('the mark renders the personal monogram with an accessible owner name', () => {
     const markup = renderToStaticMarkup(createElement(OsMark));
-    expect(markup).toContain('aria-label="Cristoforo Perrone"');
-    expect(markup).toContain('>CP</text>');
+    expect(markup).toContain('aria-label="Yannick Kiefer"');
+    expect(markup).toContain('>YK</text>');
     expect(markup).not.toContain('/os-emblem.png');
   });
 

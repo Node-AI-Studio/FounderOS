@@ -5,7 +5,7 @@ import { Topbar } from '@/components/Topbar';
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/' }));
 
-test('renders the NODE AI OS title in the topbar', () => {
+test('renders the HELIGHT OS title in the topbar', () => {
   const markup = renderToStaticMarkup(createElement(Topbar));
-  expect(markup).toContain('<span>NODE AI OS</span>');
+  expect(markup).toContain('<span>HELIGHT OS</span>');
 });

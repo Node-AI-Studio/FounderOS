@@ -64,12 +64,12 @@ const tasks: SopTask[] = [
 const build = () => buildKnowledgeGraph(agents, departments, people, tasks);
 
 describe('buildKnowledgeGraph — dept → task → worker → tools chain', () => {
-  test('a single Cristoforo center node on ring 0, linked to every team (pillar edges)', () => {
+  test('a single Yannick center node on ring 0, linked to every team (pillar edges)', () => {
     const { nodes, edges } = build();
     const self = nodes.filter((n) => n.kind === 'self');
     expect(self).toHaveLength(1);
     expect(self[0].ring).toBe(0);
-    expect(self[0].label).toBe('Cristoforo');
+    expect(self[0].label).toBe('Yannick');
     const pillars = edges.filter((e) => e.kind === 'pillar');
     expect(pillars).toContainEqual({ source: 'self', target: 'team:dept-tech', kind: 'pillar' });
     expect(pillars).toContainEqual({ source: 'self', target: 'team:dept-sales', kind: 'pillar' });
@@ -252,25 +252,33 @@ describe('graphDirectory — the scrollable everything-index', () => {
 });
 
 describe('graph department order (AC1)', () => {
-  test('Finances sits immediately next to Sales', () => {
-    expect(graphDeptRank('dept-finance')).toBe(graphDeptRank('dept-sales') + 1);
+  test('Finances sits immediately next to Customer Care', () => {
+    expect(graphDeptRank('dept-finance')).toBe(graphDeptRank('dept-comms') + 1);
   });
 
-  test('covers all six pillars exactly once', () => {
-    expect(new Set(GRAPH_DEPT_ORDER).size).toBe(6);
-    for (const id of ['dept-sales', 'dept-finance', 'dept-clients', 'dept-marketing-growth', 'dept-tech', 'dept-comms']) {
+  test('covers all seven pillars exactly once', () => {
+    expect(new Set(GRAPH_DEPT_ORDER).size).toBe(7);
+    for (const id of [
+      'dept-marketing-growth',
+      'dept-content',
+      'dept-clients',
+      'dept-sales',
+      'dept-comms',
+      'dept-finance',
+      'dept-tech',
+    ]) {
       expect(GRAPH_DEPT_ORDER).toContain(id);
     }
   });
 
   test('unknown departments rank after the known ones', () => {
-    expect(graphDeptRank('dept-mystery')).toBeGreaterThan(graphDeptRank('dept-comms'));
+    expect(graphDeptRank('dept-mystery')).toBeGreaterThan(graphDeptRank('dept-tech'));
   });
 });
 
 /**
  * Department-head agents (2026-08-05): every active department gets
- * an executive node — CRO/CMO/CTO/CFO/CCO/COO — wearing the department's
+ * an executive node — CMO/CCO/CRO/CPO/CXO/CFO/COO — wearing the department's
  * life-area color, hung directly off its pillar. Legend + graph render them
  * via the 'head' kind.
  */
@@ -285,7 +293,7 @@ describe('department heads', () => {
     expect(heads.map((h) => h.id).sort()).toEqual(['head:dept-sales', 'head:dept-tech']);
     const sales = heads.find((h) => h.id === 'head:dept-sales')!;
     expect(sales.label).toBe(DEPT_EXEC_TITLES['dept-sales']);
-    expect(sales.label).toBe('CRO');
+    expect(sales.label).toBe('CPO');
     expect(sales.color).toBeTruthy(); // wears the department tint
     // hangs off its pillar
     expect(g.edges).toContainEqual({ source: 'team:dept-sales', target: 'head:dept-sales', kind: 'member' });
@@ -293,15 +301,16 @@ describe('department heads', () => {
     expect(g.nodes.find((n) => n.id === 'head:dept-clients')).toBeUndefined();
   });
 
-  test('title map covers all six departments', async () => {
+  test('title map covers all seven departments', async () => {
     const { DEPT_EXEC_TITLES } = await import('@/lib/knowledge-graph');
     expect(DEPT_EXEC_TITLES).toMatchObject({
-      'dept-sales': 'CRO',
       'dept-marketing-growth': 'CMO',
-      'dept-tech': 'CTO',
+      'dept-content': 'CCO',
+      'dept-clients': 'CRO',
+      'dept-sales': 'CPO',
+      'dept-comms': 'CXO',
       'dept-finance': 'CFO',
-      'dept-comms': 'CCO',
-      'dept-clients': 'COO',
+      'dept-tech': 'COO',
     });
   });
 });
