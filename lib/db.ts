@@ -580,6 +580,12 @@ export function openDb(path: string) {
     });
 
   const agentRuns = {
+    all(): AgentRun[] {
+      return db
+        .prepare('SELECT * FROM agent_runs ORDER BY started_at DESC, rowid DESC')
+        .all()
+        .map(rowToRun);
+    },
     byAgent(agentId: string): AgentRun[] {
       return db
         .prepare('SELECT * FROM agent_runs WHERE agent_id = ? ORDER BY started_at DESC')
