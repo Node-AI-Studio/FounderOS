@@ -67,10 +67,11 @@ export function decideAccess({ token, presented, isProduction }: AuthInput): Aut
     return { kind: 'allow' };
   }
 
-  if (configured.length < 16) {
+  // Demo board: no live credentials behind it, so a memorable 12-character password is enough.
+  if (configured.length < 12) {
     return {
       kind: 'misconfigured',
-      detail: `${ACCESS_TOKEN_ENV} must be at least 16 characters. Generate one with \`openssl rand -hex 32\`.`,
+      detail: `${ACCESS_TOKEN_ENV} must be at least 12 characters.`,
     };
   }
 
