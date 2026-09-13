@@ -5,6 +5,7 @@ import { CONTENT } from './content';
 import { RETENTION } from './retention';
 import { STORE } from './store';
 import { CARE } from './care';
+import { FINANCE } from './finance';
 
 export { DEPT } from './types';
 export { toAgent } from './types';
@@ -35,7 +36,7 @@ export const PEOPLE: Person[] = [
 ];
 
 // Filled by Tasks 2 to 8: one import per pillar, concatenated in pillar order.
-export const ROSTER: RosterEntry[] = [...GROWTH, ...CONTENT, ...RETENTION, ...STORE, ...CARE];
+export const ROSTER: RosterEntry[] = [...GROWTH, ...CONTENT, ...RETENTION, ...STORE, ...CARE, ...FINANCE];
 
 export function rosterById(id: string): RosterEntry | undefined {
   return ROSTER.find((e) => e.id === id);
