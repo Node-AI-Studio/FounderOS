@@ -62,6 +62,13 @@ const LETTERMARK: Record<string, string> = {
   manychat: '#0084FF',
   skool: '#E4573D',
   'proposal-gen': '#00764f',
+  apify: '#97D700',
+  klaviyo: '#FA6423',
+  remotion: '#E4364B',
+  // G-Brain isn't a third-party brand, so it borrows the violet the brain
+  // visualization already uses (--brain-1 in app/globals.css) instead of an
+  // arbitrary color.
+  gbrain: '#8b7cff',
 };
 
 function siFor(slug: string): SiIcon | null {

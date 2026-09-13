@@ -148,35 +148,31 @@ describe('syncSocialSnapshots', () => {
 });
 
 describe('buildSocialDashboard', () => {
-  test('lists the five platforms in account order with latest followers', () => {
+  test('lists the verified Helight platforms in account order with latest followers', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     const dash = buildSocialDashboard(db);
-    expect(dash.platforms.map((p) => p.platform)).toEqual([
-      'instagram',
-      'tiktok',
-      'twitter',
-      'youtube',
-      'linkedin',
-    ]);
-    expect(dash.platforms[0].followers).toBe(42000);
-    // Every platform now carries ~90d of seeded dummy history (incl. LinkedIn)
-    // so each one charts and computes growth over every window.
-    expect(dash.platforms[4].followers).toBe(1500);
+    // Only Instagram and YouTube are linked from helight.com; TikTok and
+    // Facebook are honestly left out (see lib/seed/social.ts).
+    expect(dash.platforms.map((p) => p.platform)).toEqual(['instagram', 'youtube']);
+    expect(dash.platforms[0].followers).toBe(21500);
+    // Every platform carries ~90d of seeded dummy history so each one charts
+    // and computes growth over every window.
+    expect(dash.platforms[1].followers).toBe(1400);
   });
 
   test('sums total followers across latest snapshots', () => {
     db = openDb(':memory:');
     seedDatabase(db);
-    expect(buildSocialDashboard(db).totalFollowers).toBe(42000 + 12000 + 5200 + 900 + 1500);
+    expect(buildSocialDashboard(db).totalFollowers).toBe(21500 + 1400);
   });
 
   test('computes growth from snapshot history per platform', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     const ig = buildSocialDashboard(db).platforms.find((p) => p.platform === 'instagram');
-    // seeded ~90d history → latest is the real 40,061 and every window computes
-    expect(ig?.followers).toBe(42000);
+    // seeded ~90d history → latest is the current count and every window computes
+    expect(ig?.followers).toBe(21500);
     expect(typeof ig?.growth.d7).toBe('number');
     expect(typeof ig?.growth.d30).toBe('number');
     expect(typeof ig?.growth.d60).toBe('number');
@@ -190,7 +186,7 @@ describe('platformDetail', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     const detail = platformDetail(db, 'instagram');
-    expect(detail?.account.handle).toBe('@founderos.ai');
+    expect(detail?.account.handle).toBe('@helight');
     expect(detail?.snapshots.length).toBeGreaterThanOrEqual(1);
     expect(detail?.growth).toHaveProperty('d7');
     expect(detail?.growth).toHaveProperty('d30');
@@ -201,26 +197,27 @@ describe('platformDetail', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     expect(platformDetail(db, 'myspace' as never)).toBeNull();
+    // tiktok is a valid platform in the schema but has no Helight account yet
+    expect(platformDetail(db, 'tiktok')).toBeNull();
   });
 });
 
 describe('seeded social data', () => {
-  test('seeds the five accounts with real handles', () => {
+  test('seeds the verified accounts with real handles', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     const byPlatform = new Map(db.social.accounts().map((a) => [a.platform, a]));
-    expect(byPlatform.get('instagram')?.handle).toBe('@founderos.ai');
-    expect(byPlatform.get('twitter')?.handle).toBe('@Founderosai');
-    expect(byPlatform.get('linkedin')?.handle).toBe('Alex Rivera');
+    expect(byPlatform.get('instagram')?.handle).toBe('@helight');
+    expect(byPlatform.get('youtube')?.handle).toBe('@helight');
+    expect(db.social.accounts()).toHaveLength(2);
   });
 
   test('seeds multi-month history ending at the real current count', () => {
     db = openDb(':memory:');
     seedDatabase(db);
-    expect(db.social.snapshots('youtube').at(-1)?.followers).toBe(900);
-    // LinkedIn is fully dummy (no Zernio count) but still gets a history series
-    expect(db.social.snapshots('linkedin').length).toBeGreaterThan(3);
-    expect(db.social.snapshots('linkedin').at(-1)?.followers).toBe(1500);
+    expect(db.social.snapshots('youtube').at(-1)?.followers).toBe(1400);
+    expect(db.social.snapshots('instagram').length).toBeGreaterThan(3);
+    expect(db.social.snapshots('instagram').at(-1)?.followers).toBe(21500);
   });
 
   test('re-seeding does not duplicate accounts or snapshots', () => {

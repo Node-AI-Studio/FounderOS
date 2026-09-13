@@ -108,18 +108,12 @@ describe('API route handlers', () => {
     expect(body.doctor.detail.length).toBeGreaterThan(0);
   });
 
-  test('GET /api/social returns the growth dashboard with all five platforms', async () => {
+  test('GET /api/social returns the growth dashboard for the verified Helight platforms', async () => {
     const { GET } = await import('@/app/api/social/route');
     const res = await GET();
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.platforms.map((p: { platform: string }) => p.platform)).toEqual([
-      'instagram',
-      'tiktok',
-      'twitter',
-      'youtube',
-      'linkedin',
-    ]);
+    expect(body.platforms.map((p: { platform: string }) => p.platform)).toEqual(['instagram', 'youtube']);
     expect(body.totalFollowers).toBeGreaterThan(0);
     expect(body.platforms[0].growth).toHaveProperty('d7');
   });

@@ -118,33 +118,31 @@ describe('seedDatabase', () => {
     expect(db.tools.all().length).toBe(counts.tools);
   });
 
-  test('email list reflects the real Beehiiv account, not the retired ~30k larp', () => {
+  test('email list reflects the Klaviyo ramp, not a stray one-off number', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     const snaps = db.emailList.snapshots();
     expect(snaps.length).toBeGreaterThan(0);
-    // Latest count is the real "Alex's Newsletter" active subscriber count
-    // (pulled from Beehiiv 2026-07-07). Bumped deliberately as the list grows.
-    expect(db.emailList.latest()?.subscribers).toBe(2141);
-    // Honest shape: the list only exists from its 2026-05-28 bulk import — no
-    // pre-import history, and nowhere near the old dummy ~30k ramp.
-    expect(snaps[0].capturedAt >= '2026-05-28').toBe(true);
-    for (const s of snaps) expect(s.subscribers).toBeLessThan(6000);
+    // Latest count is the illustrative current Klaviyo list size, ramping to
+    // 8900 across the full seeded window (real once KLAVIYO_API_KEY lands).
+    expect(db.emailList.latest()?.subscribers).toBe(8900);
+    for (const s of snaps) expect(s.subscribers).toBeLessThan(9500);
   });
 
   test('re-seeding reconciles email history: stale dummy dropped, live snapshots kept', () => {
     db = openDb(':memory:');
     seedDatabase(db);
-    // an older DB still holding retired ~30k dummy history + a live Beehiiv snapshot
+    // an older DB still holding retired dummy history + a live Klaviyo snapshot
+    // for a day past the seeded window (where a real sync would land)
     db.emailList.insertSnapshot({ capturedAt: '2026-03-14', subscribers: 25800, source: 'seed-dummy' });
-    db.emailList.insertSnapshot({ capturedAt: '2026-07-07', subscribers: 4830, source: 'beehiiv' });
+    db.emailList.insertSnapshot({ capturedAt: '2026-09-13', subscribers: 8990, source: 'klaviyo' });
     seedDatabase(db);
     const snaps = db.emailList.snapshots();
     // retired dummy history is reconciled away on re-seed...
-    expect(snaps.some((s) => s.source === 'seed-dummy')).toBe(false);
-    expect(snaps.some((s) => s.subscribers > 6000)).toBe(false);
+    expect(snaps.some((s) => s.source === 'seed-dummy' && s.capturedAt === '2026-03-14')).toBe(false);
+    expect(snaps.some((s) => s.subscribers === 25800)).toBe(false);
     // ...but a real live-synced snapshot survives
-    expect(snaps.find((s) => s.capturedAt === '2026-07-07')?.source).toBe('beehiiv');
+    expect(snaps.find((s) => s.capturedAt === '2026-09-13')?.source).toBe('klaviyo');
   });
 
   test('seeded data passes schema validation end to end', () => {

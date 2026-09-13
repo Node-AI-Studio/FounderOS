@@ -197,7 +197,7 @@ export default async function AnalyticsPage() {
       delta: audience7d != null ? Math.round(audience7d * 10) / 10 : 0,
       deltaPct: audience7d != null,
     },
-    { id: 'subscribers', label: 'Subscribers', unit: 'subs', source: 'Beehiiv', value: subs },
+    { id: 'subscribers', label: 'Subscribers', unit: 'subs', source: 'Klaviyo', value: subs },
     { id: 'pipeline', label: 'Open Pipeline', unit: 'deals', source: 'Attio', value: pipelineDeals },
     { id: 'stripe', label: 'Stripe Available', unit: 'usd', source: 'Stripe', value: stripeAvail },
     { id: 'agent-runs', label: 'Agent Runs', unit: 'runs', source: 'all time', value: runs.length || null, delta: runs7d },

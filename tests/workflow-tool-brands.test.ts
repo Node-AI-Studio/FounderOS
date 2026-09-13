@@ -19,8 +19,8 @@ describe('workflow tool brands', () => {
   });
 
   test('display names are human, not raw ids', () => {
-    expect(toolBrand('ghl').name).toBe('GoHighLevel');
-    expect(toolBrand('calendar').name).toBe('Google Calendar');
+    expect(toolBrand('meta-ads').name).toBe('Meta Ads');
+    expect(toolBrand('google-ads').name).toBe('Google Ads');
     expect(toolBrand('gmail').slug).toBe('gmail');
   });
 

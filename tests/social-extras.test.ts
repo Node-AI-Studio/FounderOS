@@ -207,7 +207,7 @@ describe('audience series + range growth', () => {
 });
 
 describe('seed history is deep enough for growth math', () => {
-  test('followers + DMs carry multi-month history; the real email list is young but honest', () => {
+  test('followers, DMs and the Klaviyo list all carry multi-month history', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     // followers span ~90 days, so the merged audience computes every window
@@ -216,12 +216,12 @@ describe('seed history is deep enough for growth math', () => {
     expect(audienceGrowthPct(db, 60)).not.toBeNull();
     expect(dmGrowthPct(db, 60)).not.toBeNull();
     expect(db.social.dmSnapshots().length).toBeGreaterThan(50);
-    // the email list is the real Beehiiv account (imported 2026-05-28): its
-    // short window is computable, but 60d honestly predates the list → null
+    // the Klaviyo list ramps across the same ~90-day window, so every window
+    // computes too (illustrative until KLAVIYO_API_KEY lands)
     const email = buildEmailList(db);
-    expect(email.subscribers).toBe(2141);
+    expect(email.subscribers).toBe(8900);
     expect(email.growth.d7).not.toBeNull();
-    expect(email.growth.d60).toBeNull();
+    expect(email.growth.d60).not.toBeNull();
   });
 
   test('re-seed stays idempotent (no duplicate snapshot rows)', () => {

@@ -53,8 +53,15 @@ export const ACTION_LENSES: Lens[] = [
 
 export const ALL_LENSES: Lens[] = [...ENTITY_LENSES, ...FUNCTION_LENSES, ...ACTION_LENSES];
 
-/** Revenue-driving pillars vs the ones that keep the machine running. */
-const CORE_DEPTS = new Set(['team:dept-sales', 'team:dept-marketing-growth', 'team:dept-clients']);
+/** Revenue-driving pillars vs the ones that keep the machine running.
+ * Content is core too: it finds the winners the rest of the machine funds
+ * and fulfils. */
+const CORE_DEPTS = new Set([
+  'team:dept-sales',
+  'team:dept-marketing-growth',
+  'team:dept-clients',
+  'team:dept-content',
+]);
 const ENABLING_DEPTS = new Set(['team:dept-tech', 'team:dept-finance', 'team:dept-comms']);
 
 /** Growth and Content pillar rosters: seeded agent ids (graph nodes are `emp:<id>`). */

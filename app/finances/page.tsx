@@ -165,7 +165,7 @@ export default async function FinancesPage() {
 
         <div className="flex flex-col gap-1 rounded-lg-t border border-os-border bg-os-surface px-3 py-2">
           <div className="flex items-center justify-between gap-2">
-            <Label>Stripe balance</Label>
+            <Label>Shopify Payments balance</Label>
             <Landmark className="h-3 w-3 text-os-accent" strokeWidth={1.8} />
           </div>
           <div className="flex items-baseline justify-between gap-2">
@@ -173,7 +173,7 @@ export default async function FinancesPage() {
               {stripeLive ? usd(available, true) : '—'}
             </span>
             <span className="min-w-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-os-dim">
-              {stripeLive ? `${usd(pending, true)} pending` : 'connect Stripe'}
+              {stripeLive ? `${usd(pending, true)} pending` : 'connect Shopify Payments'}
             </span>
           </div>
         </div>

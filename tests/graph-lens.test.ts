@@ -48,6 +48,9 @@ describe('graph lenses, Helight taxonomy', () => {
     const enabling = lensNodeSet('fn-enabling', ctx);
     expect(core.has('team:dept-sales')).toBe(true);
     expect(enabling.has('team:dept-tech')).toBe(true);
+    // Content is core: it finds the winners the rest of the machine runs on
+    expect(core.has('team:dept-content')).toBe(true);
+    expect(core.has('emp:content-planner')).toBe(true);
     // a node is never both core and enabling
     for (const id of core) expect(enabling.has(id), id).toBe(false);
     // sectors include their workers, not just the gateways
