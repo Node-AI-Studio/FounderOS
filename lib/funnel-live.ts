@@ -66,19 +66,6 @@ export const ATTIO_STAGE_MAP: Record<string, FunnelStage> = {
 };
 
 /**
- * Venture heuristic for live deals (they carry no venture attribute yet):
- * company-flavored names read as Vantage client builds, bare person names as
- * Launchpad Cohort mentorship leads. Legible and wrong-at-the-edges by
- * design — add a venture attribute in Attio for the exact split.
- */
-const COMPANY_HINTS =
-  /\b(llc|inc|ltd|co|corp|company|solutions?|group|agency|tech|labs?|media|studio|consult\w*|clinic|dental|legal|law|realty|roofing|fitness|accounting|capital|ventures?|partners?|systems?|services?)\b|&/i;
-
-export function classifyVenture(dealName: string): 'vantage' | 'launchpad-cohort' {
-  return COMPANY_HINTS.test(dealName) ? 'vantage' : 'launchpad-cohort';
-}
-
-/**
  * Likelihood-to-buy relative to ICP, 20–100. Deliberately simple and legible:
  * each qualification field Alex filled is evidence of fit.
  */
@@ -153,7 +140,7 @@ export function mapAttioDeals(
         FunnelJourneySchema.parse({
           id,
           name,
-          venture: classifyVenture(name),
+          venture: 'helight',
           status: canonical,
           product: converted ? title : null,
           amountUsd: amount > 0 ? amount : converted ? 0 : null,

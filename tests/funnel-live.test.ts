@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { mapAttioDeals, icpScore, classifyVenture, ATTIO_STAGE_MAP, type AttioDeal } from '@/lib/funnel-live';
+import { mapAttioDeals, icpScore, ATTIO_STAGE_MAP, type AttioDeal } from '@/lib/funnel-live';
 import { FunnelJourneySchema } from '@/lib/schemas';
 
 const NOW = new Date('2026-07-02T12:00:00Z');
@@ -19,7 +19,7 @@ const rawDeal = (over: {
 }): AttioDeal => ({
   id: { record_id: over.id ?? 'rec-1' },
   created_at: over.createdAt ?? '2026-04-09T01:23:52.868Z',
-  web_url: `https://app.attio.com/vantage/deals/record/${over.id ?? 'rec-1'}`,
+  web_url: `https://app.attio.com/helight/deals/record/${over.id ?? 'rec-1'}`,
   values: {
     name: [{ value: over.name ?? 'Reese Calder' }],
     stage: [{ status: { title: over.stage ?? 'Contacted' }, active_from: over.stageSince ?? '2026-06-05T00:00:00Z' }],
@@ -100,30 +100,6 @@ describe('mapAttioDeals', () => {
   test('unknown stages are skipped rather than crashing the space', () => {
     const { journeys } = mapAttioDeals([rawDeal({ id: 'rec-x', stage: 'Some Future Stage' })], NOW);
     expect(journeys).toEqual([]);
-  });
-});
-
-describe('classifyVenture', () => {
-  test('person-name deals read as Launchpad Cohort mentorship leads', () => {
-    expect(classifyVenture('Reese Calder')).toBe('launchpad-cohort');
-    expect(classifyVenture('Tayla Nguyen')).toBe('launchpad-cohort');
-    expect(classifyVenture('CASEY EXAMPLE')).toBe('launchpad-cohort');
-  });
-
-  test('company-flavored deals read as Vantage client builds', () => {
-    expect(classifyVenture('Orbit Labs')).toBe('vantage');
-    expect(classifyVenture('Harbor Dental')).toBe('vantage');
-    expect(classifyVenture('Lin & Co Accounting')).toBe('vantage');
-    expect(classifyVenture('Fields Roofing LLC')).toBe('vantage');
-  });
-
-  test('mapAttioDeals stamps the heuristic venture on every journey', () => {
-    const { journeys } = mapAttioDeals([
-      rawDeal({ id: 'rec-p', name: 'Reese Calder', stage: 'Contacted' }),
-      rawDeal({ id: 'rec-c', name: 'Orbit Labs', stage: 'Contacted' }),
-    ], NOW);
-    expect(journeys.find((j) => j.id === 'attio-rec-p')?.venture).toBe('launchpad-cohort');
-    expect(journeys.find((j) => j.id === 'attio-rec-c')?.venture).toBe('vantage');
   });
 });
 

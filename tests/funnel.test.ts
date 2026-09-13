@@ -30,7 +30,7 @@ afterEach(() => {
 const contact = (over: Partial<FunnelContact> = {}): FunnelContact => ({
   id: 'fc-test',
   name: 'Test Client',
-  venture: 'vantage',
+  venture: 'helight',
   status: 'engaged',
   product: null,
   amountUsd: null,
@@ -96,37 +96,37 @@ describe('funnel repo', () => {
 
   test('venture filter narrows journeys', () => {
     db = openDb(':memory:');
-    db.funnel.insertContact(contact({ id: 'fc-m', venture: 'vantage' }));
-    db.funnel.insertContact(contact({ id: 'fc-aa', venture: 'launchpad-cohort' }));
-    expect(db.funnel.journeys('vantage').map((j) => j.id)).toEqual(['fc-m']);
-    expect(db.funnel.journeys('launchpad-cohort').map((j) => j.id)).toEqual(['fc-aa']);
+    db.funnel.insertContact(contact({ id: 'fc-a' }));
+    db.funnel.insertContact(contact({ id: 'fc-b' }));
+    expect(db.funnel.journeys('helight').map((j) => j.id).sort()).toEqual(['fc-a', 'fc-b']);
     expect(db.funnel.journeys()).toHaveLength(2);
   });
 });
 
 describe('funnel seed', () => {
-  test('seeds 4–5 touch journeys for both ventures, converted rows carry product + amount', () => {
+  test('seeds fourteen helight.com customer journeys, converted rows carry product + amount', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     const all = db.funnel.journeys();
-    expect(all.length).toBeGreaterThanOrEqual(10);
+    expect(all.length).toBe(14);
 
     for (const j of all) {
       FunnelJourneySchema.parse(j);
-      expect(j.touches.length).toBeGreaterThanOrEqual(4);
+      expect(j.touches.length).toBeGreaterThanOrEqual(1);
       expect(j.touches.length).toBeLessThanOrEqual(5);
       // touches are a contiguous 1..n sequence in chronological order
       expect(j.touches.map((t) => t.seq)).toEqual(j.touches.map((_, i) => i + 1));
       expect(j.touches[0].stage).toBe('first_touch');
     }
 
-    // both ventures represented
-    expect(new Set(all.map((j) => j.venture))).toEqual(new Set(['vantage', 'launchpad-cohort']));
+    // one venture: the DTC store
+    expect(new Set(all.map((j) => j.venture))).toEqual(new Set(['helight']));
 
     // both acquisition lanes represented, with honest intended sources
     const firsts = all.map((j) => j.touches[0]);
-    expect(firsts.some((t) => t.channel === 'organic' && t.source === 'trakyo')).toBe(true);
+    expect(firsts.some((t) => t.channel === 'organic' && t.source === 'shopify')).toBe(true);
     expect(firsts.some((t) => t.channel === 'ads' && t.source === 'meta-ads')).toBe(true);
+    expect(firsts.some((t) => t.channel === 'ads' && t.source === 'tiktok-ads')).toBe(true);
 
     // converted journeys end on a converted touch and carry the offer + amount
     const converted = all.filter((j) => j.status === 'converted');
@@ -140,14 +140,11 @@ describe('funnel seed', () => {
     // some journeys are honestly mid-funnel (not everyone converts)
     expect(all.some((j) => j.status !== 'converted')).toBe(true);
 
-    // one seeded lead has decayed past 90 quiet days so the archive tab demos
+    // every seeded touch is within the last 30 days, so nothing has decayed
+    // into the archive yet: the space stays a live pipeline, not a graveyard
     const split = splitFunnelJourneys(all, new Date());
-    expect(split.archived.length).toBeGreaterThanOrEqual(1);
-    expect(split.active.length).toBeGreaterThanOrEqual(10);
-
-    // and one active lead sits mid-fade so the decay rendering always demos
-    const decays = funnelSpaceModel(split.active, new Date()).map((n) => n.decay);
-    expect(decays.some((d) => d > 0.3 && d < 1)).toBe(true);
+    expect(split.archived.length).toBe(0);
+    expect(split.active.length).toBe(14);
 
     // relationship + likelihood seeded for every client
     for (const j of all) {
@@ -181,7 +178,7 @@ describe('funnelSummary', () => {
   ): FunnelJourney => ({
     id,
     name: id,
-    venture: 'vantage',
+    venture: 'helight',
     status,
     product: amountUsd ? 'Offer' : null,
     amountUsd,
@@ -253,7 +250,7 @@ describe('journeyMeta', () => {
   ): FunnelJourney => ({
     id: 'jm',
     name: 'jm',
-    venture: 'vantage',
+    venture: 'helight',
     status,
     product: null,
     amountUsd: null,
@@ -361,7 +358,7 @@ describe('funnelSpaceModel', () => {
   ): FunnelJourney => ({
     id,
     name: id,
-    venture: 'launchpad-cohort',
+    venture: 'helight',
     status,
     product: null,
     amountUsd: null,
@@ -456,7 +453,7 @@ describe('attentionQueue — what to act on today (AC55)', () => {
   ): FunnelJourney => ({
     id,
     name: id,
-    venture: 'vantage',
+    venture: 'helight',
     status: 'engaged',
     product: null,
     amountUsd: null,

@@ -38,9 +38,8 @@ import type { ConnectorStatus } from '@/lib/connectors/types';
 export const dynamic = 'force-dynamic';
 
 const VENTURE_TABS: { id: FunnelVenture | 'all'; label: string }[] = [
-  { id: 'all', label: 'All clients' },
-  { id: 'vantage', label: 'Vantage' },
-  { id: 'launchpad-cohort', label: 'Launchpad Cohort' },
+  { id: 'all', label: 'All customers' },
+  { id: 'helight', label: 'helight.com' },
 ];
 
 function usd(amount: number): string {

@@ -469,12 +469,13 @@ export const RosterClientSchema = z.object({
 // ── Funnel — client journeys from first touch to conversion ─────────────────
 // Canonical stages; `nurtured` is optional so a journey renders as 4–5 touches.
 export const FunnelStageSchema = z.enum(['first_touch', 'engaged', 'nurtured', 'opted_in', 'converted']);
-export const FunnelVentureSchema = z.enum(['vantage', 'launchpad-cohort']);
+export const FunnelVentureSchema = z.enum(['helight']);
 export const FunnelChannelSchema = z.enum(['organic', 'ads', 'dm', 'email', 'webinar', 'call', 'checkout', 'crm']);
 // Where each touch comes from: Trakyo (organic attribution), Meta Ads MCP
-// (paid), Attio (live CRM pipeline), manual otherwise. Seeded rows carry the
-// intended source so the live swap is a repo-level change.
-export const FunnelSourceSchema = z.enum(['trakyo', 'meta-ads', 'attio', 'ghl', 'manual']);
+// (paid), Attio (live CRM pipeline), Shopify/Klaviyo (the DTC store's own
+// stack), manual otherwise. Seeded rows carry the intended source so the
+// live swap is a repo-level change.
+export const FunnelSourceSchema = z.enum(['trakyo', 'meta-ads', 'tiktok-ads', 'attio', 'ghl', 'shopify', 'klaviyo', 'manual']);
 
 // Relationship temperature with Alex — with likelihood-to-buy (0–100) it
 // drives how a client node renders in the funnel space. Seeded dummy; later

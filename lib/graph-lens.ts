@@ -1,9 +1,9 @@
 /**
- * Lenses over the operating knowledge graph (Alex, 2026-07-12): slice the
- * same 114 nodes three ways — by ENTITY TYPE, by BUSINESS FUNCTION (core vs
- * enabling, plus his two venture teams), and by ACTION (what a thing is
- * actually used for). Picking a lens lights the matching nodes and dims the
- * rest. Pure data + matchers; the component supplies the node list and a
+ * Lenses over the operating knowledge graph: slice the same node set three
+ * ways, by ENTITY TYPE, by BUSINESS FUNCTION (core vs enabling, plus the
+ * Growth and Content pillar teams), and by ACTION (what a thing is actually
+ * used for). Picking a lens lights the matching nodes and dims the rest.
+ * Pure data + matchers; the component supplies the node list and a
  * department resolver.
  */
 
@@ -33,8 +33,8 @@ export const ENTITY_LENSES: Lens[] = [
 export const FUNCTION_LENSES: Lens[] = [
   { id: 'fn-core', group: 'function', label: 'Core' },
   { id: 'fn-enabling', group: 'function', label: 'Enabling' },
-  { id: 'fn-vantage', group: 'function', label: 'Vantage team' },
-  { id: 'fn-launchpad-cohort', group: 'function', label: 'Launchpad Cohort team' },
+  { id: 'fn-growth-team', group: 'function', label: 'Growth team' },
+  { id: 'fn-content-team', group: 'function', label: 'Content team' },
 ];
 
 export const ACTION_LENSES: Lens[] = [
@@ -57,25 +57,25 @@ export const ALL_LENSES: Lens[] = [...ENTITY_LENSES, ...FUNCTION_LENSES, ...ACTI
 const CORE_DEPTS = new Set(['team:dept-sales', 'team:dept-marketing-growth', 'team:dept-clients']);
 const ENABLING_DEPTS = new Set(['team:dept-tech', 'team:dept-finance', 'team:dept-comms']);
 
-/** Venture team rosters — seeded agent ids (graph nodes are `emp:<id>`). */
+/** Growth and Content pillar rosters: seeded agent ids (graph nodes are `emp:<id>`). */
 const VENTURE_TEAMS: Record<string, string[]> = {
-  'fn-vantage': ['vantage-sales', 'vantage-fanbasis', 'fanbasis-sales'],
-  'fn-launchpad-cohort': ['launchpad-cohort-sales'],
+  'fn-growth-team': ['growth-planner', 'competitor-researcher', 'creative-strategist', 'ad-copywriter', 'visual-designer', 'format-checker', 'compliance-auditor', 'translator', 'campaign-launcher', 'meta-ads-auditor', 'tiktok-ads-auditor', 'google-ads-auditor', 'budget-auditor', 'experiment-designer', 'tracking-auditor', 'landing-page-auditor', 'ads-reporter'],
+  'fn-content-team': ['content-planner', 'creator-watcher', 'video-analyst', 'comment-reader', 'hook-miner', 'script-writer', 'video-producer', 'edit-assistant', 'publisher', 'creator-recruiter', 'creator-briefer', 'twenty-one-nights-producer', 'performance-reader'],
 };
 
 /** What each action actually runs on — seeded agent ids, honest best-fit. */
 const ACTION_AGENTS: Record<string, string[]> = {
-  'act-ad-creation': ['arcads-creative', 'higgsfield-creative', 'remotion-editor'],
-  'act-lead-generation': ['sales-agent', 'launchpad-cohort-sales', 'manychat-mcp', 'vantage-sales'],
-  'act-content-repurposing': ['remotion-editor', 'zernio-publisher'],
-  'act-content-ideation': ['social-agent', 'data-agent'],
-  'act-content-scripts': ['social-agent', 'arcads-creative'],
-  'act-social-sentiment': ['social-agent', 'data-agent'],
-  'act-social-scheduler': ['zernio-publisher', 'social-agent', 'manychat-mcp'],
-  'act-ai-visuals': ['higgsfield-creative', 'arcads-creative'],
-  'act-competitor-intel': ['data-agent', 'arcads-creative'],
-  'act-icp-simulation': ['data-agent', 'sales-calls-data', 'crm-pulse'],
-  'act-channel-budget': ['data-agent', 'payments-pulse'],
+  'act-ad-creation': ['ad-copywriter', 'visual-designer', 'creative-strategist'],
+  'act-lead-generation': ['growth-planner', 'campaign-launcher', 'creator-recruiter', 'dm-responder'],
+  'act-content-repurposing': ['edit-assistant', 'video-producer', 'publisher'],
+  'act-content-ideation': ['hook-miner', 'content-planner', 'comment-reader'],
+  'act-content-scripts': ['script-writer', 'creator-briefer'],
+  'act-social-sentiment': ['comment-reader', 'video-analyst', 'review-monitor'],
+  'act-social-scheduler': ['publisher', 'scheduler'],
+  'act-ai-visuals': ['visual-designer', 'edit-assistant'],
+  'act-competitor-intel': ['competitor-researcher', 'creator-watcher'],
+  'act-icp-simulation': ['growth-planner', 'segment-builder'],
+  'act-channel-budget': ['growth-planner', 'budget-auditor', 'ad-spend-ledger'],
 };
 
 const idSet = (ids: string[]) => new Set(ids.map((id) => `emp:${id}`));
@@ -107,7 +107,7 @@ export function lensNodeSet(lensId: string, ctx: LensContext): Set<string> {
       byKind('team');
       break;
     case 'ent-teams': {
-      const members = idSet([...VENTURE_TEAMS['fn-vantage'], ...VENTURE_TEAMS['fn-launchpad-cohort']]);
+      const members = idSet([...VENTURE_TEAMS['fn-growth-team'], ...VENTURE_TEAMS['fn-content-team']]);
       for (const n of ctx.nodes) if (members.has(n.id)) out.add(n.id);
       break;
     }
@@ -123,8 +123,8 @@ export function lensNodeSet(lensId: string, ctx: LensContext): Set<string> {
       }
       break;
     }
-    case 'fn-vantage':
-    case 'fn-launchpad-cohort': {
+    case 'fn-growth-team':
+    case 'fn-content-team': {
       const members = idSet(VENTURE_TEAMS[lensId]);
       for (const n of ctx.nodes) if (members.has(n.id)) out.add(n.id);
       break;

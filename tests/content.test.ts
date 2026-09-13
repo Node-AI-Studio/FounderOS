@@ -7,13 +7,13 @@ let db: FounderDb;
 afterEach(() => db?.close());
 
 describe('contentAgents', () => {
-  test('returns the content-creation crew (Marketing/Growth pillar), lead first', () => {
+  test('returns the content-creation crew (Content pillar), lead first', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     const crew = contentAgents(db.agents.all());
-    expect(crew[0].id).toBe('social-agent');
+    expect(crew[0].id).toBe('content-planner');
     const ids = crew.map((a) => a.id);
-    for (const id of ['social-agent', 'zernio-publisher', 'arcads-creative', 'remotion-editor', 'higgsfield-creative', 'manychat-mcp']) {
+    for (const id of ['content-planner', 'creator-watcher', 'publisher', 'hook-miner', 'performance-reader']) {
       expect(ids).toContain(id);
     }
   });
@@ -22,8 +22,8 @@ describe('contentAgents', () => {
     db = openDb(':memory:');
     seedDatabase(db);
     const crew = contentAgents(db.agents.all());
-    expect(crew.every((a) => a.departmentId === 'dept-marketing-growth')).toBe(true);
-    expect(crew.map((a) => a.id)).not.toContain('sales-agent');
+    expect(crew.every((a) => a.departmentId === 'dept-content')).toBe(true);
+    expect(crew.map((a) => a.id)).not.toContain('growth-planner');
     expect(crew.map((a) => a.id)).not.toContain('data-agent');
   });
 
