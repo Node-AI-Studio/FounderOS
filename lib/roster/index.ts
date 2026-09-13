@@ -1,4 +1,5 @@
 import type { Department, Person } from '@/lib/schemas';
+import { DEPT } from './types';
 import type { RosterEntry } from './types';
 import { GROWTH } from './growth';
 import { CONTENT } from './content';
@@ -6,11 +7,10 @@ import { RETENTION } from './retention';
 import { STORE } from './store';
 import { CARE } from './care';
 import { FINANCE } from './finance';
+import { OPERATIONS } from './operations';
 
-export { DEPT } from './types';
-export { toAgent } from './types';
+export { DEPT, toAgent } from './types';
 export type { RosterEntry } from './types';
-import { DEPT } from './types';
 
 const GRAY = { white: '#fafafa', light: '#d4d4d4', mid: '#a3a3a3', dim: '#737373', dark: '#525252' };
 
@@ -35,9 +35,10 @@ export const PEOPLE: Person[] = [
   { id: 'person-ops-assistant', departmentId: DEPT.operations, name: 'Operations Assistant', role: 'Operations Assistant', tools: ['gbrain', 'slack'] },
 ];
 
-// Filled by Tasks 2 to 8: one import per pillar, concatenated in pillar order.
-export const ROSTER: RosterEntry[] = [...GROWTH, ...CONTENT, ...RETENTION, ...STORE, ...CARE, ...FINANCE];
+export const ROSTER: RosterEntry[] = [...GROWTH, ...CONTENT, ...RETENTION, ...STORE, ...CARE, ...FINANCE, ...OPERATIONS];
 
 export function rosterById(id: string): RosterEntry | undefined {
   return ROSTER.find((e) => e.id === id);
 }
+
+export const HEROES = ROSTER.filter((e) => e.hero).map((e) => e.id);
