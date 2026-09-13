@@ -1,53 +1,47 @@
-import type { RoadmapItem, Metric, Domain, Phase } from '@/lib/schemas';
+import type { Domain, Metric, Phase, RoadmapItem } from '@/lib/schemas';
+import { DEPT } from '@/lib/roster';
 
-// Monochrome palette — the UI is strict black & white; "color" fields carry
-// grayscale steps used only for subtle hierarchy.
-const GRAY = {
-  white: '#fafafa',
-  light: '#d4d4d4',
-  mid: '#a3a3a3',
-  dim: '#737373',
-  dark: '#525252',
-};
+const GRAY = { white: '#fafafa', light: '#d4d4d4', mid: '#a3a3a3', dim: '#737373', dark: '#525252' };
 
 export const roadmap: RoadmapItem[] = [
-  { id: 'rm-v1', title: 'FOUNDER OS v1 baseline', quarter: '2026-Q2', status: 'done', departmentId: 'dept-tech', description: 'Six views, SQLite repos, 32 tests.' },
-  { id: 'rm-mono', title: 'Monochrome rebuild + real connectors', quarter: '2026-Q2', status: 'done', departmentId: 'dept-tech', description: 'Black & white theme; IMAP, Slack, Stripe, Notion, gbrain wired.' },
-  { id: 'rm-gbrain', title: 'G-Brain provider live', quarter: '2026-Q2', status: 'done', departmentId: 'dept-tech', description: 'gbrain CLI doctor/query + brain-store local fallback.' },
-  { id: 'rm-creds-email', title: 'Connect 4 email inboxes', quarter: '2026-Q2', status: 'now', departmentId: 'dept-comms', description: 'App passwords / IMAP creds into .env.local slots 1-4.' },
-  { id: 'rm-creds-slack', title: 'Connect Slack workspace', quarter: '2026-Q2', status: 'now', departmentId: 'dept-comms', description: 'Bot token with channels:read, channels:history.' },
-  { id: 'rm-creds-payments', title: 'Connect payment processors', quarter: '2026-Q2', status: 'now', departmentId: 'dept-finance', description: 'Stripe first; PayPal/Square/Whop as keys land.' },
-  { id: 'rm-creds-notion', title: 'Connect Notion workspace', quarter: '2026-Q2', status: 'now', departmentId: 'dept-tech', description: 'Internal integration secret + page shares.' },
-  { id: 'rm-supabase', title: 'Revive Supabase Second Brain', quarter: '2026-Q2', status: 'now', departmentId: 'dept-tech', description: 'Unpause free-tier project so gbrain hybrid queries resolve again.' },
-  { id: 'rm-scheduler', title: 'Agent scheduler (cron runs)', quarter: '2026-Q3', status: 'next', departmentId: 'dept-tech', description: 'Recurring agent runs with run history and failure alerts.' },
-  { id: 'rm-llm', title: 'LLM summarization layer', quarter: '2026-Q3', status: 'next', departmentId: 'dept-tech', description: 'Claude API digests over inbox/Slack/payments data.' },
-  { id: 'rm-dedicated-host', title: 'Migrate to a dedicated host', quarter: '2026-Q3', status: 'next', departmentId: 'dept-tech', description: 'Host app + gbrain + agents on the dedicated host; Supabase stays managed.' },
-  { id: 'rm-ui', title: 'UI design pass', quarter: '2026-Q4', status: 'later', departmentId: 'dept-tech', description: 'Alex-led redesign once all integrations are live.' },
-  { id: 'rm-auth', title: 'Auth + remote access', quarter: '2026-Q4', status: 'later', departmentId: 'dept-tech', description: 'Reach FOUNDER OS on the mini from anywhere, safely.' },
-];
-
-// Honest zeros — these flip to live numbers as connectors come online.
-export const metrics: Metric[] = [
-  { id: 'metric-unread', key: 'unread_total', label: 'Unread (all inboxes)', value: 0, unit: 'emails', delta: 0, period: 'pending creds' },
-  { id: 'metric-brain', key: 'brain_pages', label: 'Brain-store Pages', value: 0, unit: 'pages', delta: 0, period: 'run Data Agent' },
-  { id: 'metric-balance', key: 'stripe_available', label: 'Stripe Available', value: 0, unit: 'usd', delta: 0, period: 'pending creds' },
-  { id: 'metric-runs', key: 'agent_runs', label: 'Agent Runs Logged', value: 0, unit: 'runs', delta: 0, period: 'all time' },
-];
-
-export const domains: Domain[] = [
-  { id: 'brm-1', number: 1, title: 'Command & Memory', color: GRAY.white, items: ['G-Brain (gbrain CLI)', 'brain-store markdown', 'Agent run history', 'Operator dashboard'] },
-  { id: 'brm-2', number: 2, title: 'Email Operations', color: GRAY.light, items: ['Four IMAP inboxes', 'Unread triage', 'Per-inbox health', 'Digest (planned)'] },
-  { id: 'brm-3', number: 3, title: 'Team Comms', color: GRAY.light, items: ['Slack channels', 'Message digests', 'Mention tracking (planned)'] },
-  { id: 'brm-4', number: 4, title: 'Payments & Revenue', color: GRAY.mid, items: ['Stripe balance + charges', 'PayPal / Square / Whop registry', 'Reconciliation (planned)'] },
-  { id: 'brm-5', number: 5, title: 'Knowledge & Docs', color: GRAY.mid, items: ['Notion workspace', 'ZeroEntropy embeddings', 'Supabase Second Brain'] },
-  { id: 'brm-6', number: 6, title: 'Agent Runtime', color: GRAY.dim, items: ['Registry + run()', 'Persisted run log', 'Honest failure states'] },
-  { id: 'brm-7', number: 7, title: 'Infrastructure', color: GRAY.dim, items: ['Laptop (now)', 'Dedicated host (next)', 'SQLite local', 'Supabase managed'] },
-  { id: 'brm-8', number: 8, title: 'Security', color: GRAY.dark, items: ['.env.local secrets (gitignored)', 'Read-only connector scopes', 'No keys in repo'] },
+  { id: 'rm-evidence', title: 'Evidence base curated and the claims allowlist published', quarter: '2026-Q3', status: 'done', departmentId: DEPT.store, description: 'Patents, studies, clinicians, awards, survey with method note.' },
+  { id: 'rm-brand-pack', title: 'Brand pack 2.4 with approved product photography', quarter: '2026-Q3', status: 'done', departmentId: DEPT.operations, description: 'Templates and photography the producers draw from.' },
+  { id: 'rm-connect-shopify', title: 'Connect Shopify', quarter: '2026-Q3', status: 'now', departmentId: DEPT.store, description: 'Admin API token for orders, products, customers.' },
+  { id: 'rm-connect-ads', title: 'Connect Meta, TikTok and Google Ads', quarter: '2026-Q3', status: 'now', departmentId: DEPT.growth, description: 'Marketing API access per platform; TikTok app approval is the lead time.' },
+  { id: 'rm-connect-klaviyo', title: 'Connect Klaviyo', quarter: '2026-Q3', status: 'now', departmentId: DEPT.retention, description: 'Private API key; flows and segments read and write.' },
+  { id: 'rm-content-engine', title: 'Content engine live at 60 posts a month', quarter: '2026-Q4', status: 'next', departmentId: DEPT.content, description: 'Watchlist, vault, scripts, publishing, kill and promote.' },
+  { id: 'rm-21-nights', title: '21 Nights series with six creators', quarter: '2026-Q4', status: 'next', departmentId: DEPT.content, description: 'Day 1, 7, 21, wearable data on screen.' },
+  { id: 'rm-paid-loop', title: 'Paid amplification of organic winners', quarter: '2026-Q4', status: 'next', departmentId: DEPT.growth, description: 'Performance Reader to Campaign Launcher, on Yannick\'s spend approval.' },
+  { id: 'rm-flows', title: 'Seven Klaviyo flows live', quarter: '2026-Q4', status: 'next', departmentId: DEPT.retention, description: 'Welcome to win-back, 21 Nights Coach in the middle.' },
+  { id: 'rm-proof-pages', title: 'Fill the four empty proof pages', quarter: '2026-Q4', status: 'next', departmentId: DEPT.store, description: 'Science, doctor-recommended, compare, better-sleep from the evidence base.' },
+  { id: 'rm-ai-answers', title: 'Cited by assistants for sleep questions', quarter: '2027-Q1', status: 'later', departmentId: DEPT.store, description: 'agents.md, llms.txt, schema, weekly citation check.' },
+  { id: 'rm-autonomy', title: 'Scheduled runs and failure alerts', quarter: '2027-Q1', status: 'later', departmentId: DEPT.operations, description: 'Every agent on cron, Monday reports without a prompt.' },
+  { id: 'rm-handoff', title: 'Handoff to Helight\'s team', quarter: '2027-Q2', status: 'later', departmentId: DEPT.operations, description: 'The board runs in-house; Node AI on retainer for the engine.' },
 ];
 
 export const phases: Phase[] = [
-  { id: 'phase-1', number: 1, title: 'Real Connections', items: ['4 email inboxes', 'Slack', 'Payment processors', 'Notion', 'G-Brain'] },
-  { id: 'phase-2', number: 2, title: 'Real Agents', items: ['Runtime + run log', 'Honest status board', 'On-demand runs'] },
-  { id: 'phase-3', number: 3, title: 'Autonomy', items: ['Scheduled runs', 'LLM digests', 'Failure alerts'] },
-  { id: 'phase-4', number: 4, title: 'Dedicated Host', items: ['Migrate compute', 'Remote access + auth', '24/7 uptime'] },
+  { id: 'phase-1', number: 1, title: 'Connect the stack', items: ['Shopify', 'Meta, TikTok, Google', 'Klaviyo', 'Amazon', 'G-Brain'] },
+  { id: 'phase-2', number: 2, title: 'Content engine live', items: ['Watchlist and vault', '60 to 90 posts a month', '21 Nights series', 'Compliance gate'] },
+  { id: 'phase-3', number: 3, title: 'Amplify and retain', items: ['Winners into paid', 'Seven flows', 'Proof pages', 'Monday briefs'] },
+  { id: 'phase-4', number: 4, title: 'Autonomy and handoff', items: ['Scheduled runs', 'Failure alerts', 'In-house operation'] },
+];
+
+export const domains: Domain[] = [
+  { id: 'brm-1', number: 1, title: 'Command and Memory', color: GRAY.white, items: ['G-Brain', 'brain-store markdown', 'Agent run history', 'Operator console'] },
+  { id: 'brm-2', number: 2, title: 'Evidence Base', color: GRAY.light, items: ['Patent family', 'Study chain', 'Clinician positions', 'Claims allowlist'] },
+  { id: 'brm-3', number: 3, title: 'Brand Pack', color: GRAY.light, items: ['Brand context', 'Approved photography', 'Templates', 'Versioned releases'] },
+  { id: 'brm-4', number: 4, title: 'Ad Accounts', color: GRAY.mid, items: ['Meta', 'TikTok', 'Google', 'Tracking and attribution'] },
+  { id: 'brm-5', number: 5, title: 'Content Vault', color: GRAY.mid, items: ['Creator watchlist', 'Hook templates', 'Scripts', 'Publishing log'] },
+  { id: 'brm-6', number: 6, title: 'Lifecycle Email', color: GRAY.dim, items: ['Klaviyo flows', 'Segments', '21 Nights Coach', 'SMS'] },
+  { id: 'brm-7', number: 7, title: 'Customer Voice', color: GRAY.dim, items: ['Support triage', 'Reviews', 'DMs', 'Weekly synthesis'] },
+  { id: 'brm-8', number: 8, title: 'Finance', color: GRAY.dark, items: ['Payouts', 'Ad spend ledger', 'Contribution margin', 'Month close'] },
+];
+
+export const metrics: Metric[] = [
+  { id: 'metric-sessions', key: 'sessions', label: 'Sessions (7d)', value: 48200, unit: 'sessions', delta: 6.4, period: 'seeded' },
+  { id: 'metric-cvr', key: 'conversion_rate', label: 'Conversion rate', value: 2.4, unit: '%', delta: 0.3, period: 'seeded' },
+  { id: 'metric-aov', key: 'aov', label: 'Average order', value: 152, unit: 'usd', delta: 4, period: 'seeded' },
+  { id: 'metric-mer', key: 'mer', label: 'Blended MER', value: 3.1, unit: 'x', delta: 0.2, period: 'seeded' },
+  { id: 'metric-repeat', key: 'repeat_rate', label: 'Repeat rate (90d)', value: 11, unit: '%', delta: 1.2, period: 'seeded' },
+  { id: 'metric-refunds', key: 'refund_rate', label: 'Refund rate (60d window)', value: 4.2, unit: '%', delta: -0.6, period: 'seeded' },
 ];
