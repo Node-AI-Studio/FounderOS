@@ -1,4 +1,5 @@
-import { createGBrainProvider, readStoreNotes } from '@/lib/connectors/gbrain';
+import { readStoreNotes } from '@/lib/connectors/gbrain';
+import { getBrainOverviewProvider } from '@/lib/brain';
 import { attioClients } from '@/lib/connectors/attio';
 import { readVaultNotes } from '@/lib/connectors/obsidian';
 import type { RosterClient } from '@/lib/schemas';
@@ -142,7 +143,7 @@ function memoryConstellation(): MemoryGraph | undefined {
 }
 
 export default async function BrainPage() {
-  const overview = await createGBrainProvider().overview();
+  const overview = await getBrainOverviewProvider().overview();
   const { store, doctor } = overview;
   const db = getDb();
   const knowledgeGraph = buildKnowledgeGraph(db.agents.all(), db.departments.all(), db.people.all(), db.sopTasks.all());
@@ -162,33 +163,61 @@ export default async function BrainPage() {
   const supabaseCheck = doctor.checks.find((c) => /supabase|database/i.test(c.name));
   const zeroEntropyCheck = doctor.checks.find((c) => /zero|embed/i.test(c.name));
   const fallbackActive = supabaseCheck ? supabaseCheck.status !== 'ok' : !doctor.connected;
+  const seeded = doctor.status === 'seeded';
 
-  const layers: { name: string; sub: string; val: string; state: string }[] = [
-    {
-      name: 'gbrain CLI',
-      sub: 'v0.41 · ~/.bun/bin/gbrain · doctor --fast',
-      val: doctor.connected ? 'LIVE' : 'UNREACHABLE',
-      state: doctor.connected ? 'connected' : 'error',
-    },
-    {
-      name: 'brain-store/',
-      sub: `${storeShort} · markdown knowledge`,
-      val: `${store.totalFiles} pages`,
-      state: store.totalFiles > 0 ? 'connected' : 'available',
-    },
-    {
-      name: 'ZeroEntropy',
-      sub: 'hybrid-search embeddings · key in ~/.config/knowledge',
-      val: zeroEntropyCheck ? (zeroEntropyCheck.status === 'ok' ? 'LIVE' : zeroEntropyCheck.status.toUpperCase()) : 'LIVE',
-      state: zeroEntropyCheck && zeroEntropyCheck.status !== 'ok' ? 'available' : 'connected',
-    },
-    {
-      name: 'Supabase Second Brain',
-      sub: '918 pages / 11k chunks · free tier idle-pause',
-      val: fallbackActive ? 'PAUSED' : 'LIVE',
-      state: fallbackActive ? 'available' : 'connected',
-    },
-  ];
+  const layers: { name: string; sub: string; val: string; state: string }[] = seeded
+    ? [
+        {
+          name: 'gbrain CLI',
+          sub: 'seeded doctor, no CLI on this board',
+          val: 'SEEDED',
+          state: 'connected',
+        },
+        {
+          name: 'brain-store/',
+          sub: `${storeShort} · markdown knowledge`,
+          val: `${store.totalFiles} pages`,
+          state: store.totalFiles > 0 ? 'connected' : 'available',
+        },
+        {
+          name: 'ZeroEntropy',
+          sub: 'illustrative embeddings',
+          val: 'SEEDED',
+          state: 'connected',
+        },
+        {
+          name: 'Supabase Second Brain',
+          sub: `${store.totalFiles} pages / ${store.totalFiles * 3} chunks, illustrative`,
+          val: 'SEEDED',
+          state: 'connected',
+        },
+      ]
+    : [
+        {
+          name: 'gbrain CLI',
+          sub: 'v0.41 · ~/.bun/bin/gbrain · doctor --fast',
+          val: doctor.connected ? 'LIVE' : 'UNREACHABLE',
+          state: doctor.connected ? 'connected' : 'error',
+        },
+        {
+          name: 'brain-store/',
+          sub: `${storeShort} · markdown knowledge`,
+          val: `${store.totalFiles} pages`,
+          state: store.totalFiles > 0 ? 'connected' : 'available',
+        },
+        {
+          name: 'ZeroEntropy',
+          sub: 'hybrid-search embeddings · key in ~/.config/knowledge',
+          val: zeroEntropyCheck ? (zeroEntropyCheck.status === 'ok' ? 'LIVE' : zeroEntropyCheck.status.toUpperCase()) : 'LIVE',
+          state: zeroEntropyCheck && zeroEntropyCheck.status !== 'ok' ? 'available' : 'connected',
+        },
+        {
+          name: 'Supabase Second Brain',
+          sub: '918 pages / 11k chunks · free tier idle-pause',
+          val: fallbackActive ? 'PAUSED' : 'LIVE',
+          state: fallbackActive ? 'available' : 'connected',
+        },
+      ];
 
   return (
     <div>
@@ -288,6 +317,7 @@ export default async function BrainPage() {
         <div className="flex items-center justify-between border-t border-os-border px-3.5 py-3 font-mono text-[10.5px]">
           <span className="text-os-dim">
             <b className="font-medium text-os-muted">doctor</b> — health {doctor.healthScore ?? '—'}/100
+            {seeded ? ' (seeded)' : ''}
           </span>
           <span className={warnings.length > 0 ? 'text-os-warn' : doctor.connected ? 'text-os-ok' : 'text-os-err'}>
             {doctor.connected ? (warnings.length > 0 ? `${warnings.length} warnings` : 'all green') : 'offline'}

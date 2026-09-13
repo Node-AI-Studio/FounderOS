@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { getBrainProvider } from '@/lib/brain';
-import { createGBrainProvider } from '@/lib/connectors/gbrain';
+import { getBrainProvider, getBrainOverviewProvider } from '@/lib/brain';
 import { parseInboxConfigs, unreadCounts } from '@/lib/connectors/email';
 import { recentMessages } from '@/lib/connectors/slack';
 import { zernioStatus } from '@/lib/connectors/zernio';
@@ -78,7 +77,7 @@ async function stackMonitorRun(): Promise<AgentRunResult> {
 }
 
 async function gbrainRun(): Promise<AgentRunResult> {
-  const overview = await createGBrainProvider().overview();
+  const overview = await getBrainOverviewProvider().overview();
   const { store, doctor } = overview;
   const warnings = doctor.checks.filter((c) => c.status !== 'ok');
   const biggest = [...store.folders].sort((a, b) => b.files - a.files)[0];
@@ -132,7 +131,7 @@ function gbrainChatTools(): LlmToolSpec[] {
 }
 
 async function markdownAuditRun(): Promise<AgentRunResult> {
-  const { store } = await createGBrainProvider().overview();
+  const { store } = await getBrainOverviewProvider().overview();
   if (store.totalFiles === 0) {
     return { ok: false, summary: `brain-store empty or unreadable at ${store.path}` };
   }
@@ -145,7 +144,7 @@ async function markdownAuditRun(): Promise<AgentRunResult> {
 }
 
 async function vectorAuditRun(): Promise<AgentRunResult> {
-  const { doctor } = await createGBrainProvider().overview();
+  const { doctor } = await getBrainOverviewProvider().overview();
   const warn = doctor.checks.filter((c) => c.status !== 'ok');
   return {
     ok: doctor.connected,
