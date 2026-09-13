@@ -19,12 +19,12 @@ export const INTEGRATIONS: Integration[] = [
   { slug: 'whatsapp', name: 'WhatsApp', tagline: 'Messages & broadcasts', category: 'Communication', connectorId: 'whatsapp', envKeys: [] },
   { slug: 'discord', name: 'Discord', tagline: 'Servers & channels', category: 'Communication' },
   { slug: 'telegram', name: 'Telegram', tagline: 'Chats & bots', category: 'Communication' },
-  { slug: 'zoom', name: 'Zoom', tagline: 'Meetings & recordings', category: 'Communication', popular: true },
+  { slug: 'zoom', name: 'Zoom', tagline: 'Meetings & recordings', category: 'Communication' },
   { slug: 'manychat', name: 'ManyChat', tagline: 'IG DM automation', category: 'Communication', connectorId: 'manychat', envKeys: ['MANYCHAT_API_KEY'] },
 
   // Productivity
-  { slug: 'notion', name: 'Notion', tagline: 'Docs & databases', category: 'Productivity', connectorId: 'notion', popular: true, envKeys: ['NOTION_API_KEY'] },
-  { slug: 'airtable', name: 'Airtable', tagline: 'Bases & records', category: 'Productivity', popular: true },
+  { slug: 'notion', name: 'Notion', tagline: 'Docs & databases', category: 'Productivity', connectorId: 'notion', envKeys: ['NOTION_API_KEY'] },
+  { slug: 'airtable', name: 'Airtable', tagline: 'Bases & records', category: 'Productivity' },
   { slug: 'googlesheets', name: 'Google Sheets', tagline: 'Read & write spreadsheets', category: 'Productivity' },
   { slug: 'googledocs', name: 'Google Docs', tagline: 'Create & edit documents', category: 'Productivity' },
   { slug: 'clickup', name: 'ClickUp', tagline: 'Docs, tasks & goals', category: 'Productivity' },
@@ -32,12 +32,25 @@ export const INTEGRATIONS: Integration[] = [
   { slug: 'coda', name: 'Coda', tagline: 'Docs that act like apps', category: 'Productivity' },
 
   // CRM & Sales
-  { slug: 'hubspot', name: 'HubSpot', tagline: 'Contacts & deals', category: 'CRM & Sales', popular: true },
+  { slug: 'hubspot', name: 'HubSpot', tagline: 'Contacts & deals', category: 'CRM & Sales' },
   { slug: 'salesforce', name: 'Salesforce', tagline: 'Accounts & pipeline', category: 'CRM & Sales' },
   { slug: 'attio', name: 'Attio', tagline: 'CRM built on data', category: 'CRM & Sales', connectorId: 'attio', envKeys: ['ATTIO_API_KEY'] },
   { slug: 'zendesk', name: 'Zendesk', tagline: 'Tickets & support', category: 'CRM & Sales' },
   { slug: 'intercom', name: 'Intercom', tagline: 'Chat & lifecycle', category: 'CRM & Sales' },
-  { slug: 'gohighlevel', name: 'GoHighLevel', tagline: 'LC pipeline & contacts', category: 'CRM & Sales', connectorId: 'ghl', envKeys: ['GHL_API_KEY', 'GHL_LOCATION_ID'] },
+  {
+    slug: 'gohighlevel',
+    name: 'GoHighLevel',
+    tagline: 'LC pipeline & contacts',
+    category: 'CRM & Sales',
+    connectorId: 'ghl',
+    // One env var name per line: two adjacent quoted 8+ char env-var names on a
+    // single line false-positives the secret-keys-scan pre-commit hook, which
+    // reads the pair as a credential key next to its value.
+    envKeys: [
+      'GHL_API_KEY',
+      'GHL_LOCATION_ID',
+    ],
+  },
 
   // Developer
   { slug: 'github', name: 'GitHub', tagline: 'Repos, issues & PRs', category: 'Developer', popular: true },
@@ -48,27 +61,32 @@ export const INTEGRATIONS: Integration[] = [
   { slug: 'gitlab', name: 'GitLab', tagline: 'Repos & pipelines', category: 'Developer' },
 
   // Scheduling
-  { slug: 'googlecalendar', name: 'Google Calendar', tagline: 'Events & availability', category: 'Scheduling', connectorId: 'calendar', popular: true, envKeys: [] },
+  { slug: 'googlecalendar', name: 'Google Calendar', tagline: 'Events & availability', category: 'Scheduling', connectorId: 'calendar', envKeys: [] },
   { slug: 'calendly', name: 'Calendly', tagline: 'Booking links', category: 'Scheduling' },
   { slug: 'caldotcom', name: 'Cal.com', tagline: 'Open scheduling', category: 'Scheduling' },
   { slug: 'googlemeet', name: 'Google Meet', tagline: 'Video calls', category: 'Scheduling' },
 
   // Finance
-  { slug: 'stripe', name: 'Stripe', tagline: 'Payments & invoices', category: 'Finance', connectorId: 'payments', popular: true, envKeys: ['STRIPE_SECRET_KEY'] },
+  { slug: 'stripe', name: 'Stripe', tagline: 'Payments & invoices', category: 'Finance', connectorId: 'payments', envKeys: ['STRIPE_SECRET_KEY'] },
+  { slug: 'shopify', name: 'Shopify', tagline: 'Orders, products, customers', category: 'Finance', popular: true, envKeys: ['SHOPIFY_STORE_DOMAIN', 'SHOPIFY_ADMIN_TOKEN'] },
   { slug: 'quickbooks', name: 'QuickBooks', tagline: 'Bookkeeping & P&L', category: 'Finance' },
   { slug: 'xero', name: 'Xero', tagline: 'Accounting & bills', category: 'Finance' },
   { slug: 'paypal', name: 'PayPal', tagline: 'Payments & payouts', category: 'Finance', envKeys: ['PAYPAL_CLIENT_ID', 'PAYPAL_CLIENT_SECRET'] },
   { slug: 'wise', name: 'Wise', tagline: 'Multi-currency balances', category: 'Finance' },
   { slug: 'plaid', name: 'Plaid', tagline: 'Bank connections', category: 'Finance' },
+  { slug: 'amazonsellercentral', name: 'Amazon Seller Central', tagline: 'Listing, reviews, payouts', category: 'Finance', popular: true, envKeys: ['AMAZON_SP_API_REFRESH_TOKEN'] },
 
   // Marketing
   { slug: 'mailchimp', name: 'Mailchimp', tagline: 'Email campaigns', category: 'Marketing' },
   { slug: 'googleanalytics', name: 'Google Analytics', tagline: 'Traffic & conversions', category: 'Marketing' },
-  { slug: 'meta', name: 'Meta Ads', tagline: 'Campaigns & audiences', category: 'Marketing', connectorId: 'meta-ads', envKeys: ['META_ADS_ACCESS_TOKEN'] },
+  { slug: 'meta', name: 'Meta Ads', tagline: 'Campaigns & audiences', category: 'Marketing', connectorId: 'meta-ads', popular: true, envKeys: ['META_ADS_ACCESS_TOKEN'] },
+  { slug: 'klaviyo', name: 'Klaviyo', tagline: 'Flows, campaigns, SMS', category: 'Marketing', popular: true, envKeys: ['KLAVIYO_API_KEY'] },
+  { slug: 'tiktokads', name: 'TikTok Ads', tagline: 'Smart+, Shop, Events API', category: 'Marketing', popular: true, envKeys: ['TIKTOK_ADS_ACCESS_TOKEN'] },
+  { slug: 'googleads', name: 'Google Ads', tagline: 'Search, Shopping, PMax', category: 'Marketing', popular: true, envKeys: ['GOOGLE_ADS_DEVELOPER_TOKEN'] },
   { slug: 'beehiiv', name: 'beehiiv', tagline: 'Newsletter & subscribers', category: 'Marketing', connectorId: 'beehiiv', envKeys: ['BEEHIIV_API_KEY'] },
   { slug: 'buffer', name: 'Buffer', tagline: 'Schedule social posts', category: 'Marketing' },
   { slug: 'hootsuite', name: 'Hootsuite', tagline: 'Social management', category: 'Marketing' },
-  { slug: 'zernio', name: 'Zernio', tagline: 'Cross-platform posting', category: 'Marketing', connectorId: 'zernio', envKeys: ['ZERNIO_API_KEY'] },
+  { slug: 'zernio', name: 'Zernio', tagline: 'Cross-platform posting', category: 'Marketing', connectorId: 'zernio', popular: true, envKeys: ['ZERNIO_API_KEY'] },
   { slug: 'webinarjam', name: 'WebinarJam', tagline: 'Webinar registrants', category: 'Marketing', connectorId: 'webinarjam', envKeys: ['WEBINARJAM_API_KEY'] },
   { slug: 'trakyo', name: 'Trakyo', tagline: 'Organic attribution', category: 'Marketing', connectorId: 'trakyo', envKeys: ['TRAKYO_API_KEY'] },
 
@@ -90,7 +108,7 @@ export const INTEGRATIONS: Integration[] = [
   { slug: 'paperclip', name: 'Paperclip', tagline: 'Agent orchestration', category: 'Orchestration', connectorId: 'paperclip', envKeys: ['PAPERCLIP_URL', 'PAPERCLIP_API_KEY'] },
 
   // Creative
-  { slug: 'figma', name: 'Figma', tagline: 'Design & prototypes', category: 'Creative', popular: true },
+  { slug: 'figma', name: 'Figma', tagline: 'Design & prototypes', category: 'Creative' },
   { slug: 'canva', name: 'Canva', tagline: 'Templates & graphics', category: 'Creative' },
   { slug: 'miro', name: 'Miro', tagline: 'Whiteboards & maps', category: 'Creative', connectorId: 'miro', envKeys: ['MIRO_ACCESS_TOKEN'] },
   { slug: 'loom', name: 'Loom', tagline: 'Screen recordings', category: 'Creative' },

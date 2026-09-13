@@ -67,6 +67,8 @@ const LETTERMARK: Record<string, string> = {
   apify: '#8a8f98',
   klaviyo: '#8a8f98',
   remotion: '#8a8f98',
+  tiktokads: '#8a8f98',
+  amazonsellercentral: '#8a8f98',
   // G-Brain isn't a third-party brand, so it borrows the violet the brain
   // visualization already uses (--brain-1 in app/globals.css) instead of an
   // arbitrary color.
