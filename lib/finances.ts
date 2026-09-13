@@ -1,5 +1,5 @@
 /**
- * Finances domain — pure, real-ready. Income flows through a processor/account
+ * Finances domain: pure, real-ready. Income flows through a processor/account
  * registry (Shopify Payments wired today; Amazon payouts and PayPal are honest
  * pending slots until their keys land). Expenses are seeded SAMPLE data until the
  * statement-ingestion engine (Phase 2) replaces them with parsed bank/CC rows.
@@ -8,7 +8,7 @@
  * reads as "earned nothing". The page renders pending honestly.
  */
 
-// ── Income: processor / account registry ────────────────────────────────────
+// -- Income: processor / account registry ------------------------------------
 
 export type IncomeAccount = {
   id: string;
@@ -19,7 +19,7 @@ export type IncomeAccount = {
   income: number | null; // month-to-date income in USD (null = pending)
 };
 
-/** Recent outgoing transfer (e.g. Wise) — money Alex sent out. */
+/** Recent outgoing transfer (e.g. Wise): money Alex sent out. */
 export type OutgoingTransfer = {
   amountCents: number;
   currency: string;
@@ -33,7 +33,7 @@ export type OutgoingTransfer = {
  * real month-to-date income when connected; Amazon payouts and PayPal are
  * honest pending slots until their keys land. `configured` flags which
  * accounts have keys in the env (from `configuredProcessors`); `live` means a
- * real pull is actually happening — true only for Shopify Payments today, so
+ * real pull is actually happening, true only for Shopify Payments today, so
  * a key-set-but-not-yet-integrated account reads "key set", never a faked
  * number.
  */
@@ -75,13 +75,13 @@ export function totalIncome(accounts: IncomeAccount[]): number {
   return accounts.reduce((sum, a) => sum + (a.income ?? 0), 0);
 }
 
-// ── Expenses: seeded sample until statement ingestion lands (Phase 2) ────────
+// -- Expenses: seeded sample until statement ingestion lands (Phase 2) -------
 
 export type ExpenseItem = { id: string; label: string; category: string; monthly: number };
 
 /**
  * Placeholder recurring spend for an AI-operator / agency stack. Clearly a
- * SAMPLE in the UI — gets replaced by real parsed transactions once monthly
+ * SAMPLE in the UI, gets replaced by real parsed transactions once monthly
  * bank + credit-card statement uploads are wired.
  */
 export const SAMPLE_EXPENSES: ExpenseItem[] = [
@@ -117,12 +117,12 @@ export function expensesByCategory(items: ExpenseItem[]): { category: string; to
     .sort((a, b) => b.total - a.total);
 }
 
-/** Net monthly cash flow — income minus expenses (may be negative). */
+/** Net monthly cash flow: income minus expenses (may be negative). */
 export function net(income: number, expenses: number): number {
   return income - expenses;
 }
 
-// ── Stripe month-to-date helpers (pure; the connector feeds in raw charges) ──
+// -- Stripe month-to-date helpers (pure; the connector feeds in raw charges) --
 
 /** Unix seconds for the first instant of `now`'s calendar month (UTC). */
 export function monthStartUnix(now: Date): number {

@@ -3,7 +3,7 @@ import type { Agent } from '@/lib/schemas';
 /**
  * The wiki-style detail shown when you click an agent in the knowledge graph:
  * the markdown files that define the agent and the servers/tools it connects to
- * (flagged when they're MCP servers). Brain-store paths are seeded/derived —
+ * (flagged when they're MCP servers). Brain-store paths are seeded/derived,
  * real-ready for when each agent's actual definition files get wired in.
  */
 
@@ -46,9 +46,9 @@ export function buildAgentWiki(agent: Agent): AgentWiki {
 }
 
 // Short, real-ready summaries for the tools agents lean on most. Anything not
-// listed falls back to a generic line — swap for live tool docs later.
+// listed falls back to a generic line. Swap for live tool docs later.
 const TOOL_SUMMARY: Record<string, string> = {
-  gbrain: 'The G-Brain CLI — hybrid search over the markdown brain-store + Supabase second brain.',
+  gbrain: 'The G-Brain CLI: hybrid search over the markdown brain-store + Supabase second brain.',
   'brain-store': 'Local markdown knowledge base; the source of truth G-Brain syncs from.',
   supabase: 'Postgres + pgvector "second brain" holding chunked embeddings.',
   zeroentropy: 'Embedding provider behind G-Brain hybrid retrieval.',
@@ -66,12 +66,16 @@ const TOOL_SUMMARY: Record<string, string> = {
   'tiktok-ads': 'Campaigns, Smart+, Shop, Events API on TikTok.',
   'google-ads': 'Search, Shopping, Performance Max on Google.',
   amazon: 'Listing, reviews, Sponsored Products, settlements on Seller Central.',
-  'support-inbox': 'Slot for the helpdesk of choice — triage, drafts, response times.',
-  reviews: 'Slot for the reviews app of choice — Review Monitor and Voice of Customer.',
-  attribution: 'Slot for the attribution tool of choice — feeds MER and per-platform CPA.',
+  'support-inbox': 'Slot for the helpdesk of choice. Would feed triage, drafts and response times.',
+  reviews: 'Slot for the reviews app of choice. Would feed Review Monitor and Voice of Customer.',
+  attribution: 'Slot for the attribution tool of choice. Would feed MER and per-platform CPA.',
   retail: 'Shelf presence at Ulta and Goop. No integration; sell-through arrives by report.',
   apify: 'Creator watchlist scraping and transcription across TikTok.',
   broadcast: 'Conductor fan-out to every agent.',
+  whisper: 'Local transcription. Nothing leaves the machine.',
+  tmux: 'Session orchestration on the host.',
+  vercel: 'Deploy target when the OS leaves the laptop.',
+  gh: 'GitHub CLI, authenticated.',
 };
 
 export type ToolWiki = {
@@ -93,7 +97,7 @@ export function buildToolWiki(slug: string, usedBy: string[] = []): ToolWiki {
     mcp,
     kind: mcp ? 'MCP server' : 'integration',
     path: `brain-store/tools/${slug}.md`,
-    summary: TOOL_SUMMARY[slug] ?? `${name} — wired in through the ${mcp ? 'MCP server' : 'tool'} layer.`,
+    summary: TOOL_SUMMARY[slug] ?? `${name}: wired in through the ${mcp ? 'MCP server' : 'tool'} layer.`,
     usedBy,
   };
 }
