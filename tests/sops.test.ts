@@ -96,13 +96,14 @@ describe('seeded SOP graph data', () => {
     }
   });
 
-  test('monogamy: no worker (human or agent) is assigned more than one task', () => {
+  test('agent monogamy: no agent is assigned more than one task', () => {
     const d = seeded();
+    // Persons can hold more than one task (Yannick approves both the week
+    // and spend on winners); every agent still gets exactly one SOP.
     const seen = new Set<string>();
-    for (const t of d.sopTasks.all()) {
-      const key = `${t.assigneeKind}:${t.assigneeId}`;
-      expect(seen.has(key), `${key} assigned to more than one task`).toBe(false);
-      seen.add(key);
+    for (const t of d.sopTasks.all().filter((t) => t.assigneeKind === 'agent')) {
+      expect(seen.has(t.assigneeId), `${t.assigneeId} assigned to more than one task`).toBe(false);
+      seen.add(t.assigneeId);
     }
   });
 
@@ -112,10 +113,15 @@ describe('seeded SOP graph data', () => {
     expect(assigned.sort()).toEqual(d.agents.all().map((a) => a.id).sort());
   });
 
-  test('every person has exactly one task and at least one tool', () => {
+  test('every person with a written SOP is real, and every person has a tool', () => {
     const d = seeded();
-    const assigned = d.sopTasks.all().filter((t) => t.assigneeKind === 'person').map((t) => t.assigneeId);
-    expect(assigned.sort()).toEqual(d.people.all().map((p) => p.id).sort());
+    // Yannick (the Operator) is the only person with written approval SOPs
+    // right now (two: approve the week, approve spend on winners). The
+    // other pillar heads are placeholder hires without individual SOPs yet.
+    const peopleIds = new Set(d.people.all().map((p) => p.id));
+    const assigned = new Set(d.sopTasks.all().filter((t) => t.assigneeKind === 'person').map((t) => t.assigneeId));
+    for (const id of assigned) expect(peopleIds.has(id), `${id} is not a real person`).toBe(true);
+    expect(assigned.has('person-yannick')).toBe(true);
     for (const p of d.people.all()) {
       expect(p.tools.length, `${p.id} has no tools`).toBeGreaterThan(0);
     }

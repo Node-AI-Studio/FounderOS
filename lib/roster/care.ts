@@ -71,7 +71,7 @@ export const CARE: RosterEntry[] = [
      'Attach the customer history and the last three messages',
      'Write the one-line ask for Yannick',
      'Post to Slack and email with the deadline',
-     'Track until closed']),
+     'Track the escalation until it closes']),
   k('review-monitor', 'Review Monitor', 'Site, Amazon, Ulta reviews', 'worker', ['reviews', 'amazon'],
     'Watches site, Amazon and Ulta reviews, flags one and two stars, drafts replies.',
     'Monitor the reviews', 'Flag low stars, draft replies.',

@@ -71,6 +71,6 @@ export const OPERATIONS: RosterEntry[] = [
     ['Take the metric request from a reporter',
      'Pull from the connector or the seeded table',
      'Return the number with its source and date',
-     'Cache for the day',
+     'Cache the answer for the rest of the day',
      'Log requests so missing metrics become connectors']),
 ];
