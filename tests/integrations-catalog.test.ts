@@ -4,6 +4,8 @@ import {
   integrationsByCategory,
   connectionCatalog,
   connectKeysFor,
+  visibleIntegrations,
+  HIDDEN_INTEGRATIONS,
 } from '@/lib/integrations-catalog';
 import { IntegrationSchema, INTEGRATION_CATEGORIES } from '@/lib/schemas';
 import { hasBrandMark } from '@/lib/brand-logos';
@@ -58,6 +60,22 @@ describe('INTEGRATIONS catalog', () => {
     expect(ids.has('slack')).toBe(true);
     expect(ids.has('notion')).toBe(true);
     expect(ids.has('payments')).toBe(true);
+  });
+});
+
+describe('visibleIntegrations hides the inherited stack from browse surfaces', () => {
+  test('no hidden slug is present in the visible list', () => {
+    const visible = visibleIntegrations();
+    for (const slug of HIDDEN_INTEGRATIONS) {
+      expect(visible.some((i) => i.slug === slug)).toBe(false);
+    }
+  });
+
+  test('every hidden slug still exists in the untouched catalog', () => {
+    const slugs = new Set(INTEGRATIONS.map((i) => i.slug));
+    for (const slug of HIDDEN_INTEGRATIONS) {
+      expect(slugs.has(slug)).toBe(true);
+    }
   });
 });
 

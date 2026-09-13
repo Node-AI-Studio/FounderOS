@@ -13,6 +13,7 @@ import {
   type BrainNote,
 } from '@/lib/brain-graph';
 import { readStoreNotes } from '@/lib/connectors/gbrain';
+import { ROSTER } from '@/lib/roster';
 import { BrainGraphSchema } from '@/lib/schemas';
 
 const NOTES: BrainNote[] = [
@@ -200,6 +201,12 @@ describe('buildBrainGraph', () => {
     expect(AGENT_BRAIN_SCOPES['conductor']).toEqual(['*']);
     expect(AGENT_BRAIN_SCOPES['knowledge-agent']).toEqual(expect.arrayContaining(['concepts', 'sources']));
     expect(AGENT_BRAIN_SCOPES['voice-of-customer']).toEqual(expect.arrayContaining(['people', 'inbox']));
+  });
+
+  test('AGENT_BRAIN_SCOPES keys equal the ROSTER, exactly', () => {
+    const rosterIds = new Set(ROSTER.map((e) => e.id));
+    const scopeIds = new Set(Object.keys(AGENT_BRAIN_SCOPES));
+    expect(scopeIds).toEqual(rosterIds);
   });
 });
 

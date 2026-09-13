@@ -50,13 +50,16 @@ describe('CONTACT_TIERS', () => {
     }
   });
 
-  test('1 = clients & students, 2 = brand, 3 = personal', () => {
+  test('1 = refund & guarantee, 2 = order & shipping, 3 = general & community', () => {
     const tierOf = (tag: string) => CONTACT_TIERS.find((t) => t.tags.includes(tag))?.tier;
-    expect(tierOf('client')).toBe(1);
-    expect(tierOf('student')).toBe(1);
-    expect(tierOf('brand')).toBe(2);
-    expect(tierOf('personal')).toBe(3);
-    expect(tierOf('friend')).toBe(3);
+    expect(tierOf('refund')).toBe(1);
+    expect(tierOf('guarantee')).toBe(1);
+    expect(tierOf('order')).toBe(2);
+    expect(tierOf('shipping')).toBe(2);
+    expect(tierOf('creator')).toBe(2);
+    expect(tierOf('general')).toBe(3);
+    expect(tierOf('press')).toBe(3);
+    expect(tierOf('community')).toBe(3);
   });
 });
 
