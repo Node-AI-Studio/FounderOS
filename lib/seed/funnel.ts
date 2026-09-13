@@ -1,12 +1,13 @@
 import type { FunnelContact, FunnelTouch } from '@/lib/schemas';
 
-// ── Funnel journeys — DUMMY clients from first touch to conversion ──────────
+// ── Funnel journeys: DUMMY customers from first touch to conversion ────────
 // Real-ready: `source` on every touch names where it will come from live —
-// 'trakyo' (organic attribution), 'meta-ads' (Meta Ads MCP), 'manual' until
-// then. Swapping seed for live pulls is a repo-level change; the shape stays.
-// Touch dates are DAYS-AGO offsets resolved at seed time, so the space's
-// stall coloring (quiet > 7 days pre-conversion → red) stays truthful no
-// matter when the DB is re-seeded.
+// 'shopify' (storefront visits and checkout), 'klaviyo' (email flows),
+// 'meta-ads' / 'tiktok-ads' (paid), 'manual' until the organic-social
+// connector lands. Swapping seed for live pulls is a repo-level change; the
+// shape stays. Touch dates are DAYS-AGO offsets resolved at seed time, so the
+// space's stall coloring (quiet > 7 days pre-conversion → red) stays truthful
+// no matter when the DB is re-seeded.
 const funnelDay = (daysBack: number): string =>
   new Date(Date.now() - daysBack * 86_400_000).toISOString().slice(0, 10);
 
@@ -25,170 +26,147 @@ type SeededJourney = {
   company?: string;
   role?: string;
   linkedin?: string;
-  touches: SeededTouch[]; // 4–5, chronological (last number = days ago)
+  touches: SeededTouch[]; // 1–5, chronological (last number = days ago)
 };
 
 const FUNNEL_JOURNEYS: SeededJourney[] = [
-  // — Launchpad Cohort (mentorship) —
   {
-    id: 'fc-jake-moreau', name: 'Jake Moreau', venture: 'launchpad-cohort',
-    relationship: 'hot', likelihood: 100,
-    product: 'Launchpad Cohort — mentorship (PIF)', amountUsd: 6800,
+    id: 'fc-parent-maya', name: 'Maya (parent, Kidzzz)', venture: 'helight',
+    relationship: 'hot', likelihood: 100, product: 'Helight Kidzzz', amountUsd: 139,
+    email: 'maya@example.com',
     touches: [
-      ['first_touch', 'organic', 'IG reel: "3 AI offers that close themselves"', 'trakyo', 59],
-      ['engaged', 'dm', 'Replied to story CTA — "wants out of retainer hell"', 'manual', 57],
-      ['nurtured', 'email', 'Day-3 email: student case study (0→22k/mo)', 'manual', 54],
-      ['opted_in', 'call', 'Booked strategy call via Trakyo link', 'trakyo', 51],
-      ['converted', 'checkout', 'Paid in full — FanBasis checkout', 'manual', 49],
+      ['first_touch', 'ads', 'TikTok ad: bedtime battle, parent POV', 'tiktok-ads', 12],
+      ['engaged', 'organic', 'Visited the Kidzzz page twice, read the science page', 'shopify', 11],
+      ['nurtured', 'email', 'Welcome flow email 2: safe for infants', 'klaviyo', 9],
+      ['opted_in', 'checkout', 'Added Kidzzz to cart', 'shopify', 8],
+      ['converted', 'checkout', 'Ordered Kidzzz, Quebec', 'shopify', 8],
     ],
   },
   {
-    id: 'fc-priya-shah', name: 'Priya Shah', venture: 'launchpad-cohort',
-    relationship: 'warm', likelihood: 95,
-    product: 'Launchpad Cohort — mentorship (3-pay)', amountUsd: 2600,
+    id: 'fc-nurse-dominic', name: 'Dominic (night shift)', venture: 'helight',
+    relationship: 'hot', likelihood: 100, product: 'Helight Sleep', amountUsd: 139,
+    email: 'dominic@example.com',
     touches: [
-      ['first_touch', 'ads', 'Meta ad: "Agency owners — install AI in 30 days"', 'meta-ads', 45],
-      ['engaged', 'ads', 'Watched VSL to 80% — retarget pool', 'meta-ads', 45],
-      ['opted_in', 'webinar', 'Registered + attended WebinarJam training', 'manual', 42],
-      ['converted', 'checkout', 'First of 3 payments — FanBasis', 'manual', 40],
+      ['first_touch', 'ads', 'Meta ad: night shift sleep debt, ICU nurse testimonial', 'meta-ads', 22],
+      ['engaged', 'organic', 'Visited the Helight Sleep page, read the reviews', 'shopify', 20],
+      ['nurtured', 'email', 'Welcome flow email 3: daytime darkness without blackout curtains', 'klaviyo', 17],
+      ['opted_in', 'checkout', 'Added Helight Sleep to cart', 'shopify', 15],
+      ['converted', 'checkout', 'Ordered Helight Sleep, Ontario', 'shopify', 15],
     ],
   },
   {
-    id: 'fc-danny-okafor', name: 'Danny Okafor', venture: 'launchpad-cohort',
-    relationship: 'hot', likelihood: 100,
-    product: 'Launchpad Cohort — mentorship (PIF)', amountUsd: 6800,
+    id: 'fc-oura-lena', name: 'Lena (Oura user)', venture: 'helight',
+    relationship: 'hot', likelihood: 100, product: 'Helight Sleep', amountUsd: 139,
+    email: 'lena@example.com',
     touches: [
-      ['first_touch', 'organic', 'TikTok: "day in the life running an AI agency"', 'trakyo', 38],
-      ['engaged', 'organic', 'Binged 6 reels, followed, saved lead magnet post', 'trakyo', 36],
-      ['nurtured', 'ads', 'Retargeting ad: student-wins carousel', 'meta-ads', 33],
-      ['opted_in', 'call', 'Booked call from link-in-bio (Trakyo attributed)', 'trakyo', 30],
-      ['converted', 'checkout', 'Paid in full — FanBasis checkout', 'manual', 29],
+      ['first_touch', 'organic', 'TikTok creator video: Oura sleep score before and after Helight', 'manual', 25],
+      ['engaged', 'organic', 'Compared Oura deep sleep data against the Helight science page', 'shopify', 22],
+      ['nurtured', 'email', 'Welcome flow email 1: how red light protects melatonin', 'klaviyo', 18],
+      ['opted_in', 'checkout', 'Added Helight Sleep to cart', 'shopify', 14],
+      ['converted', 'checkout', 'Ordered Helight Sleep, California', 'shopify', 13],
     ],
   },
   {
-    id: 'fc-sofia-reyes', name: 'Sofia Reyes', venture: 'launchpad-cohort',
-    relationship: 'warm', likelihood: 95,
-    product: 'Launchpad Cohort — mentorship (3-pay)', amountUsd: 2600,
+    id: 'fc-traveller-sam', name: 'Sam (frequent flyer)', venture: 'helight',
+    relationship: 'hot', likelihood: 95, product: 'Helight Sleep', amountUsd: 139,
     touches: [
-      ['first_touch', 'organic', 'YT long-form: "how I\'d start an agency in 2026"', 'trakyo', 31],
-      ['engaged', 'email', 'Joined newsletter from YT description', 'manual', 30],
-      ['nurtured', 'email', 'Newsletter: pricing-psychology issue clicked', 'manual', 26],
-      ['opted_in', 'webinar', 'Attended WebinarJam training, stayed for offer', 'manual', 23],
-      ['converted', 'checkout', 'First of 3 payments — FanBasis', 'manual', 22],
+      ['first_touch', 'ads', 'Meta ad: jet lag reset, travel POV', 'meta-ads', 16],
+      ['engaged', 'organic', 'Visited the Helight Sleep page from a layover, read the travel FAQ', 'shopify', 14],
+      ['opted_in', 'checkout', 'Added Helight Sleep to cart mid flight', 'shopify', 11],
+      ['converted', 'checkout', 'Ordered Helight Sleep, shipped to a hotel address', 'shopify', 11],
     ],
   },
   {
-    // Ads ghost — three engaged touches, quiet for 3 weeks: the red node.
-    id: 'fc-liam-carter', name: 'Liam Carter', venture: 'launchpad-cohort',
-    relationship: 'cold', likelihood: 15,
+    id: 'fc-couple-ines', name: 'Ines and Marc (couple)', venture: 'helight',
+    relationship: 'hot', likelihood: 100, product: 'Helight Sleep x2', amountUsd: 278,
+    email: 'ines@example.com',
     touches: [
-      ['first_touch', 'ads', 'Meta ad: "stop selling hours" (cold traffic)', 'meta-ads', 27],
-      ['engaged', 'ads', 'Clicked through, watched VSL 45%', 'meta-ads', 27],
-      ['engaged', 'ads', 'Retarget click — opened application form, abandoned', 'meta-ads', 23],
-      ['engaged', 'email', 'Abandoned-form email opened, no reply yet', 'manual', 21],
+      ['first_touch', 'ads', 'TikTok ad: couple bedtime routine, two pack offer', 'tiktok-ads', 19],
+      ['engaged', 'organic', 'Both visited the two pack bundle page', 'shopify', 17],
+      ['nurtured', 'email', 'Welcome flow email 2: safe for co sleeping partners', 'klaviyo', 14],
+      ['opted_in', 'checkout', 'Added the two pack to cart', 'shopify', 10],
+      ['converted', 'checkout', 'Ordered the Helight Sleep two pack, Texas', 'shopify', 9],
     ],
   },
   {
-    // Warm but drifting — 10 quiet days in nurture: also red until re-touched.
-    id: 'fc-marcus-webb', name: 'Marcus Webb', venture: 'launchpad-cohort',
-    relationship: 'warm', likelihood: 42,
+    id: 'fc-melatonin-jo', name: 'Jo (quitting melatonin)', venture: 'helight',
+    relationship: 'warm', likelihood: 68, product: 'Helight Sleep',
     touches: [
-      ['first_touch', 'organic', 'IG carousel: "agency niches that print in 2026"', 'trakyo', 24],
-      ['engaged', 'dm', 'ManyChat keyword "SCALE" → DM flow', 'manual', 24],
-      ['nurtured', 'email', 'Lead magnet delivered, day-1 email opened', 'manual', 12],
-      ['nurtured', 'email', 'Newsletter: student-win breakdown clicked', 'manual', 10],
+      ['first_touch', 'organic', 'Read a blog post comparing red light to melatonin supplements', 'shopify', 13],
+      ['engaged', 'organic', 'Read the science page twice, bookmarked the site', 'shopify', 11],
+      ['nurtured', 'email', 'Welcome flow email 2: how red light replaces melatonin without rebound', 'klaviyo', 7],
+      ['opted_in', 'checkout', 'Added Helight Sleep to cart, has not checked out yet', 'shopify', 3],
     ],
   },
   {
-    id: 'fc-tayla-nguyen', name: 'Tayla Nguyen', venture: 'launchpad-cohort',
-    relationship: 'hot', likelihood: 84,
-    email: 'tayla.nguyen@example.com', phone: '+15550100841',
+    id: 'fc-student-tariq', name: 'Tariq (student)', venture: 'helight',
+    relationship: 'warm', likelihood: 55, product: 'Helight Sleep',
     touches: [
-      ['first_touch', 'organic', 'TikTok: "AI receptionist demo" went semi-viral', 'trakyo', 4],
-      ['engaged', 'organic', 'Profile visit → followed + commented', 'trakyo', 4],
-      ['nurtured', 'dm', 'DM convo — asked about payment plans', 'manual', 3],
-      ['opted_in', 'call', 'Call booked for next week (Trakyo attributed)', 'trakyo', 2],
+      ['first_touch', 'ads', 'TikTok ad: dorm room sleep hack, student discount mention', 'tiktok-ads', 9],
+      ['engaged', 'organic', 'Visited the Helight Sleep page from the student discount link', 'shopify', 7],
+      ['nurtured', 'email', 'Welcome flow email 1: how the 28 minute sunset works', 'klaviyo', 5],
     ],
   },
   {
-    // Mid-decay: 70 quiet days — visibly fading toward red, 20 days from the archive.
-    id: 'fc-remy-cole', name: 'Remy Cole', venture: 'launchpad-cohort',
-    relationship: 'cold', likelihood: 25,
+    id: 'fc-menopause-ruth', name: 'Ruth (menopause lane)', venture: 'helight',
+    relationship: 'warm', likelihood: 70, product: 'Helight Sleep',
     touches: [
-      ['first_touch', 'organic', 'IG reel: "fire your lead-gen agency"', 'trakyo', 84],
-      ['engaged', 'dm', 'Story-reply convo, asked for pricing', 'manual', 80],
-      ['engaged', 'email', 'Pricing breakdown sent, opened twice', 'manual', 74],
-      ['engaged', 'email', 'Follow-up: "circling back" — no reply since', 'manual', 70],
+      ['first_touch', 'ads', 'Meta ad: menopause night sweats, physician explainer', 'meta-ads', 24],
+      ['engaged', 'organic', 'Read the science page and the menopause FAQ', 'shopify', 20],
+      ['nurtured', 'email', 'Welcome flow email 2: safe for hormonal sleep disruption', 'klaviyo', 14],
+      ['opted_in', 'checkout', 'Added Helight Sleep to cart, gone quiet since', 'shopify', 9],
     ],
   },
   {
-    // Went quiet in March — decayed past 90 days into the archive tab.
-    id: 'fc-jordan-blake', name: 'Jordan Blake', venture: 'launchpad-cohort',
-    relationship: 'cold', likelihood: 20,
+    id: 'fc-parent-owen', name: 'Owen (parent, twins)', venture: 'helight',
+    relationship: 'warm', likelihood: 48, product: 'Helight Kidzzz x2',
     touches: [
-      ['first_touch', 'ads', 'Meta ad: "quit your 9-5 with one client" (old campaign)', 'meta-ads', 118],
-      ['engaged', 'ads', 'Clicked through, watched VSL 30%', 'meta-ads', 118],
-      ['engaged', 'dm', 'One-word DM reply, then silence', 'manual', 112],
-      ['engaged', 'email', 'Re-engagement email bounced-opened, no click', 'manual', 104],
-    ],
-  },
-  // — Vantage (AI agency clients) —
-  {
-    id: 'fc-ava-stone', name: 'Ava Stone — Northwind Legal', venture: 'vantage',
-    relationship: 'hot', likelihood: 100,
-    product: 'Vantage — AI intake build (sprint)', amountUsd: 12000,
-    touches: [
-      ['first_touch', 'organic', 'LinkedIn post: legal-intake automation teardown', 'trakyo', 57],
-      ['engaged', 'email', 'Replied to newsletter — "this is our exact bottleneck"', 'manual', 55],
-      ['opted_in', 'call', 'Discovery call booked via site (Trakyo attributed)', 'trakyo', 50],
-      ['nurtured', 'email', 'Proposal + Loom walkthrough sent, viewed 3×', 'manual', 47],
-      ['converted', 'checkout', 'Signed — 50% deposit via Stripe invoice', 'manual', 43],
+      ['first_touch', 'ads', 'Meta ad: twins bedtime battle, two kid household', 'meta-ads', 6],
+      ['engaged', 'organic', 'Visited the Kidzzz page, compared single vs two pack pricing', 'shopify', 5],
     ],
   },
   {
-    id: 'fc-omar-haddad', name: 'Omar Haddad — Pulse Fitness Group', venture: 'vantage',
-    relationship: 'warm', likelihood: 95,
-    product: 'Vantage — AI ops retainer (monthly)', amountUsd: 4500,
+    id: 'fc-scroller-ava', name: 'Ava (late night scroller)', venture: 'helight',
+    relationship: 'warm', likelihood: 52, product: 'Helight Sleep',
     touches: [
-      ['first_touch', 'ads', 'Meta ad: "your gym\'s front desk, automated"', 'meta-ads', 48],
-      ['engaged', 'ads', 'Case-study page dwell 4m — retarget pool', 'meta-ads', 47],
-      ['nurtured', 'email', 'ROI one-pager emailed after form fill', 'manual', 44],
-      ['opted_in', 'call', 'Demo call — 3 locations scoped', 'manual', 41],
-      ['converted', 'checkout', 'Retainer live — Stripe subscription', 'manual', 37],
+      ['first_touch', 'organic', 'TikTok creator video: doomscrolling instead of sleeping', 'manual', 8],
+      ['engaged', 'organic', 'Visited the Helight Sleep page after the video, read reviews', 'shopify', 7],
+      ['nurtured', 'email', 'Welcome flow email 1: the 28 minute sunset beats a phone screen', 'klaviyo', 4],
     ],
   },
   {
-    id: 'fc-elena-brooks', name: 'Elena Brooks — Harbor Dental', venture: 'vantage',
-    relationship: 'hot', likelihood: 100,
-    product: 'Vantage — AI intake build (sprint)', amountUsd: 9500,
+    id: 'fc-gift-helen', name: 'Helen (gift for a parent)', venture: 'helight',
+    relationship: 'hot', likelihood: 92, product: 'Helight Sleep', amountUsd: 139,
     touches: [
-      ['first_touch', 'organic', 'IG reel: missed-call → booked-patient demo', 'trakyo', 31],
-      ['engaged', 'dm', 'DM: "does this work for dental?"', 'manual', 30],
-      ['opted_in', 'call', 'Discovery call via link-in-bio (Trakyo attributed)', 'trakyo', 27],
-      ['converted', 'checkout', 'Signed — deposit via Stripe invoice', 'manual', 23],
+      ['first_touch', 'organic', 'Read a gift guide featuring Helight Sleep', 'shopify', 14],
+      ['engaged', 'organic', 'Visited the Helight Sleep page, checked gift wrap options', 'shopify', 12],
+      ['nurtured', 'email', 'Welcome flow email 1: an easy gift, shipped straight to your parent', 'klaviyo', 9],
+      ['converted', 'checkout', 'Ordered Helight Sleep, shipped to her mother in Florida', 'shopify', 8],
     ],
   },
   {
-    id: 'fc-noah-fields', name: 'Noah Fields — Fields Roofing', venture: 'vantage',
-    relationship: 'warm', likelihood: 66,
+    id: 'fc-whoop-marcus', name: 'Marcus (Whoop user)', venture: 'helight',
+    relationship: 'warm', likelihood: 45, product: 'Helight Sleep',
     touches: [
-      ['first_touch', 'ads', 'Meta ad: "book 20 estimates/mo on autopilot"', 'meta-ads', 8],
-      ['engaged', 'ads', 'Lead form opened, 60% VSL', 'meta-ads', 8],
-      ['nurtured', 'email', 'Follow-up sequence day 2 — case study clicked', 'manual', 5],
-      ['opted_in', 'call', 'Discovery call booked for Friday', 'manual', 2],
+      ['first_touch', 'ads', 'TikTok ad: Whoop recovery score, red light before bed', 'tiktok-ads', 4],
+      ['engaged', 'organic', 'Visited the Helight Sleep page, compared to Whoop recovery data', 'shopify', 3],
     ],
   },
   {
-    id: 'fc-grace-lin', name: 'Grace Lin — Lin & Co Accounting', venture: 'vantage',
-    relationship: 'warm', likelihood: 74,
-    email: 'grace@linandco.example.com', phone: '+15550100742',
-    person: 'Grace Lin', company: 'Lin & Co Accounting', role: 'Managing Partner',
-    linkedin: 'https://linkedin.com/in/gracelin-example',
+    id: 'fc-nurse-priya', name: 'Priya (ICU nights)', venture: 'helight',
+    relationship: 'cold', likelihood: 22, product: 'Helight Sleep',
     touches: [
-      ['first_touch', 'organic', 'X thread: client-onboarding agent breakdown', 'trakyo', 6],
-      ['engaged', 'organic', 'Followed + bookmarked, visited site twice', 'trakyo', 5],
-      ['nurtured', 'email', 'Newsletter signup — welcome sequence started', 'manual', 3],
-      ['opted_in', 'call', 'Call request form submitted (Trakyo attributed)', 'trakyo', 1],
+      ['first_touch', 'ads', 'Meta ad: ICU night shift sleep debt, nurse testimonial', 'meta-ads', 2],
+    ],
+  },
+  {
+    id: 'fc-repeat-lena', name: 'Lena, second device', venture: 'helight',
+    relationship: 'hot', likelihood: 100, product: 'Helight Sleep', amountUsd: 139,
+    email: 'lena@example.com',
+    touches: [
+      ['first_touch', 'email', 'Welcome back email: a second unit for the guest room', 'klaviyo', 5],
+      ['engaged', 'organic', 'Revisited the Helight Sleep page, checked the current price', 'shopify', 4],
+      ['converted', 'checkout', 'Ordered a second Helight Sleep, guest room', 'shopify', 3],
     ],
   },
 ];
