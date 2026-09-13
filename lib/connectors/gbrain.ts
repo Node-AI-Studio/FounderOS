@@ -340,32 +340,32 @@ export function createSeededBrainProvider(opts: { storePath?: string } = {}): GB
         {
           name: 'resolver_health',
           status: 'ok',
-          message: `seeded — resolver health is illustrative, not measured against ${n} on-disk pages`,
+          message: `Seeded. Resolver health is illustrative, not measured against ${n} on-disk pages.`,
         },
         {
           name: 'skill_conformance',
           status: 'ok',
-          message: 'seeded — skill conformance is illustrative, no CLI ran on this board',
+          message: 'Seeded. Skill conformance is illustrative, no CLI ran on this board.',
         },
         {
           name: 'memory_writeback',
           status: 'ok',
-          message: 'seeded — memory writeback is illustrative, capture is disabled on this board',
+          message: 'Seeded. Memory writeback is illustrative, capture is disabled on this board.',
         },
         {
           name: 'connection',
           status: 'ok',
-          message: 'seeded — no live gbrain CLI or database is wired to this board',
+          message: 'Seeded. No live gbrain CLI or database is wired to this board.',
         },
         {
           name: 'nightly_quality_probe_health',
           status: 'ok',
-          message: 'seeded — nightly quality probe is illustrative, no probe has run on this board',
+          message: 'Seeded. Nightly quality probe is illustrative, no probe has run on this board.',
         },
         {
           name: 'home_dir_in_worktree',
           status: 'ok',
-          message: 'seeded — home dir check is illustrative on this board',
+          message: 'Seeded. Home dir check is illustrative on this board.',
         },
       ];
       return {
