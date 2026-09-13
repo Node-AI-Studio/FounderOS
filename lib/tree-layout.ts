@@ -193,11 +193,14 @@ export function treeLayout(input: TreeLayoutInput): TreeLayoutResult {
   const half = Math.min(W / 2 - margin, Math.max(dy * CONE, need));
   // if the canvas itself is too narrow for MIN_TASK_GAP even at full width,
   // zigzag alternating siblings onto a second row so the Euclidean gap still
-  // reaches MIN_TASK_GAP; cap the lift so it never pushes a task into the
-  // worker band directly below it.
+  // reaches MIN_TASK_GAP; cap the lift so a lifted task and its own lifted
+  // worker (which mirrors the same offset below, toward the task row) stay
+  // at least MIN_TASK_GAP apart even at the cap boundary, not just clear of
+  // full overlap — halving (taskY - workerY) alone only stops them landing
+  // on the exact same point.
   const gapX = n <= 1 ? Infinity : (2 * half) / (n - 1);
   const liftRaw = gapX >= MIN_TASK_GAP ? 0 : Math.ceil(Math.sqrt(MIN_TASK_GAP * MIN_TASK_GAP - gapX * gapX));
-  const lift = Math.min(liftRaw, (taskY - workerY) / 2);
+  const lift = Math.min(liftRaw, Math.max(0, (taskY - workerY - MIN_TASK_GAP) / 2));
   const taskIndex = new Map<string, number>();
   taskIds.forEach((id, i) => {
     const t = n <= 1 ? 0 : (i / (n - 1)) * 2 - 1; // -1 … 1
@@ -223,7 +226,9 @@ export function treeLayout(input: TreeLayoutInput): TreeLayoutResult {
     const w = workerByTask[taskId];
     if (!w) continue;
     const x = taskX.get(taskId) ?? cx;
-    const i = taskIndex.get(taskId) ?? 0;
+    // every taskId here came from the same taskIds array the forEach above
+    // just populated taskIndex from, so the lookup always hits
+    const i = taskIndex.get(taskId)!;
     const y = round2(workerY + (i % 2 === 1 ? lift : 0));
     workerX.set(w, x);
     workerIds.push(w);
