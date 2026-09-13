@@ -6,6 +6,7 @@ import {
   lifeAreaForDepartment,
 } from '@/lib/life-map';
 import { LifeMapSchema } from '@/lib/schemas';
+import { realAgents } from '@/lib/agents/real';
 
 describe('LIFE_AREAS', () => {
   test("covers Alex's named areas with distinct colors", () => {
@@ -27,9 +28,14 @@ describe('LIFE_AREAS', () => {
     expect(comms.modules.some((m) => m.id === 'support')).toBe(true);
   });
 
-  // restored in Task 9: the pillar rosters land in Tasks 2-8, so these agent
-  // ids do not resolve to real runtime agents yet.
-  test.todo('every agent referenced by an area exists in the real roster or scope map');
+  test('every agent referenced by an area exists in the real roster or scope map', () => {
+    const knownAgentIds = new Set(realAgents.map((a) => a.id));
+    for (const area of LIFE_AREAS) {
+      for (const id of area.agents) {
+        expect(knownAgentIds.has(id), `unknown agent ${id} in area ${area.id}`).toBe(true);
+      }
+    }
+  });
 });
 
 describe('CONTACT_TIERS', () => {

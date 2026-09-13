@@ -40,8 +40,8 @@ export function toAgent(e: RosterEntry): Agent {
 /**
  * Department id constants for the seven Helight pillars. Defined here (not
  * in ./index) so pillar-roster files added in Tasks 2-8 can import DEPT
- * without pulling in ./index and its (eventually large) ROSTER array —
- * that would be a circular import once index re-exports the pillar arrays.
+ * without pulling in ./index and its (eventually large) ROSTER array, which
+ * would be a circular import once index re-exports the pillar arrays.
  */
 export const DEPT = {
   growth: 'dept-marketing-growth',
