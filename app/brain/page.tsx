@@ -164,6 +164,9 @@ export default async function BrainPage() {
   const zeroEntropyCheck = doctor.checks.find((c) => /zero|embed/i.test(c.name));
   const fallbackActive = supabaseCheck ? supabaseCheck.status !== 'ok' : !doctor.connected;
   const seeded = doctor.status === 'seeded';
+  // Real mode never calls stats() here: it shells out to the gbrain CLI, and
+  // this page already renders the "last known" cached figures for that path.
+  const seededStats = seeded ? await getBrainOverviewProvider().stats() : null;
 
   const layers: { name: string; sub: string; val: string; state: string }[] = seeded
     ? [
@@ -277,14 +280,24 @@ export default async function BrainPage() {
             </div>
             <div className="flex flex-col gap-1 text-right">
               <span>
-                <b className="font-medium text-os-muted">hybrid search</b> {doctor.connected ? 'verified' : 'degraded'}
+                <b className="font-medium text-os-muted">hybrid search</b>{' '}
+                {seeded ? 'seeded' : doctor.connected ? 'verified' : 'degraded'}
               </span>
-              <span>{fallbackActive ? 'local fallback active' : 'supabase reachable'}</span>
+              <span>
+                {seeded ? 'local grep answers queries' : fallbackActive ? 'local fallback active' : 'supabase reachable'}
+              </span>
             </div>
           </div>
           <div className="grid flex-1 place-items-center">
             <div className="w-full max-w-[540px]">
-              <BrainCore clusters={clusters} health={doctor.healthScore} doctor={doctor} fallbackActive={fallbackActive} />
+              <BrainCore
+                clusters={clusters}
+                health={doctor.healthScore}
+                doctor={doctor}
+                fallbackActive={fallbackActive}
+                supabasePages={seededStats?.pages}
+                supabaseSeeded={seeded}
+              />
             </div>
           </div>
         </div>
@@ -388,12 +401,16 @@ export default async function BrainPage() {
           <Stage step="3" title="Supabase Postgres + pgvector" caption='"Second Brain" · ZeroEntropy embeddings'>
             <div className="grid grid-cols-2 gap-2">
               <div className="rounded-md-t border border-os-border bg-os-surface2 px-3 py-2.5">
-                <div className="font-mono text-xl font-bold">918</div>
-                <div className="font-mono text-[10px] uppercase tracking-wider text-os-dim">pages · last known</div>
+                <div className="font-mono text-xl font-bold">{seeded ? seededStats?.pages ?? 0 : 918}</div>
+                <div className="font-mono text-[10px] uppercase tracking-wider text-os-dim">
+                  pages · {seeded ? 'seeded' : 'last known'}
+                </div>
               </div>
               <div className="rounded-md-t border border-os-border bg-os-surface2 px-3 py-2.5">
-                <div className="font-mono text-xl font-bold">11k</div>
-                <div className="font-mono text-[10px] uppercase tracking-wider text-os-dim">chunks · last known</div>
+                <div className="font-mono text-xl font-bold">{seeded ? seededStats?.chunks ?? 0 : '11k'}</div>
+                <div className="font-mono text-[10px] uppercase tracking-wider text-os-dim">
+                  chunks · {seeded ? 'seeded' : 'last known'}
+                </div>
               </div>
             </div>
             <div className="mt-3 space-y-1.5 text-[11px] leading-relaxed text-os-muted">

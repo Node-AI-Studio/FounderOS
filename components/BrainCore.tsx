@@ -28,11 +28,15 @@ export function BrainCore({
   health,
   doctor,
   fallbackActive,
+  supabasePages,
+  supabaseSeeded = false,
 }: {
   clusters: BrainCluster[];
   health: number | null;
   doctor: Doctor;
   fallbackActive: boolean;
+  supabasePages?: number;
+  supabaseSeeded?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const warnings = doctor.checks.filter((c) => c.status !== 'ok');
@@ -52,7 +56,7 @@ export function BrainCore({
   return (
     <>
       <div className="relative">
-        <BrainViz clusters={clusters} health={health} />
+        <BrainViz clusters={clusters} health={health} supabasePages={supabasePages} supabaseSeeded={supabaseSeeded} />
         {/* Hotspot over the central health gauge (~50%/50% of the SVG box). */}
         <button
           type="button"

@@ -9,12 +9,14 @@ export function BrainViz({
   clusters,
   health,
   supabasePages = 918,
+  supabaseSeeded = false,
   version = 'v0.41',
   compact = false,
 }: {
   clusters: BrainCluster[];
   health: number | null;
   supabasePages?: number;
+  supabaseSeeded?: boolean;
   version?: string;
   compact?: boolean;
 }) {
@@ -159,7 +161,7 @@ export function BrainViz({
             ZEROENTROPY · EMBEDDINGS
           </text>
           <text x="260" y="44" textAnchor="middle" fill="var(--text-3)">
-            SUPABASE · {supabasePages} PAGES · PAUSED
+            SUPABASE · {supabasePages} PAGES · {supabaseSeeded ? 'SEEDED' : 'PAUSED'}
           </text>
         </g>
       )}
