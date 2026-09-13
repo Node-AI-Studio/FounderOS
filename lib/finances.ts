@@ -1,7 +1,7 @@
 /**
  * Finances domain — pure, real-ready. Income flows through a processor/account
- * registry (Stripe wired today; PayPal, FanBasis ×2, Wise ×2 are honest pending
- * slots until their keys land). Expenses are seeded SAMPLE data until the
+ * registry (Shopify Payments wired today; Amazon payouts and PayPal are honest
+ * pending slots until their keys land). Expenses are seeded SAMPLE data until the
  * statement-ingestion engine (Phase 2) replaces them with parsed bank/CC rows.
  *
  * No faked money: an unwired account reports null income, never a zero that
@@ -29,20 +29,22 @@ export type OutgoingTransfer = {
 };
 
 /**
- * Every processor Alex runs money through. Stripe carries its real
- * month-to-date income when connected; the rest are multi-account-ready slots
- * (two FanBasis for Vantage / Launchpad Cohort, two Wise). `configured` flags
- * which accounts have keys in the env (from `configuredProcessors`); `live`
- * means a real pull is actually happening — true only for Stripe today, so a
- * key-set-but-not-yet-integrated account reads "key set", never a faked number.
+ * Every processor Helight runs money through. Shopify Payments carries its
+ * real month-to-date income when connected; Amazon payouts and PayPal are
+ * honest pending slots until their keys land. `configured` flags which
+ * accounts have keys in the env (from `configuredProcessors`); `live` means a
+ * real pull is actually happening — true only for Shopify Payments today, so
+ * a key-set-but-not-yet-integrated account reads "key set", never a faked
+ * number.
  */
 export function incomeAccounts(
-  stripe: { connected: boolean; mtdUsd: number | null },
+  shopify: { connected: boolean; mtdUsd: number | null },
   configured: Record<string, boolean> = {},
   liveIncomeUsd: Record<string, number> = {},
 ): IncomeAccount[] {
-  // Non-Stripe accounts light up when a real month-to-date income is supplied
-  // (e.g. FanBasis via its customers API); otherwise they're honest pending.
+  // Non-Shopify accounts light up when a real month-to-date income is
+  // supplied (e.g. Amazon via its Settlement API); otherwise they're honest
+  // pending.
   const account = (id: string, processor: string, label: string): IncomeAccount => {
     const live = liveIncomeUsd[id] != null;
     return {
@@ -56,18 +58,15 @@ export function incomeAccounts(
   };
   return [
     {
-      id: 'stripe',
-      processor: 'Stripe',
-      label: 'Stripe · Launchpad Cohort',
-      configured: configured.stripe ?? stripe.connected,
-      live: stripe.connected,
-      income: stripe.connected ? stripe.mtdUsd : null,
+      id: 'shopify-payments',
+      processor: 'Shopify Payments',
+      label: 'Shopify Payments',
+      configured: configured['shopify-payments'] ?? shopify.connected,
+      live: shopify.connected,
+      income: shopify.connected ? shopify.mtdUsd : null,
     },
-    account('paypal', 'PayPal', 'PayPal'),
-    account('fanbasis-vantage', 'FanBasis', 'FanBasis · Vantage'),
-    account('fanbasis-lc', 'FanBasis', 'FanBasis · Launchpad Cohort'),
-    account('wise-1', 'Wise', 'Wise · Account 1'),
-    account('wise-2', 'Wise', 'Wise · Account 2'),
+    account('amazon-payouts', 'Amazon', 'Amazon payouts'),
+    account('paypal', 'PayPal', 'PayPal via Shopify'),
   ];
 }
 

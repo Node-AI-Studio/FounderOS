@@ -11,56 +11,48 @@ import {
 } from '@/lib/finances';
 
 describe('incomeAccounts', () => {
-  test('lists every processor Alex runs (Stripe, PayPal, FanBasis×2, Wise×2)', () => {
+  test('lists every processor Helight runs (Shopify Payments, Amazon payouts, PayPal)', () => {
     const accounts = incomeAccounts({ connected: false, mtdUsd: null });
-    expect(accounts).toHaveLength(6);
-    expect(accounts.map((a) => a.id)).toEqual([
-      'stripe',
-      'paypal',
-      'fanbasis-vantage',
-      'fanbasis-lc',
-      'wise-1',
-      'wise-2',
-    ]);
+    expect(accounts).toHaveLength(3);
+    expect(accounts.map((a) => a.id)).toEqual(['shopify-payments', 'amazon-payouts', 'paypal']);
   });
 
-  test('Stripe goes live with its real month-to-date income when connected', () => {
+  test('Shopify Payments goes live with its real month-to-date income when connected', () => {
     const accounts = incomeAccounts({ connected: true, mtdUsd: 7000 });
-    const stripe = accounts.find((a) => a.id === 'stripe')!;
-    expect(stripe.live).toBe(true);
-    expect(stripe.income).toBe(7000);
+    const shopify = accounts.find((a) => a.id === 'shopify-payments')!;
+    expect(shopify.live).toBe(true);
+    expect(shopify.income).toBe(7000);
   });
 
   test('unwired processors are honest pending — null income, not a faked zero', () => {
     const accounts = incomeAccounts({ connected: true, mtdUsd: 7000 });
     expect(accounts.find((a) => a.id === 'paypal')!.income).toBeNull();
-    expect(accounts.find((a) => a.id === 'wise-1')!.live).toBe(false);
+    expect(accounts.find((a) => a.id === 'amazon-payouts')!.live).toBe(false);
   });
 
-  test('Stripe stays pending when not connected', () => {
-    const stripe = incomeAccounts({ connected: false, mtdUsd: null }).find((a) => a.id === 'stripe')!;
-    expect(stripe.live).toBe(false);
-    expect(stripe.income).toBeNull();
+  test('Shopify Payments stays pending when not connected', () => {
+    const shopify = incomeAccounts({ connected: false, mtdUsd: null }).find((a) => a.id === 'shopify-payments')!;
+    expect(shopify.live).toBe(false);
+    expect(shopify.income).toBeNull();
   });
 
-  test('non-Stripe accounts derive `configured` from the passed config map (key set ≠ live pull)', () => {
-    const accounts = incomeAccounts({ connected: false, mtdUsd: null }, { paypal: true, 'wise-1': true });
+  test('non-Shopify accounts derive `configured` from the passed config map (key set ≠ live pull)', () => {
+    const accounts = incomeAccounts({ connected: false, mtdUsd: null }, { paypal: true });
     const paypal = accounts.find((a) => a.id === 'paypal')!;
     expect(paypal.configured).toBe(true); // key present
     expect(paypal.live).toBe(false); // but no real pull implemented yet
     expect(paypal.income).toBeNull(); // so never a faked number
-    expect(accounts.find((a) => a.id === 'wise-1')!.configured).toBe(true);
-    expect(accounts.find((a) => a.id === 'fanbasis-lc')!.configured).toBe(false);
+    expect(accounts.find((a) => a.id === 'amazon-payouts')!.configured).toBe(false);
   });
 
-  test('stripe.configured defaults to its connection state', () => {
-    expect(incomeAccounts({ connected: true, mtdUsd: 100 }).find((a) => a.id === 'stripe')!.configured).toBe(true);
-    expect(incomeAccounts({ connected: false, mtdUsd: null }).find((a) => a.id === 'stripe')!.configured).toBe(false);
+  test('shopify-payments.configured defaults to its connection state', () => {
+    expect(incomeAccounts({ connected: true, mtdUsd: 100 }).find((a) => a.id === 'shopify-payments')!.configured).toBe(true);
+    expect(incomeAccounts({ connected: false, mtdUsd: null }).find((a) => a.id === 'shopify-payments')!.configured).toBe(false);
   });
 
-  test('a non-Stripe account goes live with real income when passed in liveIncomeUsd', () => {
-    const accounts = incomeAccounts({ connected: false, mtdUsd: null }, { 'fanbasis-lc': true }, { 'fanbasis-lc': 3400 });
-    const aa = accounts.find((a) => a.id === 'fanbasis-lc')!;
+  test('a non-Shopify account goes live with real income when passed in liveIncomeUsd', () => {
+    const accounts = incomeAccounts({ connected: false, mtdUsd: null }, { 'amazon-payouts': true }, { 'amazon-payouts': 3400 });
+    const aa = accounts.find((a) => a.id === 'amazon-payouts')!;
     expect(aa.configured).toBe(true);
     expect(aa.live).toBe(true);
     expect(aa.income).toBe(3400);

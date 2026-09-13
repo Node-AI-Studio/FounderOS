@@ -2,60 +2,43 @@ import type { Tool } from '@/lib/schemas';
 
 // Monochrome palette — the UI is strict black & white; "color" fields carry
 // grayscale steps used only for subtle hierarchy.
-const GRAY = {
-  white: '#fafafa',
-  light: '#d4d4d4',
-  mid: '#a3a3a3',
-  dim: '#737373',
-  dark: '#525252',
-};
+const GRAY = { white: '#fafafa', light: '#d4d4d4', mid: '#a3a3a3', dim: '#737373', dark: '#525252' };
 
-
-// Curated from the 2026-06-11 full-filesystem discovery sweep (104 findings).
-// status reflects what was VERIFIED on this machine: connected = creds/binary
-// exist and worked; available = installed/configured but needs a key or start.
+// The Helight connections board: what the operator has, what's still a slot
+// waiting on a key, and what Node AI brings that never shows up on a bill.
 export const tools: Tool[] = [
+  // Store and channels
+  { id: 'shopify', name: 'Shopify', category: 'Store', status: 'available', color: GRAY.white, description: 'Orders, products, customers, Shopify Payments. Needs an Admin API token.' },
+  { id: 'amazon', name: 'Amazon Seller Central', category: 'Store', status: 'available', color: GRAY.light, description: 'Listing, reviews, Sponsored Products, settlements. Needs SP-API credentials.' },
+  { id: 'retail', name: 'Retail (Ulta, Goop)', category: 'Store', status: 'planned', color: GRAY.dim, description: 'Shelf presence only. No integration claimed; sell-through arrives by report.' },
+  // Marketing
+  { id: 'meta-ads', name: 'Meta Ads', category: 'Marketing', status: 'available', color: GRAY.white, description: 'Campaigns, insights, ads library, experiments. Needs a Marketing API token.' },
+  { id: 'tiktok-ads', name: 'TikTok Ads', category: 'Marketing', status: 'available', color: GRAY.light, description: 'Campaigns, Smart+, Shop, Events API. Needs Marketing API app approval.' },
+  { id: 'google-ads', name: 'Google Ads', category: 'Marketing', status: 'available', color: GRAY.mid, description: 'Search, Shopping, Performance Max. Needs a developer token and OAuth.' },
+  { id: 'klaviyo', name: 'Klaviyo', category: 'Marketing', status: 'available', color: GRAY.light, description: 'Flows, campaigns, SMS, segments, list growth. Needs a private API key.' },
+  { id: 'attribution', name: 'Attribution', category: 'Marketing', status: 'planned', color: GRAY.dim, description: 'Slot for the attribution tool of choice. Would feed MER and per-platform CPA.' },
+  { id: 'zernio', name: 'Zernio', category: 'Marketing', status: 'connected', color: GRAY.white, description: 'Publishing and audience sync across TikTok, Instagram, YouTube. Node AI\'s publisher.' },
+  { id: 'apify', name: 'Apify (TikTok actors)', category: 'Marketing', status: 'available', color: GRAY.mid, description: 'Creator watchlist scraping and transcription. Node AI\'s actors; about $9 a month at this scale.' },
+  // Creative, what Node AI brings
+  { id: 'arcads', name: 'Arcads', category: 'Creative', status: 'connected', color: GRAY.white, description: 'UGC ad generation for volume testing. Node AI tooling.' },
+  { id: 'remotion', name: 'Remotion pipeline', category: 'Creative', status: 'connected', color: GRAY.light, description: 'Short-form editing, captions, crops. Node AI tooling.' },
+  { id: 'higgsfield', name: 'Higgsfield', category: 'Creative', status: 'connected', color: GRAY.mid, description: 'AI visuals and product scenes from the brand pack. Node AI tooling.' },
+  { id: 'whisper', name: 'Whisper (local)', category: 'Creative', status: 'connected', color: GRAY.dim, description: 'Local transcription. Nothing leaves the machine.' },
+  // Customers
+  { id: 'support-inbox', name: 'Support inbox', category: 'Customers', status: 'planned', color: GRAY.dim, description: 'Slot for the helpdesk of choice. Would feed triage, drafts and response times.' },
+  { id: 'reviews', name: 'Reviews', category: 'Customers', status: 'planned', color: GRAY.dim, description: 'Slot for the reviews app of choice. Would feed Review Monitor and Voice of Customer.' },
+  { id: 'gmail', name: 'Email', category: 'Customers', status: 'available', color: GRAY.light, description: 'IMAP inbox for the contact form and escalations. Set INBOX_1_HOST/_USER/_PASS.' },
+  { id: 'slack', name: 'Slack', category: 'Customers', status: 'available', color: GRAY.mid, description: 'Team feed and alerts. Needs a bot token with channels:read and channels:history.' },
   // Knowledge
-  { id: 'tool-gbrain', name: 'G-Brain (gbrain CLI)', category: 'Knowledge', status: 'connected', color: GRAY.white, description: 'v0.41 · brain-store markdown + Supabase + ZeroEntropy embeddings. Live, health 90/100.' },
-  { id: 'tool-brain-store', name: 'brain-store/', category: 'Knowledge', status: 'connected', color: GRAY.light, description: 'Local markdown knowledge base at knowledge/brain-store.' },
-  { id: 'tool-zeroentropy', name: 'ZeroEntropy', category: 'Knowledge', status: 'connected', color: GRAY.mid, description: 'Vector embeddings behind gbrain hybrid search. Key in ~/.config/knowledge/config.json.' },
-  { id: 'tool-supabase', name: 'Supabase (Second Brain)', category: 'Knowledge', status: 'available', color: GRAY.mid, description: '918 pages / 11k chunks. Free tier pauses on idle — unpause from dashboard when queries fail.' },
-  { id: 'tool-obsidian', name: 'Notes Vault', category: 'Knowledge', status: 'connected', color: GRAY.light, description: '~/Documents/Notes Vault incl. archived-conversation Chat Archive. Direct filesystem access.' },
-  { id: 'tool-notion', name: 'Notion', category: 'Knowledge', status: 'available', color: GRAY.dim, description: 'Client implemented. Set NOTION_API_KEY and share pages with the integration.' },
-  // Social & growth
-  { id: 'tool-zernio', name: 'Zernio', category: 'Social', status: 'connected', color: GRAY.white, description: '6 platforms under @founderos.ai (IG, TikTok, X…). Key at ~/.config/social/.env — live.' },
-  { id: 'tool-manychat', name: 'ManyChat', category: 'Social', status: 'available', color: GRAY.dim, description: 'DM automation. Endpoint map fully documented in shared-config; needs MANYCHAT_API_KEY.' },
-  { id: 'tool-skool', name: 'Skool (via Playwright)', category: 'Social', status: 'connected', color: GRAY.mid, description: 'launchpad-cohort community, driven by the documented Playwright workflow.' },
-  // CRM & revenue
-  { id: 'tool-attio', name: 'Attio', category: 'CRM & Revenue', status: 'connected', color: GRAY.white, description: 'Vantage + LC deals. Key reused from MCP config (read-scoped: query records, not lists).' },
-  { id: 'tool-fanbasis', name: 'FanBasis', category: 'CRM & Revenue', status: 'planned', color: GRAY.light, description: 'Offer/payment/customer context for Sales, including the Vantage FanBasis lane.' },
-  { id: 'tool-pava', name: 'PAVA', category: 'CRM & Revenue', status: 'planned', color: GRAY.mid, description: 'Financing options for sales offers and payment-plan context.' },
-  { id: 'tool-stripe', name: 'Stripe', category: 'CRM & Revenue', status: 'available', color: GRAY.light, description: 'Full client implemented — balance + charges live once STRIPE_SECRET_KEY is set.' },
-  { id: 'tool-ghl', name: 'GoHighLevel', category: 'CRM & Revenue', status: 'planned', color: GRAY.dark, description: 'CLI wrapper scaffolded in knowledge/scripts; keys never added.' },
-  { id: 'tool-fathom', name: 'Fathom', category: 'CRM & Revenue', status: 'available', color: GRAY.mid, description: 'AI meeting notetaker, used daily. Needs FATHOM_API_KEY from settings for API access.' },
-  { id: 'tool-webinarjam', name: 'WebinarJam', category: 'CRM & Revenue', status: 'available', color: GRAY.light, description: 'Launchpad Cohort webinar funnel — registrants & attendees are leads. Client implemented; set WEBINARJAM_API_KEY (account-wide).' },
-  { id: 'tool-trakyo', name: 'Trakyo', category: 'CRM & Revenue', status: 'planned', color: GRAY.dim, description: 'Revenue attribution for Launchpad Cohort: content → booked calls → payments. Status-only until Trakyo ships a public API (TRAKYO_API_KEY).' },
-  // Creative studio
-  { id: 'tool-remotion', name: 'Remotion Pipeline', category: 'Creative', status: 'connected', color: GRAY.white, description: '~/Projects/remotion-pipeline · studio :3789 · LC + Vantage themes · 7 skills. Active Jun 10.' },
-  { id: 'tool-higgsfield', name: 'Higgsfield CLI', category: 'Creative', status: 'connected', color: GRAY.light, description: 'v0.1.40, auth in keychain. generate / product-photoshoot / marketing-studio / soul-id.' },
-  { id: 'tool-arcads', name: 'Arcads', category: 'Creative', status: 'connected', color: GRAY.mid, description: 'UGC ads for Vantage (Veo/Sora/Kling). Basic auth at ~/Projects/arcads-agent-skills/.env.' },
-  { id: 'tool-whisper', name: 'Whisper (local)', category: 'Creative', status: 'connected', color: GRAY.dim, description: 'whisper-cli + ffmpeg via brew. Local transcription, nothing leaves the machine.' },
-  { id: 'tool-miro', name: 'Miro', category: 'Creative', status: 'connected', color: GRAY.mid, description: 'REST API with token from knowledge/.env.agents. GBrain architecture board exists.' },
-  { id: 'tool-canva-figma', name: 'Canva + Figma', category: 'Creative', status: 'available', color: GRAY.dark, description: 'Connected as Claude MCPs (session-scoped). Standalone API needs separate keys.' },
-  // Comms
-  { id: 'tool-imap', name: 'Email (4 IMAP slots)', category: 'Comms', status: 'available', color: GRAY.light, description: 'Client implemented for 4 inboxes — set INBOX_1..4_HOST/_USER/_PASS.' },
-  { id: 'tool-slack', name: 'Slack', category: 'Comms', status: 'available', color: GRAY.mid, description: 'Client implemented. Needs a bot token with channels:read/history scopes.' },
-  { id: 'tool-wispr', name: 'Wispr Flow', category: 'Comms', status: 'connected', color: GRAY.white, description: 'Voice dictation — heaviest daily-use tool found. Local flow.sqlite read live.' },
-  { id: 'tool-whatsapp', name: 'WhatsApp', category: 'Comms', status: 'connected', color: GRAY.white, description: 'Desktop app local ChatStorage.sqlite, read-only: 600+ chats incl. LC + Vantage teams.' },
-  // Orchestration & infra
-  { id: 'tool-command-center', name: 'Command Center (:4000)', category: 'Orchestration', status: 'available', color: GRAY.light, description: 'command-center: kanban, brand deals, sales calls, SOPs, dispatch. Start with npm run dev.' },
-  { id: 'tool-openclaw', name: 'OpenClaw Gateway', category: 'Orchestration', status: 'available', color: GRAY.dim, description: 'Dormant — gateway :18789 down, token exists at ~/.openclaw/openclaw.json. Needs repair/reinstall.' },
-  { id: 'tool-tmux', name: 'tmux', category: 'Orchestration', status: 'connected', color: GRAY.mid, description: 'Multi-Claude session orchestration. Dashboard reads live session list.' },
-  { id: 'tool-ollama', name: 'Ollama', category: 'Orchestration', status: 'connected', color: GRAY.light, description: 'Local LLM server :11434, no auth. Pull a model to enable free local inference.' },
-  { id: 'tool-vercel', name: 'Vercel CLI', category: 'Orchestration', status: 'connected', color: GRAY.mid, description: 'v50, authenticated. Deploy target when FOUNDER OS goes public.' },
-  { id: 'tool-gh', name: 'GitHub CLI', category: 'Orchestration', status: 'connected', color: GRAY.dim, description: 'gh 2.89, authenticated.' },
-  // Payments (registry awaiting keys)
-  { id: 'tool-paypal', name: 'PayPal', category: 'Payments', status: 'planned', color: GRAY.mid, description: 'Registered in the processor registry; client lands when keys do.' },
-  { id: 'tool-square', name: 'Square', category: 'Payments', status: 'planned', color: GRAY.dim, description: 'Registered in the processor registry; client lands when keys do.' },
-  { id: 'tool-whop', name: 'Whop', category: 'Payments', status: 'planned', color: GRAY.dark, description: 'Registered in the processor registry; client lands when keys do.' },
+  { id: 'gbrain', name: 'G-Brain', category: 'Knowledge', status: 'connected', color: GRAY.white, description: 'The company brain: evidence base, claims allowlist, brand pack, decisions.' },
+  { id: 'brain-store', name: 'brain-store/', category: 'Knowledge', status: 'connected', color: GRAY.light, description: 'Markdown source of truth on disk.' },
+  { id: 'zeroentropy', name: 'ZeroEntropy', category: 'Knowledge', status: 'connected', color: GRAY.mid, description: 'Embeddings behind hybrid search.' },
+  { id: 'supabase', name: 'Supabase', category: 'Knowledge', status: 'available', color: GRAY.mid, description: 'Managed store behind the brain index.' },
+  // Orchestration
+  { id: 'claude-code', name: 'Claude Code skills', category: 'Orchestration', status: 'connected', color: GRAY.white, description: 'The claude-ads and marketing skill sets every agent runs on: plan, audit, monitor, optimise, report.' },
+  { id: 'broadcast', name: 'Broadcast', category: 'Orchestration', status: 'connected', color: GRAY.light, description: 'Conductor fan-out to every agent.' },
+  { id: 'tmux', name: 'tmux', category: 'Orchestration', status: 'connected', color: GRAY.mid, description: 'Session orchestration on the host.' },
+  { id: 'ollama', name: 'Ollama', category: 'Orchestration', status: 'connected', color: GRAY.dim, description: 'Local model server for cheap passes.' },
+  { id: 'vercel', name: 'Vercel CLI', category: 'Orchestration', status: 'connected', color: GRAY.dim, description: 'Deploy target when the OS leaves the laptop.' },
+  { id: 'gh', name: 'GitHub CLI', category: 'Orchestration', status: 'connected', color: GRAY.dark, description: 'Authenticated.' },
 ];
