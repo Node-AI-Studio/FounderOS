@@ -26,3 +26,17 @@ describe('knowledge graph ambient animation stays off the raster path', () => {
     expect(src).toMatch(/prefers-reduced-motion: reduce\) \{\s*\.kg-grid::before \{ animation: none; \}/);
   });
 });
+
+// On refresh the wheel visibly "expanded" and stuttered: the sim started at
+// alpha 1 on a layout already seeded at rest, so full-strength charge and
+// collision forces jolted it outward and it wobbled back one tick per frame.
+// The camera also lerped out from a tight rect. Both now start settled.
+describe('knowledge graph mounts settled', () => {
+  test('the simulation starts cool instead of at alpha 1', () => {
+    expect(src).toMatch(/configure\(sim\);(\s*\/\/[^\n]*)*\s*sim\.alpha\(0\.1[0-9]?\)/);
+  });
+  test('the camera starts on its home rect, not the raw canvas rect', () => {
+    expect(src).toMatch(/let cur: Rect = cameraRect\(/);
+    expect(src).not.toMatch(/let cur: Rect = \{ x: 0, y: 0, w: W, h: H \}/);
+  });
+});
