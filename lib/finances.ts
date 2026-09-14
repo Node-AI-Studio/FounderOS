@@ -85,22 +85,21 @@ export type ExpenseItem = { id: string; label: string; category: string; monthly
  * bank + credit-card statement uploads are wired.
  */
 export const SAMPLE_EXPENSES: ExpenseItem[] = [
-  { id: 'claude', label: 'Anthropic · Claude Max', category: 'Software', monthly: 200 },
-  { id: 'openai', label: 'OpenAI · ChatGPT', category: 'Software', monthly: 20 },
-  { id: 'cursor', label: 'Cursor', category: 'Software', monthly: 20 },
-  { id: 'higgsfield', label: 'Higgsfield', category: 'Software', monthly: 39 },
-  { id: 'elevenlabs', label: 'ElevenLabs', category: 'Software', monthly: 22 },
-  { id: 'figma', label: 'Figma', category: 'Software', monthly: 15 },
-  { id: 'notion', label: 'Notion', category: 'Software', monthly: 10 },
-  { id: 'wispr', label: 'Wispr Flow', category: 'Software', monthly: 15 },
-  { id: 'vercel', label: 'Vercel Pro', category: 'Infrastructure', monthly: 20 },
-  { id: 'supabase', label: 'Supabase', category: 'Infrastructure', monthly: 25 },
-  { id: 'domains', label: 'Domains & DNS', category: 'Infrastructure', monthly: 12 },
-  { id: 'attio', label: 'Attio', category: 'CRM & Revenue', monthly: 29 },
-  { id: 'fathom', label: 'Fathom', category: 'CRM & Revenue', monthly: 19 },
-  { id: 'meta-ads', label: 'Meta Ads', category: 'Advertising', monthly: 1500 },
-  { id: 'editor', label: 'Video editor (contract)', category: 'Contractors', monthly: 1200 },
-  { id: 'va', label: 'Virtual assistant', category: 'Contractors', monthly: 800 },
+  // Illustrative monthly costs for a DTC brand of Helight's shape, labelled
+  // "sample" on the page until a statement upload or a processor replaces them.
+  { id: 'meta-ads', label: 'Meta Ads', category: 'Advertising', monthly: 9000 },
+  { id: 'tiktok-ads', label: 'TikTok Ads', category: 'Advertising', monthly: 4000 },
+  { id: 'google-ads', label: 'Google Ads', category: 'Advertising', monthly: 2000 },
+  { id: 'creators', label: 'Creator fees (12 creators)', category: 'Creators', monthly: 6000 },
+  { id: 'editor', label: 'Video editor (contract)', category: 'Creators', monthly: 1500 },
+  { id: '3pl', label: '3PL pick, pack and ship', category: 'Fulfilment', monthly: 4500 },
+  { id: 'shopify', label: 'Shopify Plus', category: 'Platform', monthly: 2300 },
+  { id: 'klaviyo', label: 'Klaviyo', category: 'Platform', monthly: 700 },
+  { id: 'shopify-apps', label: 'Shopify apps', category: 'Platform', monthly: 300 },
+  { id: 'claude', label: 'Claude Code', category: 'Software', monthly: 200 },
+  { id: 'arcads', label: 'Arcads', category: 'Software', monthly: 110 },
+  { id: 'zernio', label: 'Zernio', category: 'Software', monthly: 59 },
+  { id: 'apify', label: 'Apify', category: 'Software', monthly: 49 },
 ];
 
 /** Sum of every recurring monthly cost. */

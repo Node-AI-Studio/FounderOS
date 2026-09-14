@@ -79,10 +79,14 @@ export default async function FinancesPage() {
         eyebrow="every processor, one view"
         title="Finances"
         right={
-          <Badge tone={netMonthly >= 0 ? 'ok' : 'err'}>
-            {netMonthly >= 0 ? '+' : '−'}
-            {usd(Math.abs(netMonthly))} net /mo
-          </Badge>
+          liveCount === 0 ? (
+            <Badge>income pending · expenses sample</Badge>
+          ) : (
+            <Badge tone={netMonthly >= 0 ? 'ok' : 'err'}>
+              {netMonthly >= 0 ? '+' : '−'}
+              {usd(Math.abs(netMonthly))} net /mo
+            </Badge>
+          )
         }
       />
 
@@ -124,13 +128,19 @@ export default async function FinancesPage() {
             <Scale className="h-3 w-3 text-os-accent" strokeWidth={1.8} />
           </div>
           <div className="flex items-baseline justify-between gap-2">
-            <span
-              className={`font-mono text-[16px] font-semibold leading-none tracking-[-0.02em] ${netMonthly >= 0 ? 'text-os-ok' : 'text-os-err'}`}
-            >
-              {netMonthly >= 0 ? '' : '−'}
-              {usd(Math.abs(netMonthly))}
+            {liveCount === 0 ? (
+              <span className="font-mono text-[16px] font-semibold leading-none tracking-[-0.02em]">—</span>
+            ) : (
+              <span
+                className={`font-mono text-[16px] font-semibold leading-none tracking-[-0.02em] ${netMonthly >= 0 ? 'text-os-ok' : 'text-os-err'}`}
+              >
+                {netMonthly >= 0 ? '' : '−'}
+                {usd(Math.abs(netMonthly))}
+              </span>
+            )}
+            <span className="min-w-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-os-dim">
+              {liveCount === 0 ? 'needs a live processor' : 'in − out'}
             </span>
-            <span className="min-w-0 truncate font-mono text-[9.5px] uppercase tracking-[0.1em] text-os-dim">in − out</span>
           </div>
         </div>
 
