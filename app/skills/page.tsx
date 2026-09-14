@@ -38,7 +38,7 @@ export default function SkillsPage() {
   const sourceNote =
     real.length > 0
       ? `${real.length} skills live from ~/.claude/skills + ${operatorCards.length} operator skills — open any card to read or download its SKILL.md.`
-      : `${operatorCards.length} operator skills (no ~/.claude/skills on this machine) — open any card to read or download its SKILL.md.`;
+      : `${operatorCards.length} operator skills, one per lane. Open any card to read or download its SKILL.md.`;
 
   return (
     <div>
