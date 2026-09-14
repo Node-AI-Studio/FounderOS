@@ -74,7 +74,7 @@ export function AgentActivityFeed({
               <span className="min-w-0 flex-1 truncate text-os-muted" title={e.summary}>
                 {e.summary}
               </span>
-              <span className="shrink-0 text-os-dim">{clock(e.at)}</span>
+              <span className="shrink-0 text-os-dim" suppressHydrationWarning>{clock(e.at)}</span>
             </li>
           ))}
         </ul>
