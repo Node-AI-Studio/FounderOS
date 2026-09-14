@@ -276,7 +276,7 @@ export const workflows: Workflow[] = [
         tools: ['gmail', 'amazon'],
         edgeLabel: '44 action',
         leakUsd: null,
-        automation: { title: 'Skip, info, action, urgent', state: 'live', recoveredUsd: 1200 },
+        automation: { title: 'Four-way triage', state: 'live', recoveredUsd: 1200 },
       },
       {
         id: 'wf-cc-2',
@@ -293,12 +293,12 @@ export const workflows: Workflow[] = [
         id: 'wf-cc-3',
         title: 'Send the replies',
         ownerKind: 'human',
-        owner: 'Support desk · Helight',
+        owner: 'Helight support',
         hoursPerWeek: 5,
         tools: ['gmail'],
         edgeLabel: 'sent',
         leakUsd: 2200,
-        automation: { title: 'Auto-send inside the allowlist', state: 'suggested', recoveredUsd: 1400 },
+        automation: { title: 'Allowlisted auto-send', state: 'suggested', recoveredUsd: 1400 },
       },
       {
         id: 'wf-cc-4',
