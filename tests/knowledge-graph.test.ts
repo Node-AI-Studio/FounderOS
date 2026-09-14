@@ -313,3 +313,24 @@ describe('the C-suite ring', () => {
     });
   });
 });
+
+describe('buildKnowledgeGraph — task-less workers leave no floating tools', () => {
+  test('a tool listed only by a worker without a task never becomes a node', () => {
+    // A role-only human (no SOP task) lists a tool nobody else in the graph uses,
+    // plus a tool another department already uses. Neither may float.
+    const roleOnly = person('person-ops', 'dept-tech', ['slack', 'attio']);
+    const { nodes, edges } = buildKnowledgeGraph(agents, departments, [...people, roleOnly], tasks);
+    expect(nodes.find((n) => n.id === 'person:person-ops')).toBeUndefined();
+    expect(nodes.some((n) => toolSlugOf(n.id) === 'slack')).toBe(false);
+    // attio stays a single-department node: the task-less worker must not
+    // count as a second department and split it into @dept copies.
+    expect(nodes.find((n) => n.id === 'tool:attio')).toBeDefined();
+    expect(nodes.find((n) => n.id === 'tool:attio@dept-tech')).toBeUndefined();
+    const degree = new Map<string, number>();
+    for (const e of edges) {
+      degree.set(e.source, (degree.get(e.source) ?? 0) + 1);
+      degree.set(e.target, (degree.get(e.target) ?? 0) + 1);
+    }
+    for (const n of nodes) expect(degree.get(n.id) ?? 0, `${n.id} has no edge`).toBeGreaterThan(0);
+  });
+});
