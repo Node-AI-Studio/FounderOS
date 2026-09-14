@@ -5,25 +5,19 @@ import { describe, expect, test } from 'vitest';
 const read = (p: string) => readFileSync(join(process.cwd(), p), 'utf8');
 
 /**
- * Department heads (2026-08-05) render in the /brain graph: a 'head'
- * kind with an executive monogram, sized between pillars and workers, a "Dept head"
- * legend chip, and pillar-layer placement in the neural strand view. The
- * radial graph is client-only (ssr:false) so this contract lives at source
- * level; the node/edge shape itself is covered in knowledge-graph.test.ts.
+ * The C-suite ring (2026-09-14): the pillar node is the executive, so the
+ * /brain graph must not advertise a separate "Dept head" node type any more.
+ * The radial graph is client-only (ssr:false) so this contract lives at
+ * source level; the node shape itself is covered in knowledge-graph.test.ts.
  */
-describe('department heads render wiring', () => {
-  test('KnowledgeGraph styles the head kind and shows it in the legend', () => {
+describe('C-suite render wiring', () => {
+  test('KnowledgeGraph labels the pillar kind as the C-suite and drops the head legend chip', () => {
     const src = read('components/KnowledgeGraph.tsx');
-    expect(src).toContain("n.kind === 'head' ? (");
-    expect(src).toMatch(/<text[^>]*fontSize=\{r \* 0\.625\}[^>]*>\s*\{n.label\}/);
-    expect(src).toContain("label: 'Dept heads'");
-    expect(src).toContain("{ label: 'Dept head', color: CAT.head.color, Icon: CAT.head.Icon }");
-    expect(src).not.toMatch(/import \{[^}]*\bCrown\b/);
-    // focus + hover treat a head as part of its pillar
-    expect(src).toContain("n.id.replace('head:', 'team:')");
+    expect(src).toContain("label: 'C-suite'");
+    expect(src).not.toContain("label: 'Dept head'");
   });
 
-  test('neural strand view places heads on the pillar layer', () => {
-    expect(read('lib/neural-layout.ts')).toContain('head: 3');
+  test('neural strand view names the pillar layer as the C-suite', () => {
+    expect(read('lib/neural-layout.ts')).toContain("name: 'HL 3 · C-SUITE'");
   });
 });

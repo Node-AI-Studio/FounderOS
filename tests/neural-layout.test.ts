@@ -41,7 +41,7 @@ describe('neuralLayout — the feedforward view of the same graph', () => {
     expect(layers[0].nodeIds.length).toBe(4); // openclaw, comms-feed, attio, fathom
     expect(layers[1].nodeIds.length).toBe(4); // 3 agents + Marco
     expect(layers[2].nodeIds.length).toBe(4);
-    expect(layers[3].nodeIds.length).toBe(4); // 2 pillars + their 2 dept heads (heads ride the pillar layer)
+    expect(layers[3].nodeIds.length).toBe(2); // the 2 C-suite nodes; no separate dept heads since 2026-09-14
     expect(layers[4].nodeIds).toEqual(['self']);
   });
 

@@ -4,8 +4,8 @@ import { lifeAreaForDepartment } from '@/lib/life-map';
 
 /**
  * The operating-knowledge graph that powers the /brain force graph — Alex's
- * life and the org in one. Five concentric rings: Alex at the core (ring 0),
- * the life pillars / teams tinted by their life-area color (ring 1), the
+ * life and the org in one. Five concentric rings: the brain at the core (ring 0),
+ * the C-suite — one executive node per pillar, tinted by its life-area color (ring 1), the
  * written-out SOP tasks — the actual jobs (ring 2), the workers who do them —
  * AI agents AND human employees (ring 3), and the software tools they use
  * (ring 4). Each task is done by exactly ONE worker and each worker owns
@@ -170,18 +170,11 @@ export function buildKnowledgeGraph(
   for (const d of departments) {
     if (!usedDepts.has(d.id)) continue;
     const color = lifeAreaForDepartment(d.id)?.color;
-    nodes.push({ id: `team:${d.id}`, kind: 'team', label: d.name, ring: RING.team, color });
+    // The pillar node IS the C-suite executive (2026-09-14): one hop from the
+    // brain, carrying the exec title and the department name. The separate
+    // head node it used to hang is gone.
+    nodes.push({ id: `team:${d.id}`, kind: 'team', label: `${DEPT_EXEC_TITLES[d.id] ?? 'Lead'} · ${d.name}`, ring: RING.team, color });
     edges.push({ source: SELF_ID, target: `team:${d.id}`, kind: 'pillar' });
-    // The department-head agent — CRO/CMO/CTO/… — wears the pillar's color and
-    // hangs directly off it (2026-08-05).
-    nodes.push({
-      id: `head:${d.id}`,
-      kind: 'head',
-      label: DEPT_EXEC_TITLES[d.id] ?? 'Lead',
-      ring: RING.head,
-      color,
-    });
-    edges.push({ source: `team:${d.id}`, target: `head:${d.id}`, kind: 'member' });
   }
 
   // SOP tasks (ring 2) — the written-out jobs. Each hangs off its department
@@ -214,16 +207,13 @@ export function buildKnowledgeGraph(
   const toolNodeId = (slug: string, deptId: string) =>
     (deptsOfTool.get(slug)?.size ?? 0) > 1 ? `tool:${slug}@${deptId}` : `tool:${slug}`;
 
-  // Workers (ring 3): AI agents and the humans in the process.
+  // Workers (ring 3): AI agents and the humans in the process. Workers reach
+  // their team through their task; a worker with no task (the role-only
+  // human heads of department) is left off this graph and lives on the org
+  // chart instead (2026-09-14).
   for (const w of workerRows) {
+    if (!assignedWorkers.has(w.nodeId)) continue;
     nodes.push({ id: w.nodeId, kind: w.kind, label: w.label, ring: RING[w.kind] });
-    // Workers reach their team through their task. A worker with no task is
-    // the human head of department (or a data gap the seed tests forbid): they
-    // report straight to the C-suite agent, so the focused tree can put them
-    // on the trunk above it (2026-09-14).
-    if (!assignedWorkers.has(w.nodeId) && usedDepts.has(w.deptId)) {
-      edges.push({ source: w.nodeId, target: `head:${w.deptId}`, kind: 'member' });
-    }
     for (const slug of w.tools) {
       edges.push({ source: w.nodeId, target: toolNodeId(slug, w.deptId), kind: 'uses' });
     }

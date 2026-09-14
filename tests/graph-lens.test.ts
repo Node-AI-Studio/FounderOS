@@ -31,7 +31,7 @@ describe('graph lenses, Helight taxonomy', () => {
   });
 
   test('entity lenses match by node kind against the real seeded graph', () => {
-    expect(lensNodeSet('ent-people', ctx).size).toBe(8);
+    expect(lensNodeSet('ent-people', ctx).size).toBe(1); // only Yannick owns SOP tasks; task-less heads stay on the org chart
     expect(lensNodeSet('ent-subagents', ctx).size).toBe(75);
     expect(lensNodeSet('ent-departments', ctx).size).toBe(7);
     expect(lensNodeSet('ent-sops', ctx).size).toBeGreaterThan(20);

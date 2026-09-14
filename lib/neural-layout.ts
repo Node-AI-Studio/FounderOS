@@ -60,7 +60,7 @@ const LAYER_META: { kind: NeuralLayerKind; name: string }[] = [
   { kind: 'tool', name: 'INPUT · TOOLS' },
   { kind: 'worker', name: 'HL 1 · WORKERS' },
   { kind: 'task', name: 'HL 2 · SOP TASKS' },
-  { kind: 'team', name: 'HL 3 · PILLARS' },
+  { kind: 'team', name: 'HL 3 · C-SUITE' },
   { kind: 'self', name: 'OUTPUT · OBSIDIAN' },
 ];
 

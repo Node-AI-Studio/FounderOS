@@ -52,7 +52,7 @@ const RIM_DELTA_DEG = (WHEEL_GEOM.delta * 180) / Math.PI;
 // connection count (see nodeRadius / TIER_OPACITY).
 const CAT: Record<KGNodeKind, { color: string; Icon: LucideIcon; label: string; r: number }> = {
   self: { color: 'var(--text)', Icon: Sparkles, label: 'Notes', r: 18 },
-  team: { color: 'var(--brain-1)', Icon: Users, label: 'Pillars', r: 15 },
+  team: { color: 'var(--brain-1)', Icon: Users, label: 'C-suite', r: 15 },
   head: { color: 'var(--brain-2)', Icon: UserRound, label: 'Dept heads', r: 12 },
   task: { color: '#a0a0a0', Icon: ClipboardList, label: 'SOP tasks', r: 7 },
   person: { color: '#d0d0d0', Icon: UserRound, label: 'Humans', r: 10 },
@@ -1506,7 +1506,6 @@ export function KnowledgeGraph({
         {(
           [
             { label: 'Notes', color: HUB_COLOR, Icon: CAT.self.Icon },
-            { label: 'Dept head', color: CAT.head.color, Icon: CAT.head.Icon },
             { label: 'Human', color: CAT.person.color, Icon: CAT.person.Icon },
             { label: 'AI agent', color: CAT.employee.color, Icon: CAT.employee.Icon },
             { label: 'Tool', color: CAT.tool.color, Icon: CAT.tool.Icon },
@@ -1514,7 +1513,7 @@ export function KnowledgeGraph({
           ] as const
         ).map(({ label, color, Icon }) => (
           <span key={label} className="flex items-center gap-1.5 font-mono text-[9.5px] text-os-muted">
-            {label === 'Dept head' ? <span className="font-mono text-[8px]">CXO</span> : <Icon className="h-3 w-3" style={{ color }} strokeWidth={2} />}
+            <Icon className="h-3 w-3" style={{ color }} strokeWidth={2} />
             {label}
           </span>
         ))}

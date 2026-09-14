@@ -79,9 +79,9 @@ describe('buildKnowledgeGraph — dept → task → worker → tools chain', () 
   test('one team node per department on ring 1, tinted with its life-area color', () => {
     const { nodes } = build();
     const teams = nodes.filter((n) => n.kind === 'team');
-    expect(teams.map((t) => t.label).sort()).toEqual(['Sales', 'TECH']);
+    expect(teams.map((t) => t.label).sort()).toEqual(['COO · TECH', 'CPO · Sales']);
     expect(teams.every((t) => t.ring === 1)).toBe(true);
-    expect(teams.find((t) => t.label === 'Sales')?.color).toBe('#ef4444');
+    expect(teams.find((t) => t.label === 'CPO · Sales')?.color).toBe('#ef4444');
   });
 
   test('one task node per SOP task on ring 2, labeled with the job title', () => {
@@ -137,13 +137,13 @@ describe('buildKnowledgeGraph — dept → task → worker → tools chain', () 
     expect(workerMembers).toHaveLength(0);
   });
 
-  test('an unassigned worker reports to the department head so nothing orphans', () => {
-    // a human head of department has no SOP task of their own; they hang
-    // directly off the C-suite agent (2026-09-14), not off the pillar
+  test('a worker with no SOP task is left off the graph (2026-09-14)', () => {
+    // A ring that is not a real path is a wrong picture: task-less humans
+    // (the role-only heads of department) live on the org chart, not here.
     const extra = [...agents, agent({ id: 'stray', departmentId: 'dept-tech' })];
-    const { edges } = buildKnowledgeGraph(extra, departments, people, tasks);
-    const workerMembers = edges.filter((e) => e.kind === 'member' && !e.source.startsWith('team:'));
-    expect(workerMembers).toEqual([{ source: 'emp:stray', target: 'head:dept-tech', kind: 'member' }]);
+    const { nodes, edges } = buildKnowledgeGraph(extra, departments, people, tasks);
+    expect(nodes.find((n) => n.id === 'emp:stray')).toBeUndefined();
+    expect(edges.filter((e) => e.kind === 'member')).toEqual([]);
   });
 
   test('uses edges run worker→tool for agents AND humans', () => {
@@ -279,28 +279,25 @@ describe('graph department order (AC1)', () => {
 });
 
 /**
- * Department-head agents (2026-08-05): every active department gets
- * an executive node — CMO/CCO/CRO/CPO/CXO/CFO/COO — wearing the department's
- * life-area color, hung directly off its pillar. Legend + graph render them
- * via the 'head' kind.
+ * The C-suite (2026-09-14): the pillar node IS the executive. It sits on
+ * ring 1, one hop from the brain, labelled with the exec title and the
+ * department name, tinted with the department color. No separate head node.
  */
-describe('department heads', () => {
-  test('every used department grows a head node with the exec title + dept color', async () => {
+describe('the C-suite ring', () => {
+  test('every used department is one C-suite node on ring 1, no head nodes', async () => {
     const { DEPT_EXEC_TITLES } = await import('@/lib/knowledge-graph');
     const g = buildKnowledgeGraph(
       [agent({ id: 'a1', departmentId: 'dept-sales' }), agent({ id: 'a2', departmentId: 'dept-tech' })],
       [dept('dept-sales', 'Sales'), dept('dept-tech', 'TECH'), dept('dept-clients', 'Clients')],
     );
-    const heads = g.nodes.filter((n) => n.kind === 'head');
-    expect(heads.map((h) => h.id).sort()).toEqual(['head:dept-sales', 'head:dept-tech']);
-    const sales = heads.find((h) => h.id === 'head:dept-sales')!;
-    expect(sales.label).toBe(DEPT_EXEC_TITLES['dept-sales']);
-    expect(sales.label).toBe('CPO');
+    expect(g.nodes.filter((n) => n.kind === 'head')).toEqual([]);
+    const sales = g.nodes.find((n) => n.id === 'team:dept-sales')!;
+    expect(sales.ring).toBe(1);
+    expect(sales.label).toBe(`${DEPT_EXEC_TITLES['dept-sales']} · Sales`);
     expect(sales.color).toBeTruthy(); // wears the department tint
-    // hangs off its pillar
-    expect(g.edges).toContainEqual({ source: 'team:dept-sales', target: 'head:dept-sales', kind: 'member' });
-    // unused departments get no head (Clients had no workers)
-    expect(g.nodes.find((n) => n.id === 'head:dept-clients')).toBeUndefined();
+    expect(g.edges).toContainEqual({ source: 'self', target: 'team:dept-sales', kind: 'pillar' });
+    // unused departments get no node (Clients had no workers)
+    expect(g.nodes.find((n) => n.id === 'team:dept-clients')).toBeUndefined();
   });
 
   test('title map covers all seven departments', async () => {

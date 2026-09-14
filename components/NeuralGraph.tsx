@@ -51,7 +51,7 @@ const hoverKind = (id: string): string => {
   if (id.startsWith('person:')) return 'human';
   if (id.startsWith('task:')) return 'SOP task';
   if (id.startsWith('tool:')) return 'tool';
-  if (id.startsWith('team:')) return 'pillar';
+  if (id.startsWith('team:')) return 'C-suite';
   return 'memory core';
 };
 
