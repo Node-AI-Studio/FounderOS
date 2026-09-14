@@ -78,14 +78,17 @@ const FUNNEL_JOURNEYS: SeededJourney[] = [
   },
   {
     id: 'fc-couple-ines', name: 'Ines and Marc (couple)', venture: 'helight',
+    // 278 = two Helight Sleep units at the $139 list price on helight.com
+    // (verified 2026-09-13 via /products.json). The store sells no two-pack
+    // SKU, so the touches describe quantity two on the product page.
     relationship: 'hot', likelihood: 100, product: 'Helight Sleep x2', amountUsd: 278,
     email: 'ines@example.com',
     touches: [
-      ['first_touch', 'ads', 'TikTok ad: couple bedtime routine, two pack offer', 'tiktok-ads', 19],
-      ['engaged', 'organic', 'Both visited the two pack bundle page', 'shopify', 17],
+      ['first_touch', 'ads', 'TikTok ad: couple bedtime routine, one lamp each', 'tiktok-ads', 19],
+      ['engaged', 'organic', 'Both visited the Helight Sleep page from the same household', 'shopify', 17],
       ['nurtured', 'email', 'Welcome flow email 2: safe for co sleeping partners', 'klaviyo', 14],
-      ['opted_in', 'checkout', 'Added the two pack to cart', 'shopify', 10],
-      ['converted', 'checkout', 'Ordered the Helight Sleep two pack, Texas', 'shopify', 9],
+      ['opted_in', 'checkout', 'Added two Helight Sleep to cart', 'shopify', 10],
+      ['converted', 'checkout', 'Ordered two Helight Sleep, Texas', 'shopify', 9],
     ],
   },
   {
