@@ -1,6 +1,7 @@
 'use client';
 
 import { createSettleDetector } from '@/lib/sim-settle';
+import { planLabelTiers, type LabelTier } from '@/lib/label-tiers';
 import { IDENTITY } from '@/lib/identity';
 
 
@@ -86,8 +87,8 @@ const DIRECTORY_COLORS = {
 
 // Task titles are whole jobs ("Broadcast directives across the fleet") — trim
 // for the on-canvas label; the full title lives in the hover tooltip + card.
-const shortLabel = (n: KGNode) =>
-  n.kind === 'task' && n.label.length > 20 ? `${n.label.slice(0, 18).trimEnd()}…` : n.label;
+const shortLabel = (n: KGNode, maxChars = n.kind === 'task' ? 20 : Infinity) =>
+  n.label.length > maxChars ? `${n.label.slice(0, Math.max(1, maxChars - 2)).trimEnd()}…` : n.label;
 
 // 'about how long ago' for the harness card's last-run line
 const agoLabel = (iso: string): string => {
@@ -457,20 +458,24 @@ export function KnowledgeGraph({
   // Staggered label rows for the focused tree: within each band (tasks,
   // workers, tools) labels alternate between two heights so long titles stay
   // readable at tight sibling spacing instead of smearing into each other.
-  const labelDy = useMemo(() => {
-    const m = new Map<string, number>();
+  // Per band of the focused tree (tasks, workers, tools): how many label rows
+  // the spacing needs and how many characters fit, so a 20-task pillar reads
+  // instead of smearing its titles over each other (lib/label-tiers).
+  const labelPlan = useMemo(() => {
+    const m = new Map<string, LabelTier>();
     if (!focusTree) return m;
-    const byDepth = new Map<number, { id: string; x: number }[]>();
+    const byDepth = new Map<number, { id: string; x: number; chars: number }[]>();
     for (const [id, p] of focusTree.positions) {
       if (p.depth < 2) continue;
-      (byDepth.get(p.depth) ?? byDepth.set(p.depth, []).get(p.depth)!).push({ id, x: p.x });
+      const n = byId.get(id);
+      const chars = n ? shortLabel(n).length : 0;
+      (byDepth.get(p.depth) ?? byDepth.set(p.depth, []).get(p.depth)!).push({ id, x: p.x, chars });
     }
     for (const entries of byDepth.values()) {
-      entries.sort((a, b) => a.x - b.x);
-      entries.forEach((e, i) => m.set(e.id, i % 2 === 0 ? 0 : 11));
+      for (const [id, tier] of planLabelTiers(entries, { charWidth: 5.3, rowHeight: 11, maxRows: 4, minChars: 8 })) m.set(id, tier);
     }
     return m;
-  }, [focusTree]);
+  }, [focusTree, byId]);
 
   // refs the force accessors read (so slider/focus changes don't rebuild the sim)
   const repelRef = useRef(repel); repelRef.current = repel;
@@ -2159,14 +2164,14 @@ export function KnowledgeGraph({
               {showLabel && (
                 <text
                   x={0}
-                  y={r + 11 + (labelDy.get(n.id) ?? 0)}
+                  y={r + 11 + (labelPlan.get(n.id)?.dy ?? 0)}
                   textAnchor="middle"
                   fontFamily="var(--font-mono)"
                   fontWeight={n.kind === 'self' || n.kind === 'team' ? 600 : 400}
                   fill={n.kind === 'team' ? color : 'var(--text-2)'}
                   style={fixedLabel(n.kind === 'self' || n.kind === 'team' ? 10 : n.kind === 'task' ? 8.5 : 9)}
                 >
-                  {shortLabel(n)}
+                  {shortLabel(n, labelPlan.get(n.id)?.maxChars)}
                 </text>
               )}
             </g>
