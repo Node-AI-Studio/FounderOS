@@ -14,7 +14,10 @@
  * secret should fail loudly, not fail open.
  */
 
-export const SESSION_COOKIE = 'founder_os_session';
+// Two instances behind one hostname (the real OS on 443, a demo board on
+// another port) would otherwise overwrite each other's cookie: ports do not
+// isolate cookies. Each instance can name its own.
+export const SESSION_COOKIE = process.env.FOUNDER_OS_SESSION_COOKIE || 'founder_os_session';
 export const ACCESS_TOKEN_ENV = 'FOUNDER_OS_ACCESS_TOKEN';
 
 export type AuthDecision =
