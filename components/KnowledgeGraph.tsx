@@ -386,6 +386,14 @@ export function KnowledgeGraph({
   // tilted on the rim and a step rigidly rotates them into position.
   const allTrees: Map<string, TreeLayoutResult> = useMemo(() => {
     const byLabel = (a: string, b: string) => (byId.get(a)?.label ?? '').localeCompare(byId.get(b)?.label ?? '');
+    // the human head of department: the person who reports to the C-suite
+    // agent (a member edge onto the head node); first one per team wins
+    const leadOfTeam = new Map<string, string>();
+    for (const e of graph.edges) {
+      if (e.kind !== 'member' || !e.source.startsWith('person:') || !e.target.startsWith('head:')) continue;
+      const teamId = e.target.replace('head:', 'team:');
+      if (!leadOfTeam.has(teamId)) leadOfTeam.set(teamId, e.source);
+    }
     const m = new Map<string, TreeLayoutResult>();
     for (const team of graph.nodes.filter((n) => n.kind === 'team')) {
       const taskIds = (tasksOfTeam.get(team.id) ?? []).slice().sort(byLabel);
@@ -403,6 +411,7 @@ export function KnowledgeGraph({
           selfId: SELF_ID,
           teamId: team.id,
           headId: byId.has(team.id.replace('team:', 'head:')) ? team.id.replace('team:', 'head:') : undefined,
+          leadId: leadOfTeam.get(team.id),
           taskIds,
           workerByTask,
           toolsByWorker,
