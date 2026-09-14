@@ -146,6 +146,16 @@ describe('buildKnowledgeGraph — dept → task → worker → tools chain', () 
     expect(edges.filter((e) => e.kind === 'member')).toEqual([]);
   });
 
+  test('no node floats: every node except the core has at least one edge (2026-09-14)', () => {
+    // a tool used only by a task-less head must not survive the head's removal
+    const extraPeople = [...people, person('person-ops-assistant', 'dept-tech', ['slack'])];
+    const { nodes, edges } = buildKnowledgeGraph(agents, departments, extraPeople, tasks);
+    const touched = new Set(edges.flatMap((e) => [e.source, e.target]));
+    const floating = nodes.filter((n) => n.kind !== 'self' && !touched.has(n.id)).map((n) => n.id);
+    expect(floating).toEqual([]);
+    expect(nodes.find((n) => n.id.startsWith('tool:slack'))).toBeUndefined();
+  });
+
   test('uses edges run worker→tool for agents AND humans', () => {
     const { edges } = build();
     const uses = edges.filter((e) => e.kind === 'uses');

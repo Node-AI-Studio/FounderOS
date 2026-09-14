@@ -195,10 +195,12 @@ export function buildKnowledgeGraph(
   // departments is DUPLICATED — one copy per department — so its lines stay
   // local instead of crossing the wheel (Alex: no messy long edges).
   const deptsOfTool = new Map<string, Set<string>>();
+  // Only workers that own a task are drawn (see below), so only their tools
+  // exist: a tool used solely by a task-less head would otherwise float.
   const workerRows: { nodeId: string; kind: 'employee' | 'person'; label: string; deptId: string; tools: string[] }[] = [
     ...agents.map((a) => ({ nodeId: `emp:${a.id}`, kind: 'employee' as const, label: a.name, deptId: a.departmentId, tools: a.tools })),
     ...people.map((p) => ({ nodeId: `person:${p.id}`, kind: 'person' as const, label: p.name, deptId: p.departmentId, tools: p.tools })),
-  ];
+  ].filter((w) => assignedWorkers.has(w.nodeId));
   // Only workers that own a task reach the graph (see below), so only their
   // tools may become nodes; a tool listed solely by a task-less role-holder
   // would otherwise float with no edge (the Slack node between Growth and
@@ -217,7 +219,6 @@ export function buildKnowledgeGraph(
   // human heads of department) is left off this graph and lives on the org
   // chart instead (2026-09-14).
   for (const w of workerRows) {
-    if (!assignedWorkers.has(w.nodeId)) continue;
     nodes.push({ id: w.nodeId, kind: w.kind, label: w.label, ring: RING[w.kind] });
     for (const slug of w.tools) {
       edges.push({ source: w.nodeId, target: toolNodeId(slug, w.deptId), kind: 'uses' });
