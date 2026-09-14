@@ -696,8 +696,25 @@ body {
     radial-gradient(circle at 50% 45%, color-mix(in oklab, var(--brain-1) 10%, transparent), transparent 65%),
     var(--surface);
 }
-.brain-ring {
-  transform-origin: 260px 260px;
+/* Each animated ring is its own stacked <svg> root (see BrainViz): a CSS
+   transform on an inner <g> re-rasterizes the whole SVG every frame, while a
+   transform on the root element rides the compositor for free. */
+.brain-viz {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+.brain-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.brain-ring,
+.brain-sweep,
+.brain-core-pulse {
+  transform-origin: 50% 50%;
+  will-change: transform;
 }
 .brain-ring.r1 {
   animation: brain-spin 80s linear infinite;
@@ -709,7 +726,6 @@ body {
   animation: brain-spin 220s linear infinite;
 }
 .brain-sweep {
-  transform-origin: 260px 260px;
   animation: brain-spin 9s linear infinite;
 }
 @keyframes brain-spin {
@@ -718,7 +734,6 @@ body {
   }
 }
 .brain-core-pulse {
-  transform-origin: 260px 260px;
   animation: brain-core 3.2s ease-in-out infinite;
 }
 @keyframes brain-core {
