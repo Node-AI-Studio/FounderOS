@@ -204,7 +204,12 @@ export function buildKnowledgeGraph(
     ...agents.map((a) => ({ nodeId: `emp:${a.id}`, kind: 'employee' as const, label: a.name, deptId: a.departmentId, tools: a.tools })),
     ...people.map((p) => ({ nodeId: `person:${p.id}`, kind: 'person' as const, label: p.name, deptId: p.departmentId, tools: p.tools })),
   ];
+  // Only workers that own a task reach the graph (see below), so only their
+  // tools may become nodes; a tool listed solely by a task-less role-holder
+  // would otherwise float with no edge (the Slack node between Growth and
+  // Content, 2026-09-14).
   for (const w of workerRows) {
+    if (!assignedWorkers.has(w.nodeId)) continue;
     for (const slug of w.tools) {
       (deptsOfTool.get(slug) ?? deptsOfTool.set(slug, new Set()).get(slug)!).add(w.deptId);
     }
