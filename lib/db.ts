@@ -300,7 +300,8 @@ CREATE TABLE IF NOT EXISTS skills (
   status TEXT NOT NULL DEFAULT 'planned',
   tools TEXT NOT NULL DEFAULT '[]',
   markdown TEXT NOT NULL DEFAULT '',
-  ord INTEGER NOT NULL DEFAULT 0
+  ord INTEGER NOT NULL DEFAULT 0,
+  builds_on TEXT NOT NULL DEFAULT '[]'
 );
 `;
 
@@ -335,6 +336,9 @@ function migrateSkillsTable(db: InstanceType<typeof Database>): void {
   if (columns.size > 0 && !columns.has('markdown')) {
     db.exec("ALTER TABLE skills ADD COLUMN markdown TEXT NOT NULL DEFAULT ''");
     db.exec('DELETE FROM skills');
+  }
+  if (columns.size > 0 && !columns.has('builds_on')) {
+    db.exec("ALTER TABLE skills ADD COLUMN builds_on TEXT NOT NULL DEFAULT '[]'");
   }
 }
 
@@ -1024,14 +1028,15 @@ export function openDb(path: string) {
             tools: JSON.parse(r.tools),
             markdown: r.markdown,
             order: r.ord,
+            buildsOn: JSON.parse(r.builds_on ?? '[]'),
           }),
         );
     },
     insert(s: Skill): void {
       SkillSchema.parse(s);
       db.prepare(
-        'INSERT OR REPLACE INTO skills (id, name, category, description, owner_agent_id, status, tools, markdown, ord) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      ).run(s.id, s.name, s.category, s.description, s.ownerAgentId, s.status, JSON.stringify(s.tools), s.markdown, s.order);
+        'INSERT OR REPLACE INTO skills (id, name, category, description, owner_agent_id, status, tools, markdown, ord, builds_on) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      ).run(s.id, s.name, s.category, s.description, s.ownerAgentId, s.status, JSON.stringify(s.tools), s.markdown, s.order, JSON.stringify(s.buildsOn));
     },
     deleteWhereIdNotIn(ids: string[]): void {
       const placeholders = ids.map(() => '?').join(', ');

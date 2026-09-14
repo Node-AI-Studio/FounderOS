@@ -35,6 +35,7 @@ export type SkillCard = {
   filePath: string;
   status?: 'live' | 'learning' | 'planned';
   markdown?: string; // inline (fallback); otherwise fetched by id
+  buildsOn?: string[]; // library skill ids this card is built on
 };
 
 const STATUS: Record<string, string> = { live: 'var(--ok)', learning: 'var(--warn)', planned: 'var(--text-3)' };
@@ -192,6 +193,24 @@ export function SkillsGrid({ cards, sourceNote }: { cards: SkillCard[]; sourceNo
                       {c.status && <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: STATUS[c.status] }} />}
                     </div>
                     <p className="line-clamp-2 text-[10px] leading-snug text-os-dim">{c.description}</p>
+                    {c.buildsOn && c.buildsOn.length > 0 && (
+                      <span className="flex flex-wrap items-center gap-1 font-mono text-[9px] uppercase tracking-[0.12em] text-os-dim">
+                        <span>builds on</span>
+                        {c.buildsOn.map((slug) => {
+                          const target = cards.find((x) => x.id === slug);
+                          return (
+                            <span
+                              key={slug}
+                              role={target ? 'link' : undefined}
+                              onClick={target ? (e) => { e.stopPropagation(); open(target); } : undefined}
+                              className={`rounded border border-os-border px-1 py-px normal-case tracking-normal ${target ? 'hover:border-os-border-strong hover:text-os-text' : ''}`}
+                            >
+                              {slug}
+                            </span>
+                          );
+                        })}
+                      </span>
+                    )}
                   </button>
                 );
               })}

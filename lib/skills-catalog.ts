@@ -64,8 +64,33 @@ export function parseSkillFrontmatter(md: string): { name?: string; description?
   return out;
 }
 
+/** Library skills shipped with the Helight board (demo/helight-skills), by lane.
+    Both sources are MIT: marketing-skills by Corey Haines and claude-ads. */
+export const LIBRARY_LANES: Record<string, string> = {
+  'ads-meta': 'Growth',
+  'ads-tiktok': 'Growth',
+  'ads-google': 'Growth',
+  'ads-creative': 'Growth',
+  'ads-budget': 'Growth',
+  'ads-monitor': 'Growth',
+  'ads-landing': 'Growth',
+  attribution: 'Growth',
+  'ad-creative': 'Content',
+  copywriting: 'Content',
+  social: 'Content',
+  video: 'Content',
+  'influencer-marketing': 'Content',
+  emails: 'Retention',
+  sms: 'Retention',
+  'churn-prevention': 'Retention',
+  cro: 'Store',
+  'ai-seo': 'Store',
+  'customer-research': 'Store',
+};
+
 export function skillGroup(name: string): string {
   const n = name.toLowerCase();
+  if (LIBRARY_LANES[n]) return `Library · ${LIBRARY_LANES[n]}`;
   if (n.startsWith('firecrawl')) return 'Firecrawl';
   if (['build', 'spec', 'review'].includes(n)) return 'Spec · build · review';
   if (['codex', 'mcp-builder'].includes(n)) return 'Engineering';
@@ -101,7 +126,7 @@ export function readUserSkills(dir: string = skillsDir()): CatalogSkill[] {
       name,
       description: fm.description ?? '',
       group: skillGroup(name),
-      path: `~/.claude/skills/${e.name}/SKILL.md`,
+      path: process.env.FOUNDER_OS_SKILLS_DIR ? `library/${e.name}/SKILL.md` : `~/.claude/skills/${e.name}/SKILL.md`,
     });
   }
   return out.sort((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name));

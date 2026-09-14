@@ -452,6 +452,7 @@ export const SkillSchema = z.object({
   tools: z.array(z.string()),
   markdown: z.string(), // the skill's SKILL.md doc, viewable from the card
   order: z.number().int(),
+  buildsOn: z.array(z.string()).default([]), // library skill slugs this one is built on
 });
 
 // ── Client roster — one row per client, whatever the source ─────────────────

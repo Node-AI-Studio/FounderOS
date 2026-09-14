@@ -32,12 +32,13 @@ export default function SkillsPage() {
     filePath: `skills/${s.id}/SKILL.md`,
     status: s.status,
     markdown: s.markdown,
+    buildsOn: s.buildsOn,
   }));
 
   const cards = [...realCards, ...operatorCards];
   const sourceNote =
     real.length > 0
-      ? `${real.length} skills live from ~/.claude/skills + ${operatorCards.length} operator skills — open any card to read or download its SKILL.md.`
+      ? `${operatorCards.length} operator skills, one per lane, built on ${real.length} library skills (marketing-skills by Corey Haines and claude-ads, both MIT). Open any card to read or download its SKILL.md.`
       : `${operatorCards.length} operator skills, one per lane. Open any card to read or download its SKILL.md.`;
 
   return (
