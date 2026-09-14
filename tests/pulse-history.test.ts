@@ -64,7 +64,7 @@ describe('stateOfWorld — honest attention-first status line', () => {
   it('reports a degraded brain and down connectors', () => {
     const segs = stateOfWorld({ ...base, health: 55, connected: 4, totalConnectors: 6 });
     expect(segs).toContainEqual({ text: 'G-Brain degraded 55/100', tone: 'warn' });
-    expect(segs).toContainEqual({ text: '2 connectors down', tone: 'warn' });
+    expect(segs).toContainEqual({ text: '2 connectors pending', tone: 'warn' });
   });
 
   it('reports an offline brain as an error', () => {
@@ -77,9 +77,9 @@ describe('stateOfWorld — honest attention-first status line', () => {
     expect(segs).toContainEqual({ text: '7 inbound need reply', tone: 'accent' });
   });
 
-  it('singularizes one failed run and one connector down', () => {
+  it('singularizes one failed run and one connector pending', () => {
     const segs = stateOfWorld({ ...base, failedRuns: 1, connected: 5, totalConnectors: 6 });
     expect(segs).toContainEqual({ text: '1 run failed', tone: 'err' });
-    expect(segs).toContainEqual({ text: '1 connector down', tone: 'warn' });
+    expect(segs).toContainEqual({ text: '1 connector pending', tone: 'warn' });
   });
 });

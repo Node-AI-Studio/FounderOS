@@ -66,7 +66,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /**
  * One honest sentence about what needs the operator, worst-first: failed runs,
- * an unhealthy brain, downed connectors, then inbound to reply to — always
+ * an unhealthy brain, connectors still to wire, then inbound to reply to — always
  * anchored by the live agent count. Leads with "All nominal" only when nothing
  * is actually wrong.
  */
@@ -77,7 +77,7 @@ export function stateOfWorld(f: PulseFacts): StateSegment[] {
   if (f.failedRuns > 0) segs.push({ text: `${plural(f.failedRuns, 'run')} failed`, tone: 'err' });
   if (!f.brainConnected) segs.push({ text: 'G-Brain offline', tone: 'err' });
   else if (f.health != null && f.health < 70) segs.push({ text: `G-Brain degraded ${f.health}/100`, tone: 'warn' });
-  if (down > 0) segs.push({ text: `${plural(down, 'connector')} down`, tone: 'warn' });
+  if (down > 0) segs.push({ text: `${plural(down, 'connector')} pending`, tone: 'warn' });
   if (f.inbound > 0) segs.push({ text: `${f.inbound} inbound need reply`, tone: 'accent' });
 
   const hadAttention = segs.length > 0;
