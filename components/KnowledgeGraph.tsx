@@ -793,6 +793,7 @@ export function KnowledgeGraph({
     let lastT = performance.now();
     let lastRotDeg = NaN;
     let lastCamK = '';
+    let lastViewBox = '';
     let frame = 0;
     const ORBIT_S = 150; // seconds per full revolution — calm but visibly alive
     const IDLE_MS = 15_000;
@@ -905,11 +906,17 @@ export function KnowledgeGraph({
       );
       const goingHome = !c.focusTree && !c.coreExpanded && !c.selectedOrgId && !c.selectedMemoryId;
       const next = lerpRect(cur, target, reduced ? 1 : goingHome ? CAM_EASE_HOME : CAM_EASE);
-      if (next !== cur) {
+      // cameraRect builds a fresh target object every frame, so identity is
+      // no signal: compare the rounded viewBox string. A viewBox write
+      // invalidates layout and raster for the entire SVG, and at rest it
+      // was happening every frame (measured: 5x the idle raster).
+      const viewBox = `${next.x.toFixed(2)} ${next.y.toFixed(2)} ${next.w.toFixed(2)} ${next.h.toFixed(2)}`;
+      if (viewBox !== lastViewBox) {
+        lastViewBox = viewBox;
         cur = next;
         const svg = svgRef.current;
         if (svg) {
-          svg.setAttribute('viewBox', `${cur.x} ${cur.y} ${cur.w} ${cur.h}`);
+          svg.setAttribute('viewBox', viewBox);
           // zoom factor for the constant-size label counter-scale; every label
           // reads this var, so a write recomputes style for all of them —
           // only publish when the third decimal moves
