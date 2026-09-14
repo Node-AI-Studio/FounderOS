@@ -1,5 +1,6 @@
 'use client';
 
+import { createSettleDetector } from '@/lib/sim-settle';
 import { IDENTITY } from '@/lib/identity';
 
 
@@ -662,6 +663,15 @@ export function KnowledgeGraph({
     // The sim may tick faster than the display; coalesce the React render to
     // one per animation frame (d3's physics keep ticking freely underneath).
     const renderTick = rafThrottle(() => setTick((t) => (t + 1) % 1_000_000));
+    // Stop the physics once nothing visibly moves. A restart at alpha 0.35
+    // otherwise ticks for 6s+ while every tick re-renders the whole graph
+    // (measured: the Escape-home glide sat at 116k DOM mutations per 3s).
+    // Any later alpha().restart() wakes it again.
+    const settled = createSettleDetector({ maxSpeed: 0.04, maxAlpha: 0.12, quietTicks: 8 });
+    const onTick = () => {
+      renderTick();
+      if (settled(nodes, sim.alpha())) sim.stop();
+    };
     const sim = forceSimulation(nodes)
       // extra friction + a slow cool-down → nodes drift floatily into place
       // instead of snapping or overshooting
@@ -673,7 +683,7 @@ export function KnowledgeGraph({
       .force('x', forceX<SimNode>(CX))
       .force('y', forceY<SimNode>(CY))
       .force('collide', forceCollide<SimNode>(10))
-      .on('tick', renderTick);
+      .on('tick', onTick);
     configure(sim);
     simRef.current = sim;
     return () => {
@@ -782,6 +792,7 @@ export function KnowledgeGraph({
     let raf = 0;
     let lastT = performance.now();
     let lastRotDeg = NaN;
+    let lastCamK = '';
     let frame = 0;
     const ORBIT_S = 150; // seconds per full revolution — calm but visibly alive
     const IDLE_MS = 15_000;
@@ -899,8 +910,14 @@ export function KnowledgeGraph({
         const svg = svgRef.current;
         if (svg) {
           svg.setAttribute('viewBox', `${cur.x} ${cur.y} ${cur.w} ${cur.h}`);
-          // zoom factor for the constant-size label counter-scale
-          svg.style.setProperty('--kg-cam-k', String(cur.w / W));
+          // zoom factor for the constant-size label counter-scale; every label
+          // reads this var, so a write recomputes style for all of them —
+          // only publish when the third decimal moves
+          const camK = (cur.w / W).toFixed(3);
+          if (camK !== lastCamK) {
+            lastCamK = camK;
+            svg.style.setProperty('--kg-cam-k', camK);
+          }
         }
       }
 
