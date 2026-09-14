@@ -1,11 +1,11 @@
 /**
- * The agent emblem — the real Vantage mark (public/vantage-emblem.png,
- * processed from ~/vantage/"VANTAGE LOGO": background keyed out, cropped).
+ * The agent emblem: Helight's "H" mark, cropped from the navbar logo on
+ * helight.com and stored as a white silhouette with alpha
+ * (public/helight-emblem.png, committed with the demo branch).
  *
  * The PNG is used as a CSS mask over a solid color, so `shade` tints the exact
- * brand silhouette to any color — black for the Conductor, each department's
- * life-area color for its agents, etc. (The mint PNG was invisible on the
- * light theme's white; masking fixes that.)
+ * brand silhouette to any color: black for the Conductor, each department's
+ * life-area color for its agents, and so on.
  */
 export const EMBLEM_MINT = '#00ffab';
 
@@ -29,8 +29,8 @@ export function SparkIcon({
         backgroundColor: shade,
         // color drives the hover drop-shadow glow (.emblem in globals.css)
         color: shade,
-        WebkitMaskImage: 'url(/vantage-emblem.png)',
-        maskImage: 'url(/vantage-emblem.png)',
+        WebkitMaskImage: 'url(/helight-emblem.png)',
+        maskImage: 'url(/helight-emblem.png)',
         WebkitMaskRepeat: 'no-repeat',
         maskRepeat: 'no-repeat',
         WebkitMaskPosition: 'center',
