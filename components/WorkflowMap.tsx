@@ -243,7 +243,9 @@ export function WorkflowMap({
       <div className="mt-3 flex flex-wrap items-center gap-x-7 gap-y-3 rounded-xl border border-os-border bg-os-surface px-4 py-3.5">
         <div className="min-w-0 shrink-0">
           <div className="text-[12.5px] font-semibold">{current.name}</div>
-          <div className="font-mono text-[10px] text-os-dim">{usd(current.revenueUsd)}/mo revenue</div>
+          {current.revenueUsd > 0 && (
+            <div className="font-mono text-[10px] text-os-dim">{usd(current.revenueUsd)}/mo revenue</div>
+          )}
         </div>
         <Stat label="Manual load" value={`${stats.manualHours}h/wk`} />
         <Stat label="Tagged leak" value={`${usd(stats.leakUsd)}/mo`} tone="err" />
