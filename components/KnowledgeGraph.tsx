@@ -2139,13 +2139,20 @@ export function KnowledgeGraph({
     <style
       dangerouslySetInnerHTML={{
         __html: `
-@keyframes kg-drift { from { background-position: 0 0; } to { background-position: 44px 44px; } }
-.kg-grid {
+/* The drift is a compositor transform on an oversized pseudo-layer, never a
+   background-position animation: that one repaints the grid every frame and
+   re-rasterizes the whole graph stacked with it (measured 10x idle raster). */
+@keyframes kg-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(44px, 44px, 0); } }
+.kg-grid { overflow: hidden; opacity: 0.4; }
+.kg-grid::before {
+  content: '';
+  position: absolute;
+  inset: -44px 0 0 -44px;
   background-image:
     linear-gradient(to right, var(--border-strong) 1px, transparent 1px),
     linear-gradient(to bottom, var(--border-strong) 1px, transparent 1px);
   background-size: 44px 44px;
-  opacity: 0.4;
+  will-change: transform;
   animation: kg-drift 26s linear infinite;
 }
 
@@ -2199,7 +2206,7 @@ export function KnowledgeGraph({
 .kg-panel { animation: kg-panel-in 340ms cubic-bezier(0.22, 1, 0.36, 1); }
 
 @media (prefers-reduced-motion: reduce) {
-  .kg-grid { animation: none; }
+  .kg-grid::before { animation: none; }
   .kg-grow, .kg-dash, .kg-ray, .kg-fade, .kg-leaf, .kg-glow, .kg-panel, .kg-web-in { animation: none; }
   .kg-mem-layer, .kg-mem-stir, .kg-core-glow, .kg-mem-in { animation: none !important; }
   .kg-mem-in { opacity: 1; }
