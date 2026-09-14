@@ -687,6 +687,10 @@ export function KnowledgeGraph({
       .force('collide', forceCollide<SimNode>(10))
       .on('tick', onTick);
     configure(sim);
+    // The layout is seeded at rest, so start cool: at alpha 1 the charge and
+    // collision forces jolt the settled wheel outward and it wobbles back one
+    // tick per frame, which reads as a slow, stuttering expansion on refresh.
+    sim.alpha(0.15);
     simRef.current = sim;
     return () => {
       sim.stop();
@@ -790,7 +794,8 @@ export function KnowledgeGraph({
   useEffect(() => {
     const reduced =
       typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    let cur: Rect = { x: 0, y: 0, w: W, h: H };
+    // start on the home rect so a refresh does not zoom out from the raw canvas
+    let cur: Rect = cameraRect({ w: W, h: H }, { focusedTeam: false, coreExpanded: false, coreCenter: { x: CX, y: CY } });
     let raf = 0;
     let lastT = performance.now();
     let lastRotDeg = NaN;
