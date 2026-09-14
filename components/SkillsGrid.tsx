@@ -146,11 +146,16 @@ export function SkillsGrid({ cards, sourceNote }: { cards: SkillCard[]; sourceNo
     }
   };
 
-  const groups = [...new Set(cards.map((c) => c.group))].sort((a, b) => {
-    const ia = GROUP_ORDER.indexOf(a);
-    const ib = GROUP_ORDER.indexOf(b);
-    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib) || a.localeCompare(b);
-  });
+  // Named groups first, then the operator's own skills, then the library they
+  // build on, alphabetical inside each band.
+  const rank = (g: string) => {
+    const i = GROUP_ORDER.indexOf(g);
+    if (i !== -1) return i;
+    if (g.startsWith('Operator')) return 50;
+    if (g.startsWith('Library')) return 60;
+    return 99;
+  };
+  const groups = [...new Set(cards.map((c) => c.group))].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
 
   const ViewingIcon = viewing ? skillIcon(viewing) : Sparkles;
 

@@ -7,6 +7,14 @@ export const dynamic = 'force-dynamic';
 
 const truncate = (t: string, n = 110) => (t.length > n ? `${t.slice(0, n).replace(/\s+\S*$/, '')}…` : t);
 
+// Library SKILL.md descriptions are written as triggers ("When the user wants
+// to ..."). On a card that reads as metadata, so lead with the verb instead.
+const untrigger = (t: string) => {
+  const m = /^(?:use\s+)?when\s+(?:the\s+)?user\s+(?:wants|asks|needs)\s+(?:to\s+|for\s+)?/i.exec(t);
+  const rest = m ? t.slice(m[0].length) : t;
+  return rest.charAt(0).toUpperCase() + rest.slice(1);
+};
+
 export default function SkillsPage() {
   // Both catalogs, side by side: the real Claude Code skills read live from
   // disk (SKILL.md loads on demand via /api/skills/[slug]) AND the operator
@@ -16,7 +24,7 @@ export default function SkillsPage() {
     id: s.slug,
     name: s.name,
     group: s.group,
-    description: truncate(s.description),
+    description: truncate(untrigger(s.description)),
     meta: s.path,
     filePath: s.path,
   }));
