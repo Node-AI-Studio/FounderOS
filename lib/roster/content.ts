@@ -84,7 +84,7 @@ export const CONTENT: RosterEntry[] = [
      'Collect the final and pass it to Publisher']),
   c('publisher', 'Publisher', 'Daily cadence', 'specialist', ['zernio'],
     'Publishes on cadence to TikTok, Instagram and YouTube Shorts. The feed never goes dark.',
-    'Publish on cadence', 'Daily, three platforms, never dark.',
+    'Publish on cadence', 'Daily, two platforms, never dark.',
     ['Take the next approved post from the calendar',
      'Adapt the caption per platform and confirm the disclosure flag',
      'Publish through Zernio and record the post ids',

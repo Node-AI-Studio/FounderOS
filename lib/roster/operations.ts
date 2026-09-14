@@ -12,7 +12,7 @@ const o = (
 });
 
 export const OPERATIONS: RosterEntry[] = [
-  o('conductor', 'Conductor', 'Routes directives, runs the loop', 'lead', ['broadcast', 'tmux', 'ollama'],
+  o('conductor', 'Conductor', 'Routes directives, runs the loop', 'lead', ['broadcast', 'claude-code', 'gbrain'],
     'Routes directives across the pillars and runs the weekly loop: Content finds, Growth funds, Retention keeps.',
     'Conduct the weekly loop', 'Content finds, Growth funds, Retention keeps.',
     ['Receive the directive from the operator console',
