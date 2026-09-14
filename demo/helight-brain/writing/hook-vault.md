@@ -27,7 +27,7 @@ filled slot still needs to clear [[wiki/claims-allowlist]] before use.
 | 11 | We bought two so neither of us has to reach across the bed. | Couples / two-pack |
 | 12 | Here's what happened when I used this every night for 21 nights. | 21-nights series |
 | 13 | [Wearable brand] said my sleep score went up. Here's what changed. | Wearable optimiser |
-| 14 | 60 days to try it. If it doesn't work, you don't pay. | Guarantee as risk reversal |
+| 14 | 60 nights to try it. If it doesn't work, you don't pay. | Guarantee as risk reversal |
 | 15 | The science behind this goes back to a 2002 discovery about your eyes. | ipRGC science hook |
 | 16 | Shift workers, this one's for you. | Shift worker lane |
 | 17 | I stopped wearing a sleep mask and started doing this instead. | No-wearable angle |
@@ -42,7 +42,7 @@ filled slot still needs to clear [[wiki/claims-allowlist]] before use.
 | 26 | It does nothing except turn off. | Simplicity angle |
 | 27 | This isn't a night light. Here's the difference. | Product education |
 | 28 | Students, your sleep schedule is not normal and it's not your fault. | Student lane |
-| 29 | The 60-day guarantee exists because we're that confident. | Guarantee |
+| 29 | The 60-night guarantee exists because we're that confident. | Guarantee |
 | 30 | Every award this thing has won, in one video. | Social proof compilation |
 
 Categories map to [[wiki/audience-lanes]] and [[wiki/angle-bank]]; a hook

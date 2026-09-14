@@ -38,7 +38,7 @@ export const CARE: RosterEntry[] = [
      'Send buying intent the product link and log it for the funnel',
      'Escalate anything about medical conditions to FAQ Keeper',
      'Report volume to Care Reporter']),
-  k('refund-handler', 'Refund Handler', 'The 60-day guarantee', 'specialist', ['shopify', 'klaviyo'],
+  k('refund-handler', 'Refund Handler', 'The 60-night guarantee', 'specialist', ['shopify', 'klaviyo'],
     'Handles guarantee requests: checks nights used, offers the 21 Nights path first, processes when due.',
     'Handle refund requests', 'Nights used, coaching first, refund when due.',
     ['Take the refund request and the order date',

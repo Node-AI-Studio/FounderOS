@@ -27,7 +27,7 @@ four decades of experience, and picked up retail distribution at Ulta Beauty
 The product line is three SKUs: [[products/helight-sleep]], [[products/helight-kidzzz]],
 and [[products/helight-nightlight]], plus [[products/sleep-two-pack]]. All
 built on [[products/the-28-minute-protocol]]. The offer stands on a
-21-nights-or-less results promise, a 60-day money-back guarantee, and a
+21-nights-or-less results promise, a 60-night money-back guarantee, and a
 two-year warranty, backed by a granted patent family (see [[wiki/patent-family]]).
 
 Operator: Yannick Kiefer. Seven pillars run the weekly loop: Growth, Content,

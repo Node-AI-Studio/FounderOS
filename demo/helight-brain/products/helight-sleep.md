@@ -14,7 +14,7 @@ sleep routine.
 
 Launched in Quebec in October 2020, roughly 200,000 units have sold across the
 Helight line since. Carries the brand's full offer stack: a "21 nights or
-less" results promise (see [[wiki/the-21-nights-series]]), a 60-day
+less" results promise (see [[wiki/the-21-nights-series]]), a 60-night
 money-back guarantee, and a two-year warranty. The mechanism is covered by a
 granted patent family, [[wiki/patent-family]].
 

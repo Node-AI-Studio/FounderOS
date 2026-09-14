@@ -14,7 +14,7 @@ yet made it into ad copy or proof pages.
 
 Agents reporting into this role: [[sops/support-triage]] (routes and
 prioritises inbound tickets), [[sops/refund-handler]] (processes and logs
-refunds against the 60-day guarantee, feeding [[sops/contribution-margin]]),
+refunds against the 60-night guarantee, feeding [[sops/contribution-margin]]),
 and [[sops/voice-of-customer]] (the weekly synthesis of objections and
 questions across all tickets, published to [[customers/week-31-2026]] through
 [[customers/week-36-2026]]).

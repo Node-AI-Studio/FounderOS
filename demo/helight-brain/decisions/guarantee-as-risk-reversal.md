@@ -11,7 +11,7 @@ tags: [decision]
 
 ## Context
 
-The 60-day money-back guarantee generates real refund volume, and it would be easy for Finance to treat that volume purely as a cost to minimise, which would pressure Customer Care toward denying borderline requests.
+The 60-night money-back guarantee generates real refund volume, and it would be easy for Finance to treat that volume purely as a cost to minimise, which would pressure Customer Care toward denying borderline requests.
 
 ## Decision
 

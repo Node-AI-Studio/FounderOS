@@ -21,7 +21,7 @@ Live, second week of testing, TikTok only.
 
 ## Illustrative numbers
 
-Average order value $263 (roughly two-pack price point plus a small attach rate); cost per purchase at $58, higher than the account average due to the smaller, newer lane.
+Average order value $281 (two units at $139 list plus a small nightlight attach rate); cost per purchase at $58, higher than the account average due to the smaller, newer lane.
 
 Seeded for the demo: illustrative, not a measured figure.
 

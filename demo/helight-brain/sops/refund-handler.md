@@ -9,7 +9,7 @@ tags: [sop, agent]
 
 ## Purpose
 
-Process refund requests against the 60-day money-back guarantee accurately and promptly, and log every refund for margin tracking.
+Process refund requests against the 60-night money-back guarantee accurately and promptly, and log every refund for margin tracking.
 
 ## Trigger
 
@@ -17,7 +17,7 @@ Triggers when [[sops/support-triage]] routes a confirmed refund request.
 
 ## Steps
 
-1. Confirm the order falls within the 60-day guarantee window.
+1. Confirm the order falls within the 60-night guarantee window.
 2. Confirm the request matches the guarantee's actual terms per [[decisions/guarantee-as-risk-reversal]], not an assumed or looser version.
 3. Process the refund through the order system.
 4. Log the refund with SKU, reason code and order value for [[sops/contribution-margin]].
@@ -30,6 +30,6 @@ Every eligible refund is processed within the guarantee's stated terms and logge
 
 ## Escalation
 
-A request outside the stated 60-day window escalates to [[people/customer-care-lead]] for a judgment call rather than an automatic denial or approval.
+A request outside the stated 60-night window escalates to [[people/customer-care-lead]] for a judgment call rather than an automatic denial or approval.
 
 Reports to [[people/customer-care-lead]]. See also [[decisions/guarantee-as-risk-reversal]].

@@ -103,7 +103,7 @@ export const RETENTION: RosterEntry[] = [
     'Report retention weekly', 'Repeat, flows, refunds, list.',
     ['Pull repeat rate and second-device rate from Shopify',
      'Pull flow and campaign revenue from Klaviyo',
-     'Pull refund rate inside the 60-day window',
+     'Pull refund rate inside the 60-night window',
      'Write five lines for Yannick with the trend per line',
      'File the table and send Monday with the Ads Reporter brief']),
 ];

@@ -10,7 +10,9 @@ tags: [wiki, survey, methodology-caution]
 Helight's own customer survey reports 98% slept better, 96% experienced
 deeper rest, and 86% slept longer. These are the company's stated figures,
 not invented for this brain, but the survey's method (sample size, wording,
-self-selection) has not been published.
+self-selection) has not been published. The figures appear in Helight's own
+Ulta Beauty launch press release (PRWeb, November 2025), which is the citation
+to use when a reviewer asks where the numbers come from.
 
 That distinction matters for how these numbers get used. They belong in
 customer-facing proof as "our own survey found," clearly attributed as

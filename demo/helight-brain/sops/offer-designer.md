@@ -18,7 +18,7 @@ Runs when [[sops/lifecycle-planner]] flags a flow needing a new offer element, o
 ## Steps
 
 1. Confirm current guarantee, warranty and pricing terms with [[people/bookkeeper]] before drafting anything.
-2. Draft the offer structure, leading with the 60-day guarantee as risk reversal per [[decisions/guarantee-as-risk-reversal]].
+2. Draft the offer structure, leading with the 60-night guarantee as risk reversal per [[decisions/guarantee-as-risk-reversal]].
 3. Check the offer against [[decisions/winners-only-localised]] before proposing it for FR or DE markets.
 4. Submit the offer language to [[sops/compliance-auditor]] for a claims check.
 5. Hand cleared offer language to [[sops/lifecycle-planner]] for flow integration.
