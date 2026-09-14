@@ -464,12 +464,16 @@ export function KnowledgeGraph({
   const labelPlan = useMemo(() => {
     const m = new Map<string, LabelTier>();
     if (!focusTree) return m;
-    const byDepth = new Map<number, { id: string; x: number; chars: number }[]>();
+    // a band is one depth at one height: a layout that zigzags a band onto
+    // two heights gives each height its own rows, since only same-height
+    // neighbours can collide
+    const byDepth = new Map<string, { id: string; x: number; chars: number }[]>();
     for (const [id, p] of focusTree.positions) {
       if (p.depth < 2) continue;
       const n = byId.get(id);
       const chars = n ? shortLabel(n).length : 0;
-      (byDepth.get(p.depth) ?? byDepth.set(p.depth, []).get(p.depth)!).push({ id, x: p.x, chars });
+      const key = `${p.depth}:${Math.round(p.y)}`;
+      (byDepth.get(key) ?? byDepth.set(key, []).get(key)!).push({ id, x: p.x, chars });
     }
     for (const entries of byDepth.values()) {
       for (const [id, tier] of planLabelTiers(entries, { charWidth: 5.3, rowHeight: 11, maxRows: 4, minChars: 8 })) m.set(id, tier);
