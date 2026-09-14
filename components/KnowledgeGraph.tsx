@@ -283,7 +283,8 @@ export function KnowledgeGraph({
         workerOfTask.set(e.source, e.target);
         taskOfWorker.set(e.target, e.source);
       }
-      if (e.kind === 'member') teamOfWorker.set(e.source, e.target);
+      // a task-less worker reports to the head node; file them under its team
+      if (e.kind === 'member') teamOfWorker.set(e.source, e.target.replace('head:', 'team:'));
       if (e.kind === 'uses') {
         (toolsOfWorker.get(e.source) ?? toolsOfWorker.set(e.source, []).get(e.source)!).push(e.target);
         (workersOfTool.get(e.target) ?? workersOfTool.set(e.target, []).get(e.target)!).push(e.source);
