@@ -137,11 +137,13 @@ describe('buildKnowledgeGraph — dept → task → worker → tools chain', () 
     expect(workerMembers).toHaveLength(0);
   });
 
-  test('an unassigned worker falls back to a member edge so nothing orphans', () => {
+  test('an unassigned worker reports to the department head so nothing orphans', () => {
+    // a human head of department has no SOP task of their own; they hang
+    // directly off the C-suite agent (2026-09-14), not off the pillar
     const extra = [...agents, agent({ id: 'stray', departmentId: 'dept-tech' })];
     const { edges } = buildKnowledgeGraph(extra, departments, people, tasks);
-    const workerMembers = edges.filter((e) => e.kind === 'member' && !e.target.startsWith('head:'));
-    expect(workerMembers).toEqual([{ source: 'emp:stray', target: 'team:dept-tech', kind: 'member' }]);
+    const workerMembers = edges.filter((e) => e.kind === 'member' && !e.source.startsWith('team:'));
+    expect(workerMembers).toEqual([{ source: 'emp:stray', target: 'head:dept-tech', kind: 'member' }]);
   });
 
   test('uses edges run worker→tool for agents AND humans', () => {

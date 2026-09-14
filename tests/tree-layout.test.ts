@@ -614,3 +614,36 @@ describe('department leadership placement', () => {
     }
   });
 });
+
+describe('treeLayout — the human department head reports to the C-suite agent', () => {
+  const W = 880;
+  const H = 600;
+  const tree = treeLayout({
+    selfId: 'self',
+    teamId: 'team:x',
+    headId: 'head:x',
+    leadId: 'person:lead',
+    taskIds: ['task:a', 'task:b', 'task:c'],
+    workerByTask: { 'task:a': 'emp:1', 'task:b': 'emp:2', 'task:c': 'emp:3' },
+    toolsByWorker: {},
+    width: W,
+    height: H,
+  });
+  test('the lead sits on the trunk directly above the head, below the tasks', () => {
+    const head = tree.positions.get('head:x')!;
+    const lead = tree.positions.get('person:lead')!;
+    const task = tree.positions.get('task:b')!;
+    expect(lead.x).toBe(W / 2);
+    expect(lead.y).toBeLessThan(head.y);
+    expect(lead.y).toBeGreaterThan(task.y);
+    expect(tree.branches).toContainEqual({ source: 'head:x', target: 'person:lead', depth: 1 });
+  });
+  test('task limbs fan from the lead, not from the head', () => {
+    const limbs = tree.branches.filter((b) => b.depth === 2);
+    expect(limbs.map((b) => b.source)).toEqual(['person:lead', 'person:lead', 'person:lead']);
+  });
+  test('the team band stays on the wheel ring regardless of the lead', () => {
+    const plain = treeLayout({ selfId: 'self', teamId: 'team:x', taskIds: [], workerByTask: {}, toolsByWorker: {}, width: W, height: H });
+    expect(tree.positions.get('team:x')!.y).toBe(plain.positions.get('team:x')!.y);
+  });
+});

@@ -25,6 +25,8 @@ export type TreeLayoutInput = {
   teamId: string;
   /** Optional decision maker between the department and its task branches. */
   headId?: string;
+  /** The human head of department: on the trunk above the head, and the task limbs fan from them. */
+  leadId?: string;
   /** the focused team's SOP task nodes, in display order */
   taskIds: string[];
   /** taskId → the single worker (agent or person) who does it — monogamous */
@@ -159,10 +161,12 @@ export function radialRestLayout(input: RestLayoutInput): RestLayoutResult {
 }
 
 export function treeLayout(input: TreeLayoutInput): TreeLayoutResult {
-  const { selfId, teamId, headId, taskIds, workerByTask, toolsByWorker, width: W, height: H } = input;
+  const { selfId, teamId, headId, leadId, taskIds, workerByTask, toolsByWorker, width: W, height: H } = input;
   const margin = input.margin ?? 70;
   const cx = W / 2;
-  const bands = headId ? [0.86, 0.76, 0.42, 0.24, 0.07] : DEPTH_FRAC;
+  // with a lead on the trunk the task band moves up a notch so the fan keeps
+  // its rise; the team band never moves (it sits on the wheel ring)
+  const bands = leadId ? [0.86, 0.76, 0.4, 0.22, 0.07] : headId ? [0.86, 0.76, 0.42, 0.24, 0.07] : DEPTH_FRAC;
   const yOf = (depth: number) => H * bands[depth];
   const clampX = (x: number) => Math.max(margin, Math.min(W - margin, x));
 
@@ -177,11 +181,19 @@ export function treeLayout(input: TreeLayoutInput): TreeLayoutResult {
 
   // task limbs — fan above the department; the cone is capped by the rise so
   // the ≤45° lean always holds against this band's actual height gap.
-  const teamY = headId ? H * 0.66 : yOf(1);
+  const headY = leadId ? H * 0.68 : H * 0.66;
   if (headId) {
-    positions.set(headId, { x: cx, y: teamY, depth: 1.5 });
+    positions.set(headId, { x: cx, y: headY, depth: 1.5 });
     branches.push({ source: teamId, target: headId, depth: 1 });
   }
+  const leadY = H * 0.6;
+  if (leadId) {
+    positions.set(leadId, { x: cx, y: leadY, depth: 1.5 });
+    branches.push({ source: headId ?? teamId, target: leadId, depth: 1 });
+  }
+  // the task limbs fan from the highest trunk node present
+  const fanFrom = leadId ?? headId ?? teamId;
+  const teamY = leadId ? leadY : headId ? headY : yOf(1);
   const taskY = yOf(2);
   const workerY = yOf(3);
   const n = taskIds.length;
@@ -209,7 +221,7 @@ export function treeLayout(input: TreeLayoutInput): TreeLayoutResult {
     taskX.set(id, x);
     taskIndex.set(id, i);
     positions.set(id, { x, y, depth: 2 });
-    branches.push({ source: headId ?? teamId, target: id, depth: 2 });
+    branches.push({ source: fanFrom, target: id, depth: 2 });
   });
 
   // workers — monogamous, so each sits DIRECTLY above its one task: a clean

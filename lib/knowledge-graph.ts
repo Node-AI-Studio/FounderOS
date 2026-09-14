@@ -217,10 +217,12 @@ export function buildKnowledgeGraph(
   // Workers (ring 3): AI agents and the humans in the process.
   for (const w of workerRows) {
     nodes.push({ id: w.nodeId, kind: w.kind, label: w.label, ring: RING[w.kind] });
-    // Workers reach their team through their task; only a worker with no task
-    // (a data gap the seed tests forbid) falls back to a direct member edge.
+    // Workers reach their team through their task. A worker with no task is
+    // the human head of department (or a data gap the seed tests forbid): they
+    // report straight to the C-suite agent, so the focused tree can put them
+    // on the trunk above it (2026-09-14).
     if (!assignedWorkers.has(w.nodeId) && usedDepts.has(w.deptId)) {
-      edges.push({ source: w.nodeId, target: `team:${w.deptId}`, kind: 'member' });
+      edges.push({ source: w.nodeId, target: `head:${w.deptId}`, kind: 'member' });
     }
     for (const slug of w.tools) {
       edges.push({ source: w.nodeId, target: toolNodeId(slug, w.deptId), kind: 'uses' });
