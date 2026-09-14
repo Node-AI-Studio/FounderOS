@@ -3,6 +3,7 @@ import { ArrowUpRight, Clapperboard, ExternalLink, Play, Wrench } from 'lucide-r
 import { getDb } from '@/lib/data';
 import { contentAgents } from '@/lib/content';
 import { zernioRecentPosts, zernioPostDays } from '@/lib/connectors/zernio';
+import { postDaysWithFallback } from '@/lib/social-posting';
 import { PageHeader } from '@/components/PageHeader';
 import { Badge, Dot, SectionHead } from '@/components/terminal';
 import type { Agent } from '@/lib/schemas';
@@ -67,7 +68,7 @@ export default async function ContentPage() {
   const workers = lead ? crew.slice(1) : crew;
 
   const posts = await zernioRecentPosts(8).catch(() => []);
-  const days = await zernioPostDays().catch(() => []);
+  const days = postDaysWithFallback(await zernioPostDays().catch(() => []), db.socialPosts.all());
   const activeDays = days.filter((d) => d.platforms.length > 0).length;
 
   return (

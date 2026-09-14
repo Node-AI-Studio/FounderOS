@@ -13,6 +13,7 @@ import {
 } from '@/lib/social';
 import { syncFromZernioLive } from '@/lib/social-live';
 import { zernioRecentPosts, zernioPostDays } from '@/lib/connectors/zernio';
+import { postDaysWithFallback } from '@/lib/social-posting';
 import { buildEmailList, syncBeehiivEmail } from '@/lib/email-list';
 import { likeToViewRatio, averageLikeToView, formatRatioPct } from '@/lib/engagement';
 import type { SocialPlatform } from '@/lib/schemas';
@@ -108,7 +109,9 @@ export default async function SocialPage() {
   // Late) for the interactive left-column charts. `today` is computed server-side
   // and passed down so the chart's date axis can't drift between server/client.
   const audiencePoints = audienceSeries(db).all.points;
-  const postDays = await zernioPostDays();
+  const livePostDays = await zernioPostDays();
+  const postDays = postDaysWithFallback(livePostDays, posts);
+  const zernioLive = recentLive || livePostDays.length > 0;
   const today = new Date().toISOString().slice(0, 10);
 
   return (
@@ -116,7 +119,7 @@ export default async function SocialPage() {
       <PageHeader
         eyebrow="audience"
         title="Social"
-        right={<Badge tone="ok">● zernio live</Badge>}
+        right={zernioLive ? <Badge tone="ok">● zernio live</Badge> : <Badge>seeded · zernio pending</Badge>}
       />
 
       {/* Every account on the first screen — compact row, one cell per channel.

@@ -7,6 +7,7 @@ import { getBrainOverviewProvider } from '@/lib/brain';
 import { audienceSeries, PLATFORM_COLORS, PLATFORM_LABELS } from '@/lib/social';
 import { syncFromZernioLive } from '@/lib/social-live';
 import { zernioPostDays } from '@/lib/connectors/zernio';
+import { postDaysWithFallback } from '@/lib/social-posting';
 import { postSeriesFromDays } from '@/lib/posting-activity';
 import type { SocialPlatform } from '@/lib/schemas';
 import { cachedCommsFeed } from '@/lib/comms-feed-cache';
@@ -133,7 +134,7 @@ export default async function HomePage() {
     cachedCommsFeed(),
     zernioPostDays(),
     syncFromZernioLive(db),
-  ]).then(([c, o, f, p]) => [c, o, f, p] as const);
+  ]).then(([c, o, f, p]) => [c, o, f, postDaysWithFallback(p, db.socialPosts.all())] as const);
 
   const agents = db.agents.all();
   const departments = new Map(db.departments.all().map((d) => [d.id, d.name]));

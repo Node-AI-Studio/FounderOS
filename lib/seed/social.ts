@@ -141,14 +141,43 @@ export const socialDmSnapshots: SocialDmSnapshot[] = DM_TARGETS.flatMap((t, ti) 
   })),
 );
 
-// One example queued post so the composer's queue isn't empty on first load.
+// Four weeks of Helight's own published cadence for the posting consistency
+// strip: Instagram every day, YouTube three days a week, the 21 Nights series
+// and the evidence explainers alternating. One queued post keeps the composer's
+// queue from reading empty on first load. Zernio's live history replaces all of
+// this the moment the key lands (see lib/social-posting.ts).
+const CAPTIONS = [
+  'Night 1 of 21 with a nurse on rotating shifts. Same lamp, same 28 minutes, wearable on screen.',
+  'Why 630 nm and not any red bulb: the wavelength, the intensity and the fade, in 40 seconds.',
+  'Night 7 of 21: deep sleep is up, no app, no account, nothing to charge but the lamp.',
+  'The 60-night trial exists because we are that confident. What happens if it does not work for you.',
+  'Night 14 of 21 with a frequent flyer. Hotel room, USB-C, same routine.',
+  'Kidzzz bedtime routine, night 3. Lights out means lights out.',
+  'Night 21 of 21: the before and after on one screen. Full series in the playlist.',
+];
+const PUBLISHED_POSTS: SocialPost[] = SERIES_DATES.slice(-28).flatMap((date, i) => {
+  const platforms: SocialPost['platforms'] = i % 7 === 1 || i % 7 === 4 || i % 7 === 6 ? ['instagram', 'youtube'] : ['instagram'];
+  return [
+    {
+      id: `post-seed-${date}`,
+      caption: CAPTIONS[i % CAPTIONS.length],
+      mediaUrl: null,
+      platforms,
+      status: 'published' as const,
+      scheduledFor: `${date}T18:00:00Z`,
+      createdAt: `${date}T09:00:00Z`,
+    },
+  ];
+});
+
 export const socialPosts: SocialPost[] = [
+  ...PUBLISHED_POSTS,
   {
-    id: 'post-seed-1',
+    id: 'post-seed-queued-1',
     caption:
       'Night 7 of 21 with a nurse on rotating shifts. Deep sleep on screen, no app, no account. Full series this month.',
     mediaUrl: null,
-    platforms: ['tiktok', 'instagram'],
+    platforms: ['instagram'],
     status: 'queued',
     scheduledFor: null,
     createdAt: `${SERIES_END}T18:00:00Z`,
