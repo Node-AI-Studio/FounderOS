@@ -667,16 +667,18 @@ export function KnowledgeGraph({
     // otherwise ticks for 6s+ while every tick re-renders the whole graph
     // (measured: the Escape-home glide sat at 116k DOM mutations per 3s).
     // Any later alpha().restart() wakes it again.
-    const settled = createSettleDetector({ maxSpeed: 0.04, maxAlpha: 0.12, quietTicks: 8 });
+    const settled = createSettleDetector({ maxSpeed: 0.1, maxAlpha: 0.12, quietTicks: 6, minAlpha: 0.02 });
     const onTick = () => {
       renderTick();
       if (settled(nodes, sim.alpha())) sim.stop();
     };
     const sim = forceSimulation(nodes)
       // extra friction + a slow cool-down → nodes drift floatily into place
-      // instead of snapping or overshooting
+      // instead of snapping or overshooting. 0.03 (was 0.015) halves the
+      // cool-down: a home glide restarted at 0.35 was ticking ~7s, visibly
+      // done after ~1.5s, and every tick re-renders the wheel.
       .velocityDecay(0.62)
-      .alphaDecay(0.015)
+      .alphaDecay(0.03)
       .force('link', forceLink<SimNode, SimLink>(links).id((d) => d.id))
       .force('charge', forceManyBody())
       .force('radial', forceRadial<SimNode>((d) => RING_R[d.ring], CX, CY))

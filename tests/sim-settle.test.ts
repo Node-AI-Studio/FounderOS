@@ -21,6 +21,12 @@ describe('createSettleDetector', () => {
     expect(settled(still, 0.1)).toBe(true);
   });
 
+  test('a cold sim is settled even while nodes still creep', () => {
+    const settled = createSettleDetector({ maxSpeed: 0.05, maxAlpha: 0.12, quietTicks: 8, minAlpha: 0.02 });
+    expect(settled(moving, 0.05)).toBe(false);
+    expect(settled(moving, 0.019)).toBe(true);
+  });
+
   test('nodes without velocities count as quiet', () => {
     const settled = createSettleDetector({ maxSpeed: 0.05, maxAlpha: 0.12, quietTicks: 1 });
     expect(settled([{}, { vx: undefined, vy: undefined }], 0.05)).toBe(true);

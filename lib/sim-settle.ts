@@ -7,9 +7,11 @@
  */
 export type Velocity = { vx?: number | null; vy?: number | null };
 
-export function createSettleDetector(opts: { maxSpeed: number; maxAlpha: number; quietTicks: number }) {
+export function createSettleDetector(opts: { maxSpeed: number; maxAlpha: number; quietTicks: number; minAlpha?: number }) {
   let quiet = 0;
   return (nodes: readonly Velocity[], alpha: number): boolean => {
+    // cold enough that the remaining drift is sub-pixel regardless of speed
+    if (opts.minAlpha !== undefined && alpha < opts.minAlpha) return true;
     if (alpha > opts.maxAlpha) {
       quiet = 0;
       return false;
