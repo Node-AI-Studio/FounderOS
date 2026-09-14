@@ -8,6 +8,7 @@ import { buildKnowledgeGraph } from '@/lib/knowledge-graph';
 import { distillMemoryGraph, type MemoryGraph } from '@/lib/memory-core';
 import { foldersToClusters } from '@/lib/brain-viz';
 import { getDb } from '@/lib/data';
+import { createSwrCache } from '@/lib/swr-cache';
 import { PageHeader } from '@/components/PageHeader';
 import { BrainCore } from '@/components/BrainCore';
 import { PillarRadar } from '@/components/PillarRadar';
@@ -142,10 +143,16 @@ function memoryConstellation(): MemoryGraph | undefined {
   return value;
 }
 
+// `gbrain doctor` costs ~0.3s and `gbrain stats` ~0.3s once scoped, but the
+// page is force-dynamic and both shell out, so neither should sit on the
+// render path. Stale-while-revalidate: the first render after boot pays once,
+// every later render reads the cache and refreshes it in the background.
+const provider = createGBrainProvider();
+const overviewCache = createSwrCache(() => provider.overview(), { ttlMs: 60_000 });
+const statsCache = createSwrCache(() => provider.stats().catch(() => null), { ttlMs: 10 * 60_000 });
+
 export default async function BrainPage() {
-  const provider = createGBrainProvider();
-  const overview = await provider.overview();
-  const stats = await provider.stats().catch(() => null);
+  const [overview, stats] = await Promise.all([overviewCache.get(), statsCache.get()]);
   const { store, doctor } = overview;
   const db = getDb();
   const knowledgeGraph = buildKnowledgeGraph(db.agents.all(), db.departments.all(), db.people.all(), db.sopTasks.all());

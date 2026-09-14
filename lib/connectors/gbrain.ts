@@ -65,9 +65,17 @@ function walkMarkdown(dir: string, files: string[] = []): string[] {
   return files;
 }
 
-function localSearch(storePath: string, query: string, limit = 5): BrainSearchResult[] {
-  const needle = query.toLowerCase();
-  const results: BrainSearchResult[] = [];
+/**
+ * Ranked search over the local brain clone. The store is the same 113-odd
+ * pages the database holds, so this answers a `gbrain ›` prompt in a few
+ * milliseconds where the CLI's vector arm takes 10s+ from this machine.
+ * Score: any term qualifies a page; slug and title hits outweigh body hits,
+ * covering every term earns a bonus, and more mentions rank higher.
+ */
+function localSearch(storePath: string, query: string, limit = 8): BrainSearchResult[] {
+  const terms = Array.from(new Set(query.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((t) => t.length > 1)));
+  if (terms.length === 0) return [];
+  const scored: { score: number; result: BrainSearchResult }[] = [];
   for (const file of walkMarkdown(storePath)) {
     let content: string;
     try {
@@ -75,17 +83,41 @@ function localSearch(storePath: string, query: string, limit = 5): BrainSearchRe
     } catch {
       continue;
     }
-    const line = content.split('\n').find((l) => l.toLowerCase().includes(needle));
-    if (line) {
-      results.push({
-        title: path.relative(storePath, file).replace(/\.md$/, ''),
-        snippet: line.trim().slice(0, 240),
-        source: 'brain-store',
-      });
-      if (results.length >= limit) break;
+    const slug = path.relative(storePath, file).replace(/\.md$/, '').split(path.sep).join('/');
+    const lines = content.split('\n');
+    const title = (lines.find((l) => l.startsWith('# ')) ?? '').slice(2).toLowerCase();
+    const body = content.toLowerCase();
+    const slugText = slug.toLowerCase().replace(/[-_/]/g, ' ');
+    let score = 0;
+    let covered = 0;
+    let bestLine: { hits: number; text: string } | null = null;
+    for (const term of terms) {
+      const bodyHits = body.split(term).length - 1;
+      if (bodyHits === 0 && !slugText.includes(term)) continue;
+      covered += 1;
+      if (slugText.includes(term)) score += 20;
+      if (title.includes(term)) score += 10;
+      score += Math.min(bodyHits, 5);
     }
+    if (covered === 0) continue;
+    if (covered === terms.length) score += 15;
+    // skip YAML frontmatter so snippets come from prose, not `title:` keys
+    const bodyStart = lines[0] === '---' ? lines.indexOf('---', 1) + 1 : 0;
+    for (const line of lines.slice(bodyStart)) {
+      const lower = line.toLowerCase();
+      if (lower.startsWith('# ') || !line.trim()) continue;
+      const hits = terms.filter((t) => lower.includes(t)).length;
+      if (hits > 0 && (!bestLine || hits > bestLine.hits)) bestLine = { hits, text: line.trim() };
+    }
+    scored.push({
+      score,
+      result: { title: slug, snippet: (bestLine?.text ?? title).slice(0, 240), source: 'brain-store' },
+    });
   }
-  return results;
+  return scored
+    .sort((a, b) => b.score - a.score || a.result.title.localeCompare(b.result.title))
+    .slice(0, limit)
+    .map((s) => s.result);
 }
 
 /** Read every markdown page in the store as { path (posix-relative), content }. */
@@ -167,9 +199,20 @@ function storeFolders(storePath: string): { name: string; files: number }[] {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export function createGBrainProvider(opts: { exec?: ExecFn; storePath?: string } = {}): GBrainProvider {
+export type GBrainProviderOptions = {
+  exec?: ExecFn;
+  storePath?: string;
+  /** Route `search()` through the CLI's vector arm (10s+ from this machine). Default: local ranked search. */
+  vectorSearch?: boolean;
+  /** gbrain source to pin reads to; an unscoped `stats` resolves the federated view and costs ~4s. */
+  sourceId?: string;
+};
+
+export function createGBrainProvider(opts: GBrainProviderOptions = {}): GBrainProvider {
   const exec = opts.exec ?? defaultExec;
   const storePath = opts.storePath ?? DEFAULT_STORE;
+  const vectorSearch = opts.vectorSearch ?? process.env.GBRAIN_VECTOR_SEARCH === '1';
+  const sourceId = opts.sourceId ?? process.env.GBRAIN_SOURCE_ID ?? 'brain';
 
   return {
     name: 'gbrain',
@@ -198,6 +241,7 @@ export function createGBrainProvider(opts: { exec?: ExecFn; storePath?: string }
     },
 
     async search(query: string): Promise<BrainSearchResult[]> {
+      if (!vectorSearch) return localSearch(storePath, query);
       const result = await exec(GBRAIN_BIN, ['query', query, '--no-expand']);
       if (result.code === 0 && result.stdout.trim() && !/cannot connect/i.test(result.stdout)) {
         return result.stdout
@@ -264,7 +308,7 @@ export function createGBrainProvider(opts: { exec?: ExecFn; storePath?: string }
     },
 
     async stats(): Promise<GBrainStats | null> {
-      const result = await exec(GBRAIN_BIN, ['stats']);
+      const result = await exec(GBRAIN_BIN, ['stats', '--source-id', sourceId]);
       if (result.code === 0 && /Pages:/i.test(result.stdout)) {
         return parseGbrainStats(result.stdout);
       }

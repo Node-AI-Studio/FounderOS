@@ -29,6 +29,11 @@ for i in $(seq 1 30); do
   code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4100/ || true)
   if [ "$code" = "307" ]; then
     echo "up: http://127.0.0.1:4100 (redirects to /unlock)"
+    # Warm the G-Brain page so its per-process caches (gbrain doctor + stats,
+    # memory constellation) are filled before the first real visit.
+    unlock=$(grep '^FOUNDER_OS_ACCESS_TOKEN' .env.local | cut -d= -f2- | tr -d '"')
+    curl -s -o /dev/null -H "Authorization: Bearer $unlock" http://127.0.0.1:4100/brain || true
+    echo "warmed: /brain"
     exit 0
   fi
   sleep 1

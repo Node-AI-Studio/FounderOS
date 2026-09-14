@@ -214,3 +214,82 @@ describe('GBrain capture()', () => {
     expect(called).toBe(false);
   });
 });
+
+describe('GBrain search() is local-first', () => {
+  function rankedStore(): string {
+    const dir = makeStore();
+    mkdirSync(path.join(dir, 'companies'));
+    writeFileSync(
+      path.join(dir, 'companies', 'ab6.md'),
+      '# AB6 Holdings\nUnderground hip-hop collective. Retainer renews end of September.\n',
+    );
+    writeFileSync(
+      path.join(dir, 'companies', 'yoreh.md'),
+      '# Yoreh\nEcommerce jewellery brand. Mentioned AB6 once in passing.\n',
+    );
+    return dir;
+  }
+
+  test('does not shell out by default and answers from the store', async () => {
+    let calls = 0;
+    const exec: ExecFn = async () => {
+      calls += 1;
+      return { stdout: '', stderr: '', code: 0 };
+    };
+    const brain = createGBrainProvider({ exec, storePath: rankedStore() });
+    const results = await brain.search('AB6 retainer');
+    expect(calls).toBe(0);
+    expect(results[0].source).toBe('brain-store');
+  });
+
+  test('ranks slug and title matches above body mentions and covers every term', async () => {
+    const brain = createGBrainProvider({ exec: downExec, storePath: rankedStore() });
+    const results = await brain.search('AB6 retainer');
+    expect(results.map((r) => r.title)).toEqual(['companies/ab6', 'companies/yoreh']);
+    expect(results[0].snippet.toLowerCase()).toContain('retainer');
+  });
+
+  test('returns nothing for a query no page mentions', async () => {
+    const brain = createGBrainProvider({ exec: downExec, storePath: rankedStore() });
+    expect(await brain.search('zzqx')).toEqual([]);
+  });
+
+  test('vectorSearch: true shells `gbrain query --no-expand` and falls back locally on failure', async () => {
+    const seen: string[][] = [];
+    const exec: ExecFn = async (_cmd, args) => {
+      seen.push(args);
+      return { stdout: 'companies/ab6 -- AB6 Holdings\n', stderr: '', code: 0 };
+    };
+    const brain = createGBrainProvider({ exec, storePath: rankedStore(), vectorSearch: true });
+    const results = await brain.search('AB6');
+    expect(seen).toEqual([['query', 'AB6', '--no-expand']]);
+    expect(results[0].source).toBe('gbrain');
+
+    const down = createGBrainProvider({ exec: downExec, storePath: rankedStore(), vectorSearch: true });
+    expect((await down.search('AB6'))[0].source).toBe('brain-store');
+  });
+});
+
+describe('GBrain stats() scope', () => {
+  test('pins the source so the CLI skips the federated resolve', async () => {
+    const seen: string[][] = [];
+    const exec: ExecFn = async (_cmd, args) => {
+      seen.push(args);
+      return { stdout: STATS_OUTPUT, stderr: '', code: 0 };
+    };
+    const brain = createGBrainProvider({ exec, storePath: makeStore() });
+    await brain.stats();
+    expect(seen).toEqual([['stats', '--source-id', 'brain']]);
+  });
+
+  test('honours an explicit sourceId', async () => {
+    const seen: string[][] = [];
+    const exec: ExecFn = async (_cmd, args) => {
+      seen.push(args);
+      return { stdout: STATS_OUTPUT, stderr: '', code: 0 };
+    };
+    const brain = createGBrainProvider({ exec, storePath: makeStore(), sourceId: 'other' });
+    await brain.stats();
+    expect(seen[0]).toEqual(['stats', '--source-id', 'other']);
+  });
+});
