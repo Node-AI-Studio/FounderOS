@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import { NAV_OPERATE, NAV_AGENTS, NAV_INTELLIGENCE, NAV_SYSTEM, NAV_LIBRARY, type NavItem } from '@/lib/nav';
 
 function NavGroup({ title, items, pathname }: { title: string; items: NavItem[]; pathname: string }) {
+  if (items.length === 0) return null;
   return (
     <>
       <div className="px-2.5 pb-1.5 pt-3.5 font-mono text-[9px] uppercase tracking-[0.18em] text-os-dim">

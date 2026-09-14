@@ -20,7 +20,6 @@ import {
   Plug,
   BarChart3,
   LayoutGrid,
-  Layers,
 } from 'lucide-react';
 
 export type NavItem = { href: string; label: string; icon: typeof Home };
@@ -54,7 +53,10 @@ export const NAV_SYSTEM: NavItem[] = [
 ];
 
 // At the very bottom: persona templates that can run variants of this platform.
-export const NAV_LIBRARY: NavItem[] = [{ href: '/personas', label: 'Personas', icon: Layers }];
+// Empty on the Helight board: the persona templates are Founder OS product
+// variants (agency, creator, ...) and mean nothing to a single operator. The
+// route still answers; it is just not offered in the sidebar.
+export const NAV_LIBRARY: NavItem[] = [];
 
 /** Visible top-to-bottom order across all groups. */
 export const NAV_ORDER: string[] = [
