@@ -1,5 +1,5 @@
 import { z } from 'zod';
-
+export { HealthSchema } from './health-schema';
 export const AgentStatusSchema = z.enum(['active', 'idle', 'training', 'planned']);
 export const AgentTierSchema = z.enum(['lead', 'specialist', 'worker']);
 export const ToolStatusSchema = z.enum(['connected', 'available', 'planned']);
