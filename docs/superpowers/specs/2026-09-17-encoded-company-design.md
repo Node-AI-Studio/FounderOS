@@ -81,7 +81,7 @@ type.
 
 | Verb | From | To | Inverse |
 |---|---|---|---|
-| `part_of` | agent, job | department | `includes` |
+| `part_of` | agent, job, department | department, company | `includes` |
 | `reports_to` | agent | agent, person | `manages` |
 | `performs` | agent | job | `performed_by` |
 | `follows` | job | sop | `followed_by` |
@@ -106,32 +106,44 @@ Inserted before step 5 (SOPs):
 
 ## 3. Page shapes
 
-Frontmatter fields listed are required. Bodies follow the brain's page shape:
-compiled truth, a rule, then a dated timeline.
+Templates for every shape are drafted in `encoded-company-kit/templates/`.
+Bodies follow the brain's page shape: compiled truth, a rule, then a dated
+timeline. Relationships are written as `verb:: [[path]]` lines under the title,
+as existing brain pages do; the pack declares no frontmatter links. Each
+relationship is written once, on the page it starts from (an agent page carries
+`performs::`, the job page does not repeat it).
 
-**Rule** (`rules/<slug>.md`): `type: rule`, `scope` (company or a department
-slug), `enforced_by` (the mechanism that makes it hold, or `none`). A rule with
+**Company** (`companies/<tenant>.md`): frontmatter `type: company`,
+`status: self`. Sections: offer, customers, revenue, how work flows (every step
+from first contact to renewal, with who does it, tool and SOP or "absent"),
+who decides what, people, systems of record, rules, health numbers, open
+questions. Departments are listed only after stage 3.
+
+**Rule** (`rules/<slug>.md`): frontmatter `type: rule`, `scope` (company or a
+department slug), `enforced_by` (the mechanism, or `none`). A rule with
 `enforced_by: none` is advisory, and the page says so.
 
-**Department** (`departments/<slug>.md`): `type: department`, `led_by`. Body:
-what the department is responsible for, the time inventory (section 5), its
-agents, its jobs, its SOPs, its metrics, open questions.
+**Department** (`departments/<slug>.md`): frontmatter `type: department`.
+Lines: `led_by::`, `part_of::` the company. Body: the flow steps it owns, time
+inventory (section 5), agents, jobs, procedures, rules, metrics, blocking
+decisions.
 
-**Agent** (`agents/<slug>.md`): `type: agent`, `part_of`, `reports_to`,
-`performs`, `autonomy` (one of `read`, `draft`, `act`), `tools` (each connector
-and the scope it gets), `runtime` (for Node AI: `paperclip`). Body: role in one
-paragraph, what it may never do.
+**Agent** (`agents/<slug>.md`): frontmatter `type: agent`, `autonomy` (one of
+`read`, `draft`, `act`), `runtime` (for Node AI: `paperclip`). Lines:
+`part_of::`, `reports_to::`, `performs::`. Body: role, tools with the exact
+scope each gets, what it must never do, runtime id and budget.
 
-**Job** (`jobs/<slug>.md`): `type: job`, `part_of`, `follows` (when an SOP
-exists), `trigger` (schedule or event), `autonomy`, `approved_by`,
-`metric_leading`, `metric_lagging`, `golden_set` (path to the eval file or
-`none yet`). Body: decision rules, output format, destination, what escalates
-to a human and how.
+**Job** (`jobs/<slug>.md`): frontmatter `type: job`, `trigger` (schedule or
+event), `autonomy`, `metric_leading`, `metric_lagging`, `golden_set` (path to
+the eval file or `none yet`). Lines: `part_of::`, `approved_by::`, `follows::`
+(when an SOP exists). Body: origin, inputs, decision rules, output, approval,
+escalation, what done well means.
 
-**Output** (`outputs/<department>/YYYY-MM-DD-<job-slug>.md`): `type: output`,
-`produced_by`, `run_id` (the Paperclip run), `status` (`final`, or
-`pending_approval` with the approval id). Never edited after it is written; a
-correction is a new output that links the earlier one with `supersedes`.
+**Output** (`outputs/<department>/YYYY-MM-DD-<job-slug>.md`): frontmatter
+`type: output`, `run_id` (the Paperclip run), `status` (`final`, or
+`pending_approval` with `approval_id`). Line: `produced_by::`. Never edited
+after it is written; a correction is a new output that links the earlier one
+with `supersedes::`.
 
 Golden sets live next to the brain's pages as `evals/<job-slug>.jsonl`, one
 real past case per line with the accepted answer. They are not pages and gbrain
