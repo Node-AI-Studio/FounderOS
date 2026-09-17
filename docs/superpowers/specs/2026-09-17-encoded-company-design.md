@@ -17,7 +17,7 @@ it is sold.
 | 2026-09-17 | The encoded company lives in the Node AI brain (`~/code/node-ai/brain`), not in this repo and not in a new content repo. |
 | 2026-09-17 | Agent outputs are dated markdown files in the brain. The FounderOS interface is expected to be rebuilt, so nothing depends on its database. Roadmap task 3.0 (Supabase under the repo layer) is deferred. |
 | 2026-09-17 | The workforce runs on Paperclip on the Hetzner box. Definitions stay harness-neutral so the runtime can change. |
-| 2026-09-17 | Sales is the first department. Other departments are added only when the founders name them. |
+| 2026-09-17 | Order of work: template structure, then the company reverse-engineered, then departments. Departments are named by the founders from the company model, not inferred from SOP names. Sales is the leading candidate for the first department. |
 | 2026-09-17 | Jobs are chosen from an audit of founder time, not from a generic use-case list. |
 | 2026-09-17 | The structure is split into a replicable kit and per-tenant content. |
 
@@ -171,7 +171,7 @@ Initial `rules/` pages for Node AI, each already a standing rule elsewhere:
 
 ## 5. The time audit
 
-Run per department before any job is chosen. For Sales:
+Run per department, in stage 3, before any job is chosen. For Sales:
 
 1. An agent pre-fills an inventory from the Sales SOPs, `OPEN-ITEMS.md`, recent
    `meetings/`, and Attio: every recurring task, every decision that lands on a
@@ -238,19 +238,40 @@ After Sales produces useful output for two consecutive weeks:
 
 ## 9. Rollout
 
+Three stages, in order. A stage starts only when the one before it is right.
+
+**Stage 1: template structure (the kit).**
+
 1. This spec is reviewed and approved by both founders.
-2. Kit repository created with the pack, templates and method. The kit pack
-   installed on both machines; `gbrain schema active` shows the same sha8 on
-   both before any page of a new type is written.
-3. `node-brain` borrows the kit types. `gbrain schema sync --apply` retypes
-   `rules/brain-first.md`. `RESOLVER.md` updated. Brain `main` protected and the
-   output-merge Action added.
-4. `companies/node-ai.md`, the five `rules/` pages, and `departments/sales.md`
-   with an empty inventory written and committed.
-5. Time audit for Sales (section 5).
-6. First one or two jobs defined, their agents rendered to Paperclip, run on a
-   schedule, outputs reviewed daily for two weeks.
-7. Correction loop switched on; replicability test run.
+2. Kit repository created with the pack and the templates for every page type
+   in section 3, including the company page. Each template states what goes in
+   every field and shows one filled example.
+3. The kit pack installed on both machines; `gbrain schema active` shows the
+   same sha8 on both before any page of a new type is written. `node-brain`
+   borrows the kit types, `gbrain schema sync --apply` retypes
+   `rules/brain-first.md`, `RESOLVER.md` is updated, and brain `main` is
+   protected with the output-merge Action added.
+
+**Stage 2: reverse-engineer the company.**
+
+4. `companies/node-ai.md` filled from what the brain already holds and
+   corrected by both founders: what Node AI sells, to whom, how revenue comes
+   in, how work flows from first contact to delivery to renewal, who decides
+   what, and which tools carry each step.
+5. The `rules/` pages written from the standing rules in section 4 plus any the
+   company model surfaces.
+6. Done when both founders agree the page describes how Node AI actually runs
+   today, and every existing SOP, product and client page links to a step of
+   that flow. Steps with no SOP are recorded as absent, not filled in.
+
+**Stage 3: departments.**
+
+7. Departments named by the founders from the flow in step 4, one
+   `departments/` page each, with `led_by`.
+8. For the first department chosen: time audit (section 5), first one or two
+   jobs defined, their agents rendered to Paperclip, run on a schedule, outputs
+   reviewed daily for two weeks.
+9. Correction loop switched on; replicability test run; next department.
 
 ## Out of scope
 
